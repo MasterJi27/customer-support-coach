@@ -2,44 +2,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap');
 
 :root {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: dark;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background: radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.18) 0%, transparent 40%),
-              radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.14) 0%, transparent 40%),
-              radial-gradient(circle at 50% 15%, rgba(16, 185, 129, 0.1) 0%, transparent 45%),
-              linear-gradient(135deg, #030712 0%, #0b0f19 50%, #080c14 100%);
-  background-attachment: fixed;
-  color: #f8fafc;
+  background: #09090b;
+  color: #f4f4f5;
   min-height: 100vh;
 }
 
-/* Custom Scrollbar */
+/* Custom Minimalist Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: #09090b;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.5);
+  background: #27272a;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.8);
-}
-
-@keyframes glowPulse {
-  0% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.4); }
-  50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.8), 0 0 30px rgba(236, 72, 153, 0.4); }
-  100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.4); }
-}
-
-.animate-glow {
-  animation: glowPulse 3s infinite ease-in-out;
+  background: #3f3f46;
 }

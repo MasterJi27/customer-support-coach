@@ -57,37 +57,37 @@ export default function HomeSetup({ onStartSession, onNavigate }) {
   const currentSc = scenarios.find(s => s.id === selectedScenario) || scenarios[0];
 
   const quickModes = [
-    { icon: Target, title: 'Simulator', desc: 'AI customer persona simulator', mode: 'simulator', color: 'from-indigo-600 to-purple-600' },
-    { icon: Swords, title: 'Survival Arcade', desc: '4-ticket high stakes HP mode', mode: 'survival', color: 'from-red-600 to-amber-600' },
-    { icon: Keyboard, title: 'Manual Input', desc: 'Paste real customer text', mode: 'manual', color: 'from-blue-600 to-cyan-600' },
-    { icon: RotateCcw, title: 'Replay Mode', desc: 'Step through transcripts', mode: 'replay', color: 'from-emerald-600 to-teal-600' },
-    { icon: BarChart3, title: 'Analytics', desc: 'Performance & Hall of Fame', mode: 'analytics', color: 'from-purple-600 to-pink-600' }
+    { icon: Target, title: 'Simulator', desc: 'AI customer persona simulator', mode: 'simulator' },
+    { icon: Swords, title: 'Survival Arcade', desc: '4-ticket high stakes HP mode', mode: 'survival' },
+    { icon: Keyboard, title: 'Manual Input', desc: 'Paste real customer text', mode: 'manual' },
+    { icon: RotateCcw, title: 'Replay Mode', desc: 'Step through transcripts', mode: 'replay' },
+    { icon: BarChart3, title: 'Analytics', desc: 'Performance & Hall of Fame', mode: 'analytics' }
   ];
 
   return (
     <div className="space-y-6">
       {/* Hero Welcome Banner */}
-      <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-slate-950/90 p-6 backdrop-blur-xl shadow-2xl">
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="rounded-full bg-indigo-500/20 px-3 py-0.5 text-xs font-bold text-indigo-300 border border-indigo-500/40">
-                ENTERPRISE v2.0
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="rounded-md bg-zinc-800 px-2.5 py-0.5 text-xs font-semibold text-zinc-300 border border-zinc-700">
+                ENTERPRISE V2.0
               </span>
               <span className="text-xs font-semibold text-emerald-400">🟢 AI Engine Ready</span>
             </div>
-            <h2 className="font-['Outfit'] text-2xl font-extrabold text-white">
+            <h2 className="font-['Outfit'] text-2xl font-bold text-white">
               AI Customer Support Coach & Simulator
             </h2>
-            <p className="text-xs text-slate-300 max-w-2xl mt-1">
+            <p className="text-xs text-zinc-400 max-w-2xl mt-1">
               Select a customer issue, dynamic food order persona, and emotion level to launch a real-time AI coaching session.
             </p>
           </div>
           <button
             onClick={() => onStartSession(currentSc, emotion, agentName)}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 font-['Outfit'] font-bold text-sm text-white hover:from-indigo-500 hover:to-purple-500 transition-all shadow-xl shadow-indigo-600/30 animate-glow"
+            className="flex items-center gap-2 rounded-lg bg-zinc-100 px-5 py-2.5 font-['Outfit'] font-bold text-xs text-zinc-900 hover:bg-white transition-all shadow-md"
           >
-            <Play className="h-4 w-4 fill-white" />
+            <Play className="h-4 w-4 fill-zinc-900 text-zinc-900" />
             Launch Live Session
           </button>
         </div>
@@ -95,8 +95,8 @@ export default function HomeSetup({ onStartSession, onNavigate }) {
 
       {/* Quick Launch Cards Bento Grid */}
       <div>
-        <h3 className="font-['Outfit'] font-bold text-sm text-slate-300 mb-3 flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-indigo-400" />
+        <h3 className="font-['Outfit'] font-bold text-sm text-zinc-300 mb-3 flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-zinc-400" />
           <span>Quick Launch Modes</span>
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
@@ -110,13 +110,13 @@ export default function HomeSetup({ onStartSession, onNavigate }) {
                   else if (item.mode === 'analytics') onNavigate('analytics');
                   else onStartSession(currentSc, emotion, agentName);
                 }}
-                className="flex flex-col items-start rounded-2xl border border-slate-800 bg-slate-900/60 p-4 text-left backdrop-blur-md hover:border-indigo-500/50 hover:bg-slate-900/90 transition-all group"
+                className="flex flex-col items-start rounded-xl border border-zinc-800 bg-zinc-900/80 p-4 text-left hover:border-zinc-700 hover:bg-zinc-800/80 transition-all group"
               >
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${item.color} text-white mb-3 shadow-md group-hover:scale-105 transition-transform`}>
-                  <Icon className="h-5 w-5" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800 text-zinc-200 mb-3 border border-zinc-700 group-hover:bg-zinc-700">
+                  <Icon className="h-4 w-4" />
                 </div>
                 <div className="font-['Outfit'] font-bold text-sm text-white">{item.title}</div>
-                <div className="text-[11px] text-slate-400 mt-1">{item.desc}</div>
+                <div className="text-[11px] text-zinc-400 mt-1">{item.desc}</div>
               </button>
             );
           })}
@@ -126,18 +126,18 @@ export default function HomeSetup({ onStartSession, onNavigate }) {
       {/* Scenario & Config Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column: Dynamic Scenario Picker */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md space-y-4">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 space-y-4">
           <div className="flex items-center gap-2 font-['Outfit'] font-bold text-sm text-white">
-            <ShoppingBag className="h-4 w-4 text-red-400" />
+            <ShoppingBag className="h-4 w-4 text-zinc-400" />
             <span>Select Customer Issue & Order Scenario</span>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-400">Customer Order Scenario:</label>
+            <label className="text-xs font-semibold text-zinc-400">Customer Order Scenario:</label>
             <select
               value={selectedScenario}
               onChange={(e) => setSelectedScenario(e.target.value)}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 p-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 p-2.5 text-xs text-white focus:border-zinc-500 focus:outline-none"
             >
               {scenarios.map((sc) => (
                 <option key={sc.id} value={sc.id}>{sc.title}</option>
@@ -146,39 +146,39 @@ export default function HomeSetup({ onStartSession, onNavigate }) {
           </div>
 
           {/* Selected Order Summary Preview Card */}
-          <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3.5 space-y-2 text-xs">
-            <div className="font-bold text-indigo-300">📦 Order Preview: {currentSc.restaurant}</div>
-            <div className="text-slate-300"><b>Items:</b> {currentSc.items}</div>
-            <div className="flex justify-between text-slate-400 pt-1 border-t border-slate-800">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3.5 space-y-2 text-xs">
+            <div className="font-bold text-zinc-200">📦 Order Preview: {currentSc.restaurant}</div>
+            <div className="text-zinc-300"><b>Items:</b> {currentSc.items}</div>
+            <div className="flex justify-between text-zinc-400 pt-1 border-t border-zinc-800">
               <span>Amount: <b className="text-white">{currentSc.amount}</b> ({currentSc.payment})</span>
-              <span>ID: <code>{currentSc.orderId}</code></span>
+              <span>ID: <code className="text-zinc-300">{currentSc.orderId}</code></span>
             </div>
           </div>
         </div>
 
         {/* Right Column: Agent & Model Tier Config */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md space-y-4">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 space-y-4">
           <div className="flex items-center gap-2 font-['Outfit'] font-bold text-sm text-white">
-            <Settings className="h-4 w-4 text-indigo-400" />
+            <Settings className="h-4 w-4 text-zinc-400" />
             <span>Session & AI Model Parameters</span>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-400">Your Support Agent Name:</label>
+            <label className="text-xs font-semibold text-zinc-400">Your Support Agent Name:</label>
             <input
               type="text"
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 p-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 p-2.5 text-xs text-white focus:border-zinc-500 focus:outline-none"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-400">Starting Customer Emotion:</label>
+            <label className="text-xs font-semibold text-zinc-400">Starting Customer Emotion:</label>
             <select
               value={emotion}
               onChange={(e) => setEmotion(e.target.value)}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 p-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 p-2.5 text-xs text-white focus:border-zinc-500 focus:outline-none"
             >
               <option value="angry">😡 Angry (Critical Escalation)</option>
               <option value="frustrated">😤 Frustrated (Delayed Order)</option>
@@ -188,11 +188,11 @@ export default function HomeSetup({ onStartSession, onNavigate }) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-400">LLM Model Gateway Tier:</label>
+            <label className="text-xs font-semibold text-zinc-400">LLM Model Gateway Tier:</label>
             <select
               value={modelTier}
               onChange={(e) => setModelTier(e.target.value)}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 p-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 p-2.5 text-xs text-white focus:border-zinc-500 focus:outline-none"
             >
               <option value="Groq Llama 3.3 70B">⚡ Groq Llama 3.3 70B Versatile (Fastest)</option>
               <option value="Groq Llama 3.1 8B">🚀 Groq Llama 3.1 8B Instant</option>
