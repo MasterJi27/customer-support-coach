@@ -252,17 +252,32 @@ def reset_session():
 
 def render_sidebar():
     with st.sidebar:
-        # Header Row: Logo
-        st.title("✨ CoachAI")
-
-        st.divider()
+        # Executive Sidebar Header Card
+        st.markdown(
+            """
+            <div style="
+                background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.2) 100%);
+                border: 1px solid rgba(165, 180, 252, 0.3);
+                border-radius: 14px;
+                padding: 14px 16px;
+                margin-bottom: 16px;
+                text-align: center;
+                backdrop-filter: blur(12px);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            ">
+                <div style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.45rem; color:white; letter-spacing: -0.01em;">⚡ CoachAI</div>
+                <div style="font-size:0.75rem; color:#c7d2fe; font-weight:600; margin-top:2px; letter-spacing:0.05em; text-transform:uppercase;">Enterprise Support Engine</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         # Humor Status Card (styled cleanly)
         humor_on = st.session_state.get("humor_mode", False)
         if humor_on:
-            st.error("🔥 **Humor ON**\n\nRoasts & roasty tips")
+            st.markdown("<div style='background:rgba(239, 68, 68, 0.2); border:1px solid rgba(239, 68, 68, 0.4); color:#fca5a5; padding:8px 12px; border-radius:8px; font-size:0.8rem; font-weight:600; margin-bottom:12px;'>🔥 <b>Humor Mode ON</b> — Roasts enabled</div>", unsafe_allow_html=True)
         else:
-            st.info("😴 **Humor OFF**\n\nRoasts & roasty tips")
+            st.markdown("<div style='background:rgba(30, 41, 59, 0.6); border:1px solid rgba(255, 255, 255, 0.1); color:#94a3b8; padding:8px 12px; border-radius:8px; font-size:0.8rem; font-weight:600; margin-bottom:12px;'>😴 <b>Humor Mode OFF</b> — Professional mode</div>", unsafe_allow_html=True)
 
         # 1. EXPANDER: Manager Shadow Control (Only during coaching)
         if st.session_state.get("page") == "coaching" and st.session_state.get("session"):
