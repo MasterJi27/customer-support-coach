@@ -1081,11 +1081,13 @@ def coaching_page():
 
     # Order context cards (read-only) + agent-side quick actions
     from src.ui.zomato_widgets import (
+        render_live_sla_ticker,
         render_zomato_order_banner,
         render_rider_status_widget,
         render_agent_quick_actions,
         render_zomato_bot_escalation_card,
     )
+    render_live_sla_ticker()
     render_zomato_order_banner()
     render_rider_status_widget()
     render_zomato_bot_escalation_card()

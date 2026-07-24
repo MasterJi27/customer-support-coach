@@ -1,6 +1,39 @@
 import streamlit as st
 from src.core.models import OrderHeaderCard, RiderStatusCard
 
+def render_live_sla_ticker():
+    """
+    Renders an authentic Enterprise Contact Center Floor SLA Alert Marquee Ticker.
+    """
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(90deg, #1e1b4b 0%, #311b92 50%, #0f172a 100%);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin-bottom: 12px;
+            font-size: 0.78rem;
+            color: #e0e7ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: monospace;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        ">
+            <div>
+                <span style="background:#ef4444; color:white; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:8px;">🚨 SLA MONITOR</span>
+                <span>Active Queue: <b>4 Tickets</b> | Avg First Response: <b style="color:#34d399;">14.2s</b> | Target CSAT: <b style="color:#fbbf24;">4.8 ⭐</b></span>
+            </div>
+            <div>
+                <span style="color:#a78bfa; font-weight:bold;">🟢 System Status: OPERATIONAL (99.9%)</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
 def render_zomato_order_banner(order: OrderHeaderCard | None = None):
     """
     Renders an authentic Zomato Order Header Card at the top of the chat.
