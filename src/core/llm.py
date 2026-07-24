@@ -9,6 +9,12 @@ def get_groq_client() -> Groq | None:
     global _client, _last_key
     api_key = settings.groq_api_key or os.environ.get("GROQ_API_KEY", "")
     if not api_key:
+        try:
+            import streamlit as st
+            api_key = st.secrets.get("GROQ_API_KEY", "")
+        except Exception:
+            pass
+    if not api_key:
         return None
     if _client is None or _last_key != api_key:
         try:
