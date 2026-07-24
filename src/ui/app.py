@@ -389,12 +389,34 @@ def setup_page():
     auto_seed_kb()
     render_sidebar()
 
-    st.title("AI Customer Support Coach")
-    st.subheader("Real-time AI coaching for customer support agents")
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.22) 0%, rgba(168, 85, 247, 0.18) 50%, rgba(236, 72, 153, 0.12) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(165, 180, 252, 0.25);
+            border-radius: 20px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        ">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h1 style="margin:0; font-size: 2.1rem; font-weight: 800; background: linear-gradient(90deg, #ffffff 0%, #c7d2fe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ CoachAI Enterprise</h1>
+                    <p style="margin:4px 0 0 0; color:#cbd5e1; font-size:1.02rem; font-weight:500;">Real-time AI Copilot, Support Simulator & Quality Auditing Engine</p>
+                </div>
+                <div>
+                    <span style="background:rgba(52, 211, 153, 0.18); border:1px solid rgba(52, 211, 153, 0.35); color:#6ee7b7; padding:6px 14px; border-radius:20px; font-weight:700; font-size:0.82rem;">🟢 AI Engine Operational</span>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     kb_count = knowledge_base.count()
 
-    st.markdown("#### Quick Start")
+    st.markdown("#### ⚡ Launch Quick Start Mode")
     qcols = st.columns(5)
     quick_modes = [
         ("🎯", "Simulator", "AI generates customers", "simulator"),
