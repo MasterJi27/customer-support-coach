@@ -49,14 +49,14 @@ def inject_global_css():
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap');
 
         :root {
-            --surface: #0f172a;
-            --surface-overlay: rgba(30, 41, 59, 0.55);
-            --border: rgba(255, 255, 255, 0.1);
-            --border-glow: rgba(99, 102, 241, 0.5);
-            --primary-accent: #6366f1;
-            --secondary-accent: #ec4899;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
+            --surface: #18181b;
+            --surface-overlay: #18181b;
+            --border: #27272a;
+            --border-glow: #3f3f46;
+            --primary-accent: #10b981;
+            --secondary-accent: #f59e0b;
+            --text-main: #f4f4f5;
+            --text-sub: #a1a1aa;
         }
 
         /* Hide Streamlit Native Header & Footer Chrome */
@@ -71,12 +71,7 @@ def inject_global_css():
         }
 
         .stApp {
-            background: 
-                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.18) 0%, transparent 40%),
-                radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.14) 0%, transparent 40%),
-                radial-gradient(circle at 50% 15%, rgba(16, 185, 129, 0.1) 0%, transparent 45%),
-                linear-gradient(135deg, #030712 0%, #0b0f19 50%, #080c14 100%) !important;
-            background-attachment: fixed !important;
+            background: #09090b !important;
             color: var(--text-main) !important;
             padding-top: 1rem !important;
         }
@@ -89,20 +84,17 @@ def inject_global_css():
             color: #ffffff !important;
         }
 
-        /* Streamlit Bordered Container Cards (Glassmorphism) */
+        /* Streamlit Bordered Container Cards (Impeccable Linear Style) */
         [data-testid="stVerticalBlockBorderWrapper"] {
-            background: rgba(30, 41, 59, 0.45) !important;
-            backdrop-filter: blur(16px) !important;
-            -webkit-backdrop-filter: blur(16px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 16px !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
             padding: 16px !important;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+            transition: border-color 0.2s ease !important;
         }
         [data-testid="stVerticalBlockBorderWrapper"]:hover {
-            border-color: rgba(99, 102, 241, 0.3) !important;
-            box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15) !important;
+            border-color: #3f3f46 !important;
         }
 
         /* Buttons - Modern Gradient & Micro-Animations */
