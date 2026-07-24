@@ -42,89 +42,159 @@ def save_templates(templates: dict):
 
 
 def inject_global_css():
-    """Define the design-system CSS variables (referenced by inline-styled cards
-    throughout the app) and apply a cohesive dark polish. Without these variables
-    the Search Debugger / Chunking Simulator cards render with no background,
-    border, or accent colour."""
+    """Applies an ultra-premium, modern glassmorphic design system to the Streamlit UI."""
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap');
+
         :root {
-            --surface: #12151c;
-            --surface-overlay: #1a1d24;
-            --border: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(77, 157, 255, 0.35);
-            --text: #fafafa;
-            --text-muted: #94a3b8;
-            --text-accent: #4d9dff;
+            --surface: #0f172a;
+            --surface-overlay: rgba(30, 41, 59, 0.55);
+            --border: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(99, 102, 241, 0.5);
+            --primary-accent: #6366f1;
+            --secondary-accent: #ec4899;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
         }
 
-        /* App backdrop – subtle vertical depth */
+        /* Global Typography & App Canvas */
+        html, body, [class*="css"] {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+        }
+
         .stApp {
-            background:
-                radial-gradient(1100px 500px at 100% -10%, rgba(77,157,255,0.08), transparent 60%),
-                linear-gradient(180deg, #0e1117 0%, #0b0e14 100%);
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(239, 68, 68, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                linear-gradient(135deg, #090d16 0%, #0f172a 50%, #0b0f19 100%) !important;
+            background-attachment: fixed !important;
+            color: var(--text-main) !important;
         }
 
-        /* Headings */
-        h1, h2, h3 { letter-spacing: -0.01em; }
-
-        /* Buttons – rounded, smooth hover */
-        .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {
-            border-radius: 10px;
-            font-weight: 600;
-            transition: transform 0.05s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-        }
-        .stButton > button:hover, .stDownloadButton > button:hover, .stFormSubmitButton > button:hover {
-            transform: translateY(-1px);
-            border-color: var(--border-glow);
-        }
-
-        /* Metric tiles */
-        [data-testid="stMetric"] {
-            background: var(--surface-overlay);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 14px;
-        }
-        [data-testid="stMetricValue"] { font-weight: 700; }
-
-        /* Bordered containers get a touch more polish */
-        [data-testid="stVerticalBlockBorderWrapper"] {
-            border-radius: 14px;
-        }
-
-        /* Tabs - Uncluttered, Padded, Distinct Pills */
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 12px !important;
-            padding: 8px 0 !important;
-        }
-        .stTabs [data-baseweb="tab"] {
-            padding: 8px 16px !important;
-            border-radius: 8px !important;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        .stTabs [data-baseweb="tab"]:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(77, 157, 255, 0.4);
-        }
-        .stTabs [aria-selected="true"] {
-            background: rgba(77, 157, 255, 0.2) !important;
-            border-color: #4d9dff !important;
+        /* Headings - Crisp & Bold */
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.02em !important;
             color: #ffffff !important;
         }
 
-        /* Expander headers */
-        .streamlit-expanderHeader, [data-testid="stExpander"] summary { font-weight: 600; }
-
-        /* Sidebar divider from main area */
-        section[data-testid="stSidebar"] {
-            border-right: 1px solid var(--border);
-            background: linear-gradient(180deg, #12151c 0%, #0e1117 100%);
+        /* Streamlit Bordered Container Cards (Glassmorphism) */
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            background: rgba(30, 41, 59, 0.45) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+            padding: 16px !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }
+        [data-testid="stVerticalBlockBorderWrapper"]:hover {
+            border-color: rgba(99, 102, 241, 0.3) !important;
+            box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15) !important;
+        }
+
+        /* Buttons - Modern Gradient & Micro-Animations */
+        .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {
+            border-radius: 10px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.01em !important;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            color: #f8fafc !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+        }
+        .stButton > button:hover, .stDownloadButton > button:hover {
+            transform: translateY(-2px) !important;
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
+            border-color: rgba(165, 180, 252, 0.5) !important;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4) !important;
+            color: #ffffff !important;
+        }
+
+        /* Primary Type Buttons */
+        .stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            border: 1px solid rgba(199, 210, 254, 0.3) !important;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35) !important;
+        }
+        .stButton > button[kind="primary"]:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.55) !important;
+        }
+
+        /* Metric Cards */
+        [data-testid="stMetric"] {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 14px !important;
+            padding: 14px 18px !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+        }
+        [data-testid="stMetricValue"] {
+            font-family: 'Outfit', sans-serif !important;
+            font-weight: 700 !important;
+            color: #38bdf8 !important;
+        }
+
+        /* Tabs - Pill Layout */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 8px !important;
+            background: rgba(15, 23, 42, 0.6) !important;
+            padding: 6px !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            margin-bottom: 14px !important;
+        }
+        .stTabs [data-baseweb="tab"] {
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
+            background: transparent !important;
+            border: none !important;
+            font-weight: 600 !important;
+            color: #94a3b8 !important;
+            transition: all 0.2s ease !important;
+        }
+        .stTabs [data-baseweb="tab"]:hover {
+            color: #f8fafc !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+        }
+        .stTabs [aria-selected="true"] {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+        }
+
+        /* Inputs & Textareas */
+        .stTextInput > div > div > input, .stTextArea > div > div > textarea, .stSelectbox > div > div {
+            background: rgba(15, 23, 42, 0.75) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 12px !important;
+            color: #f8fafc !important;
+            font-size: 0.92rem !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+        }
+
+        /* Sidebar Styling */
+        section[data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #090d16 0%, #0f172a 100%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.5); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
         </style>
         """,
         unsafe_allow_html=True,
