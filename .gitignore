@@ -1,0 +1,37 @@
+# Secrets / environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Runtime data / generated artifacts
+data/vector_store/
+data/coach.db
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.codex/
+.claude/
+
+# Documents & logs
+*.pdf
+*.docx
+*.log
+

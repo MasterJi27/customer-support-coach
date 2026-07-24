@@ -1,0 +1,10 @@
+# Canonical dependency list — see requirements.txt (kept in sync)
+streamlit>=1.28.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+groq>=0.11.0
+plotly>=5.15.0
+pandas>=2.0.0
+PyPDF2>=3.0.0
+python-docx>=1.0.0
+gTTS>=2.5.0

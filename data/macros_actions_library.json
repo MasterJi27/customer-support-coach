@@ -1,0 +1,54 @@
+{
+  "actions": [
+    {
+      "id": "action_process_refund",
+      "label": "⚡ Process Refund",
+      "api_endpoint": "/api/v1/billing/refund",
+      "description": "Trigger this when a customer requests a refund and is eligible.",
+      "intent_triggers": ["refund", "cancellation"]
+    },
+    {
+      "id": "action_cancel_subscription",
+      "label": "⚡ Cancel Subscription",
+      "api_endpoint": "/api/v1/billing/cancel",
+      "description": "Trigger this to immediately cancel a customer's subscription.",
+      "intent_triggers": ["cancellation"]
+    },
+    {
+      "id": "action_reset_password",
+      "label": "⚡ Send Password Reset",
+      "api_endpoint": "/api/v1/auth/reset_password",
+      "description": "Trigger this when a customer is locked out or forgot password.",
+      "intent_triggers": ["account", "technical_issue"]
+    },
+    {
+      "id": "action_escalate_tier2",
+      "label": "⚡ Escalate to Tier 2",
+      "api_endpoint": "/api/v1/tickets/escalate",
+      "description": "Trigger this when the issue is too complex or the customer is highly frustrated.",
+      "intent_triggers": ["complaint", "technical_issue"]
+    }
+  ],
+  "macros": [
+    {
+      "id": "macro_greeting",
+      "shortcut": "/macro greeting",
+      "content": "Hi there! Thanks for reaching out to Infosys Springboard support. How can I help you today?"
+    },
+    {
+      "id": "macro_apology",
+      "shortcut": "/macro apologize",
+      "content": "I sincerely apologize for the inconvenience this has caused you. Let me look into this right away."
+    },
+    {
+      "id": "macro_refund_policy",
+      "shortcut": "/macro refund_policy",
+      "content": "As per our policy, refunds can be processed within 3 days of the latest renewal. I will check your account to see if you are eligible."
+    },
+    {
+      "id": "macro_verify_email",
+      "shortcut": "/macro verify_email",
+      "content": "To proceed, could you please confirm the email address associated with your account?"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "session_id": "sess_ca2766dc",
+  "agent_name": "TestAgent",
+  "interaction_mode": "manual",
+  "total_turns": 1,
+  "sentiment_journey": [
+    {
+      "turn": 1,
+      "sentiment": "frustrated",
+      "frustration": 1.0,
+      "satisfaction_trend": -0.87
+    }
+  ],
+  "resolution_quality": {
+    "score": 0.1,
+    "issue_resolved": false,
+    "customer_satisfied": false,
+    "escalation_needed": true
+  },
+  "overall_score": 0.44,
+  "coaching_recommendations": [
+    "Consider role-playing high-stress scenarios to build confidence with difficult customers.",
+    "Review knowledge base responses to identify and fill common knowledge gaps."
+  ],
+  "escalation_triggers": [
+    "Turn 1: High frustration level detected (100%); Negative sentiment (frustrated); Declining satisfaction trend"
+  ],
+  "knowledge_gaps": [],
+  "generated_at": "2026-07-18 00:58:04.981882"
+}
