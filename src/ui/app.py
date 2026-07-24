@@ -1414,12 +1414,40 @@ def coaching_page():
             if mgr_res.requires_intervention:
                 st.warning(f"🤫 **Manager Whisper ({mgr_res.intervention_type.upper()}):** {mgr_res.whisper_note}\n\n*Action:* {mgr_res.suggested_action}")
 
-            with st.container(border=True):
-                st.markdown("#### 🔮 Predictive CSAT & Churn Radar")
-                csat_c1, csat_c2 = st.columns(2)
-                csat_c1.metric("Predicted CSAT", f"⭐ {csat_res.predicted_csat:.1f} / 5.0", delta=f"{csat_res.csat_delta:+.1f}")
-                csat_c2.metric("Churn Risk", f"🔥 {csat_res.churn_risk_pct:.0f}%", delta=f"{csat_res.churn_delta:+.0f}%", delta_color="inverse")
-                st.caption(f"💡 **Action to Boost CSAT:** {csat_res.recommended_action_to_boost}")
+            st.markdown(
+                f"""
+                <div style="
+                    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+                    backdrop-filter: blur(16px);
+                    border: 1px solid rgba(99, 102, 241, 0.35);
+                    border-radius: 16px;
+                    padding: 16px 18px;
+                    margin-bottom: 14px;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+                ">
+                    <div style="font-weight: 800; font-size: 1.05rem; color: white; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>🔮 Predictive CSAT & Churn Radar</span>
+                        <span style="font-size:0.72rem; background:rgba(99, 102, 241, 0.2); color:#a5b4fc; padding:3px 10px; border-radius:20px; font-weight:700;">LIVE AI FORECAST</span>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                        <div style="flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 14px; border-radius: 12px;">
+                            <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform:uppercase;">Predicted CSAT</div>
+                            <div style="font-family: 'Outfit', sans-serif; font-size: 1.55rem; font-weight: 800; color: #fbbf24; margin: 4px 0;">⭐ {csat_res.predicted_csat:.1f} <span style="font-size: 0.85rem; color: #94a3b8;">/ 5.0</span></div>
+                            <div style="font-size: 0.72rem; color: {'#34d399' if csat_res.csat_delta >= 0 else '#f87171'}; font-weight: 700;">{csat_res.csat_delta:+.1f} trend</div>
+                        </div>
+                        <div style="flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 14px; border-radius: 12px;">
+                            <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform:uppercase;">Churn Risk</div>
+                            <div style="font-family: 'Outfit', sans-serif; font-size: 1.55rem; font-weight: 800; color: {'#f87171' if csat_res.churn_risk_pct > 50 else '#34d399'}; margin: 4px 0;">🔥 {csat_res.churn_risk_pct:.0f}%</div>
+                            <div style="font-size: 0.72rem; color: {'#f87171' if csat_res.churn_delta > 0 else '#34d399'}; font-weight: 700;">{csat_res.churn_delta:+.0f}% risk shift</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); padding: 8px 12px; border-radius: 8px; font-weight: 600;">
+                        💡 <b>Action to Boost CSAT:</b> {csat_res.recommended_action_to_boost}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
             # Out-of-the-Box Set 3 Feature 2 & 4: Patience Clock & Agent Cognitive Load
             pc_c1, pc_c2 = st.columns(2)
