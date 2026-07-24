@@ -19,7 +19,7 @@ export default function ZomatoOrderBanner() {
       </div>
 
       {/* Zomato Order Header Card */}
-      <div className="rounded-2xl border border-red-500/30 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-slate-950/90 p-4.5 backdrop-blur-xl shadow-xl border-l-4 border-l-red-600">
+      <div className="rounded-2xl border border-red-500/30 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-slate-950/90 p-4.5 backdrop-blur-xl shadow-xl">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 font-['Outfit'] font-bold text-lg text-red-400">
             <Utensils className="h-5 w-5 text-red-500" />
