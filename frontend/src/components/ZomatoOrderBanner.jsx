@@ -1,7 +1,16 @@
 import React from 'react';
 import { Utensils, Bike, MapPin, Phone, AlertTriangle } from 'lucide-react';
 
-export default function ZomatoOrderBanner() {
+export default function ZomatoOrderBanner({ scenario }) {
+  const sc = scenario || {
+    restaurant: 'Biryani Blues',
+    orderId: 'ORD-8142K',
+    items: '1x Special Chicken Biryani + 1x Extra Raita + 1x ThumsUp',
+    amount: '₹250',
+    payment: 'GPay',
+    address: 'H-42, Sector 62, Noida, UP'
+  };
+
   return (
     <div className="mb-5 space-y-3">
       {/* SLA Alert Marquee Ticker */}
@@ -18,28 +27,28 @@ export default function ZomatoOrderBanner() {
         </span>
       </div>
 
-      {/* Zomato Order Header Card */}
+      {/* Dynamic Order Header Card */}
       <div className="rounded-2xl border border-red-500/30 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-slate-950/90 p-4.5 backdrop-blur-xl shadow-xl">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 font-['Outfit'] font-bold text-lg text-red-400">
             <Utensils className="h-5 w-5 text-red-500" />
-            <span>Biryani Blues</span>
-            <span className="text-xs font-normal text-slate-400">(ORD-8142K)</span>
+            <span>{sc.restaurant}</span>
+            <span className="text-xs font-normal text-slate-400">({sc.orderId})</span>
           </div>
           <span className="rounded-full border border-red-500/40 bg-red-500/10 px-3 py-0.5 text-xs font-bold text-red-300">
-            DELAYED
+            ACTIVE TICKET
           </span>
         </div>
 
         <p className="text-xs text-slate-300 font-medium mb-3">
-          <b className="text-slate-200">Items:</b> 1x Special Chicken Biryani + 1x Extra Raita + 1x ThumsUp (750ml)
+          <b className="text-slate-200">Items Summary:</b> {sc.items}
         </p>
 
         <div className="flex flex-wrap items-center justify-between border-t border-slate-800/80 pt-2.5 text-xs text-slate-400">
-          <span>Total Amount: <b className="text-white font-semibold">₹250</b> (Paid via GPay)</span>
+          <span>Total Amount: <b className="text-white font-semibold">{sc.amount}</b> (Paid via {sc.payment})</span>
           <span className="flex items-center gap-1">
             <MapPin className="h-3.5 w-3.5 text-slate-500" />
-            H-42, Sector 62, Noida, UP
+            {sc.address}
           </span>
         </div>
       </div>
