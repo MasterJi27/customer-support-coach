@@ -1646,7 +1646,23 @@ def report_page():
 def analytics_page():
     render_sidebar()
 
-    st.title("Performance Analytics")
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.25) 0%, rgba(124, 58, 237, 0.2) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(165, 180, 252, 0.3);
+            border-radius: 18px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        ">
+            <h2 style="margin:0; font-size:1.8rem; font-weight:800; color:white;">📊 Performance Analytics & Golden Vault</h2>
+            <p style="margin:4px 0 0 0; color:#cbd5e1; font-size:0.95rem;">Operational quality trends, ISO-9001 compliance scores, and Hall of Fame training benchmarks.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     trends = st.session_state.orchestrator.get_performance_trends()
 
@@ -1714,8 +1730,23 @@ def analytics_page():
 def survival_arcade_page():
     render_sidebar()
 
-    st.title("⚔️ Support Survival Arcade Challenge")
-    st.caption("Fast-paced high-stakes support training mode! Handle angry customers before health runs out!")
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.25) 0%, rgba(185, 28, 28, 0.2) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            border-radius: 18px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.2);
+        ">
+            <h2 style="margin:0; font-size:1.8rem; font-weight:800; color:#fca5a5;">⚔️ Support Survival Arcade Challenge</h2>
+            <p style="margin:4px 0 0 0; color:#fecdd3; font-size:0.95rem;">High-stakes contact center simulation! Manage 4 angry customer tickets simultaneously before team HP runs out!</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     from src.modules.survival_game import survival_game_engine
     state = survival_game_engine.state
