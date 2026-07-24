@@ -184,6 +184,30 @@ def inject_global_css():
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
         }
 
+        /* Neon Glow Keyframes */
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.8), 0 0 30px rgba(236, 72, 153, 0.4); }
+            100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.4); }
+        }
+
+        /* Active Glow Pulse for Primary Buttons */
+        .stButton > button[kind="primary"] {
+            animation: glowPulse 3s infinite ease-in-out !important;
+        }
+
+        /* Expander Headers Glass Polish */
+        [data-testid="stExpander"] {
+            background: rgba(15, 23, 42, 0.5) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+        }
+        [data-testid="stExpander"] summary {
+            font-weight: 700 !important;
+            color: #e2e8f0 !important;
+        }
+
         /* Sidebar Styling */
         section[data-testid="stSidebar"] {
             background: linear-gradient(180deg, #090d16 0%, #0f172a 100%) !important;
