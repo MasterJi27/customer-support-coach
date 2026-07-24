@@ -74,4 +74,21 @@ class ManagerSupervisorAgent:
                 suggested_action="Process full refund."
             )
 
+    def generate_manager_takeover_response(
+        self,
+        order_id: str = "ORD-8142K",
+        customer_name: str = "Customer",
+        issue: str = "Order Delay & Refund Request"
+    ) -> str:
+        """Generates an official Senior Operations Manager takeover statement."""
+        return (
+            f"🛡️ **MANAGER TAKEOVER STATEMENT** *(Ramesh Kumar — Senior Operations Manager)*:\n"
+            f"\"Namaste {customer_name}, I am Ramesh Kumar, Senior Customer Support Operations Manager. "
+            f"I have personally taken over ticket **{order_id}** regarding your issue. "
+            f"I sincerely apologize for the unacceptable delay. I have overridden standard limits and authorized a **100% full refund of ₹250** "
+            f"directly back to your original payment method + credited a **₹100 goodwill voucher** to your account wallet. "
+            f"Your satisfaction is our highest priority.\""
+        )
+
 manager_supervisor_agent = ManagerSupervisorAgent()
+

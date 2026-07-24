@@ -1150,6 +1150,16 @@ def coaching_page():
                         )
                         st.rerun()
                 with btn_c2:
+                    if st.button("🛡️ Manager Takeover", use_container_width=True, help="AI Senior Manager steps in to resolve critical issue directly."):
+                        from src.agents.manager_supervisor import manager_supervisor_agent
+                        mgr_text = manager_supervisor_agent.generate_manager_takeover_response()
+                        st.session_state.orchestrator.process_agent_input(mgr_text)
+                        st.session_state.last_turn = (
+                            session.turn_analyses[-1] if session.turn_analyses else None
+                        )
+                        st.toast("🛡️ Senior Manager Ramesh Kumar took over ticket!", icon="🛡️")
+                        st.rerun()
+                with btn_c2:
                     # Feature Set 3 Feature 1: 1-Click AI Auto-Pilot Mode
                     # Fully hands-free: the AI writes the reply, SENDS it itself, runs any
                     # backend action, then lets the customer respond — no typing/submitting.
