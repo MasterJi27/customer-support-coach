@@ -8,25 +8,27 @@ def render_live_sla_ticker():
     st.markdown(
         """
         <div style="
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 10px 16px;
-            margin-bottom: 14px;
-            font-size: 0.8rem;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 10px 18px;
+            margin-bottom: 16px;
+            font-size: 0.82rem;
             color: #f8fafc;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-family: 'Plus Jakarta Sans', monospace;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         ">
             <div>
-                <span style="background: #dc2626; color: white; padding: 3px 8px; border-radius: 6px; font-weight: 800; margin-right: 10px; font-size: 0.72rem; letter-spacing: 0.05em;">🚨 SLA MONITOR</span>
-                <span>Active Desk Queue: <b>4 Tickets</b> | Avg Response Time: <b style="color: #34d399;">14.2s</b> | CSAT Target: <b style="color: #fbbf24;">4.8 ⭐</b></span>
+                <span style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; padding: 3px 10px; border-radius: 6px; font-weight: 800; margin-right: 12px; font-size: 0.72rem; letter-spacing: 0.05em; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);">🚨 SLA MONITOR</span>
+                <span>Active Desk Queue: <b style="color: #ffffff;">4 Tickets</b> | Avg Response Time: <b style="color: #34d399;">14.2s</b> | CSAT Target: <b style="color: #fbbf24;">4.8 ⭐</b></span>
             </div>
             <div>
-                <span style="background: #334155; border: 1px solid #475569; color: #cbd5e1; padding: 3px 10px; border-radius: 20px; font-weight: 700; font-size: 0.75rem;">🟢 System Health: 99.9%</span>
+                <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.75rem;">🟢 System Health: 99.9%</span>
             </div>
         </div>
         """,
@@ -44,27 +46,29 @@ def render_zomato_order_banner(order: OrderHeaderCard | None = None):
     st.markdown(
         f"""
         <div style="
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 16px 18px;
-            margin-bottom: 14px;
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: white;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
         ">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <div style="font-weight: 800; font-size: 1.15rem; color: #f87171; display: flex; align-items: center; gap: 8px;">
                     🍱 {order.restaurant_name} <span style="font-size: 0.82rem; color: #94a3b8; font-weight: 500;">({order.order_id})</span>
                 </div>
-                <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.03em;">
+                <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 4px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.03em; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);">
                     {order.order_status}
                 </div>
             </div>
-            <div style="font-size: 0.88rem; color: #e2e8f0; margin-bottom: 10px; font-weight: 500;">
+            <div style="font-size: 0.9rem; color: #e2e8f0; margin-bottom: 12px; font-weight: 500;">
                 <b>Items:</b> {order.items_summary}
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #94a3b8; border-top: 1px solid #334155; padding-top: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8; border-top: 1px solid rgba(99, 102, 241, 0.2); padding-top: 10px;">
                 <span>Total: <b style="color: white; font-weight: 700;">₹{int(order.order_amount)}</b> ({order.payment_method})</span>
                 <span>📍 {order.delivery_address}</span>
             </div>
@@ -85,18 +89,19 @@ def render_rider_status_widget(rider: RiderStatusCard | None = None):
         st.markdown(
             f"""
             <div style="
-                background: #1e293b;
-                border: 1px solid #334155;
-                border-radius: 12px;
-                padding: 12px 16px;
-                margin-bottom: 12px;
+                background: rgba(17, 24, 39, 0.75);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(99, 102, 241, 0.25);
+                border-radius: 14px;
+                padding: 14px 18px;
+                margin-bottom: 14px;
                 font-family: 'Plus Jakarta Sans', sans-serif;
             ">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 800; color: #34d399; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">🚴 Delivery Partner Status</span>
-                    <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 2px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">ETA: {rider.eta_mins} mins ({rider.distance_km} km away)</span>
+                    <span style="font-weight: 800; color: #34d399; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">🚴 Delivery Partner Status</span>
+                    <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 3px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">ETA: {rider.eta_mins} mins ({rider.distance_km} km away)</span>
                 </div>
-                <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 6px;">
+                <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 8px;">
                     Rider: <b style="color: white">{rider.rider_name}</b> | Phone: <b style="color: white">{rider.rider_phone}</b>
                 </div>
             </div>
@@ -114,19 +119,20 @@ def render_zomato_bot_escalation_card():
     st.markdown(
         """
         <div style="
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 12px;
-            font-size: 0.82rem;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 14px;
+            font-size: 0.85rem;
             color: #94a3b8;
             display: flex;
             align-items: center;
             justify-content: space-between;
         ">
             <span>🤖 <b>Zomato AI Bot Escalation:</b> Customer requested human support executive</span>
-            <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">HANDOVER COMPLETE</span>
+            <span style="background: rgba(99, 102, 241, 0.25); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">HANDOVER COMPLETE</span>
         </div>
         """,
         unsafe_allow_html=True

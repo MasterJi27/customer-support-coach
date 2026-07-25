@@ -42,19 +42,23 @@ def render_conversation_panel(session: SessionState):
                 st.markdown(
                     f"""
                     <div style="
-                        background: #1e293b;
-                        border: 1px solid #334155;
-                        border-radius: 4px 12px 12px 12px;
+                        background: rgba(30, 41, 59, 0.85);
+                        backdrop-filter: blur(12px);
+                        border-left: 4px solid #6366f1;
+                        border-top: 1px solid rgba(99, 102, 241, 0.25);
+                        border-right: 1px solid rgba(99, 102, 241, 0.25);
+                        border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+                        border-radius: 4px 14px 14px 14px;
                         padding: 14px 18px;
                         margin-bottom: 14px;
                         color: #f8fafc;
                         font-family: 'Plus Jakarta Sans', sans-serif;
-                        font-size: 0.94rem;
+                        font-size: 0.95rem;
                         line-height: 1.5;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+                        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
                         max-width: 90%;
                     ">
-                        <div style="font-size:0.72rem; color:#94a3b8; font-weight:800; margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase;">👤 Customer</div>
+                        <div style="font-size:0.72rem; color:#a5b4fc; font-weight:800; margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase;">👤 Customer</div>
                         {msg.content}
                     </div>
                     """,
@@ -68,20 +72,24 @@ def render_conversation_panel(session: SessionState):
                 st.markdown(
                     f"""
                     <div style="
-                        background: #2563eb;
-                        border: 1px solid #1d4ed8;
-                        border-radius: 12px 4px 12px 12px;
+                        background: linear-gradient(135deg, rgba(79, 70, 229, 0.35) 0%, rgba(14, 165, 233, 0.35) 100%);
+                        backdrop-filter: blur(12px);
+                        border-right: 4px solid #38bdf8;
+                        border-top: 1px solid rgba(56, 189, 248, 0.35);
+                        border-left: 1px solid rgba(56, 189, 248, 0.35);
+                        border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+                        border-radius: 14px 4px 14px 14px;
                         padding: 14px 18px;
                         margin-bottom: 14px;
                         color: #ffffff;
                         font-family: 'Plus Jakarta Sans', sans-serif;
-                        font-size: 0.94rem;
+                        font-size: 0.95rem;
                         line-height: 1.5;
-                        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+                        box-shadow: 0 6px 20px rgba(56, 189, 248, 0.2);
                         margin-left: auto;
                         max-width: 90%;
                     ">
-                        <div style="font-size:0.72rem; color:#bfdbfe; font-weight:800; margin-bottom:6px; text-align:right; letter-spacing:0.04em; text-transform:uppercase;">🧑‍💼 Support Agent</div>
+                        <div style="font-size:0.72rem; color:#bae6fd; font-weight:800; margin-bottom:6px; text-align:right; letter-spacing:0.04em; text-transform:uppercase;">🧑‍💼 Support Agent</div>
                         {msg.content}
                     </div>
                     """,

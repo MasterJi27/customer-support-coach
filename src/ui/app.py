@@ -42,19 +42,20 @@ def save_templates(templates: dict):
 
 
 def inject_global_css():
-    """Applies an ultra-premium, modern glassmorphic design system to the Streamlit UI."""
     st.markdown(
         """
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap');
 
         :root {
-            --surface: #1e293b;
-            --surface-overlay: #1e293b;
-            --border: #334155;
-            --border-glow: #475569;
-            --primary-accent: #3b82f6;
-            --secondary-accent: #f59e0b;
+            --canvas: #090d16;
+            --surface: rgba(17, 24, 39, 0.75);
+            --surface-hover: rgba(30, 41, 59, 0.85);
+            --border: rgba(99, 102, 241, 0.2);
+            --border-glow: rgba(56, 189, 248, 0.4);
+            --primary-accent: #6366f1;
+            --cyan-accent: #38bdf8;
+            --emerald-accent: #10b981;
             --text-main: #f8fafc;
             --text-sub: #94a3b8;
         }
@@ -71,122 +72,135 @@ def inject_global_css():
         }
 
         .stApp {
-            background: #0f172a !important;
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #090d16 60%) !important;
+            background-attachment: fixed !important;
             color: var(--text-main) !important;
-            padding-top: 1rem !important;
+            padding-top: 0.5rem !important;
         }
 
-        /* Headings - Crisp White */
+        /* Headings - Crisp White with Subtle Letter Spacing */
         h1, h2, h3, h4 {
             font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
-            font-weight: 700 !important;
-            letter-spacing: -0.02em !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.025em !important;
             color: #ffffff !important;
         }
 
-        /* Streamlit Bordered Container Cards (Dark Slate Graphite Style) */
+        /* Streamlit Glassmorphism Cards */
         [data-testid="stVerticalBlockBorderWrapper"] {
-            background: #1e293b !important;
-            border: 1px solid #334155 !important;
-            border-radius: 12px !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
-            padding: 16px !important;
-            transition: border-color 0.2s ease !important;
+            background: rgba(17, 24, 39, 0.7) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(99, 102, 241, 0.25) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+            padding: 18px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
         [data-testid="stVerticalBlockBorderWrapper"]:hover {
-            border-color: #475569 !important;
+            border-color: rgba(56, 189, 248, 0.5) !important;
+            box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15) !important;
+            transform: translateY(-2px) !important;
         }
 
-        /* Buttons - Dark Slate Style */
+        /* Buttons - Modern Glass & Gradient Buttons */
         .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {
-            border-radius: 8px !important;
-            font-weight: 600 !important;
+            border-radius: 10px !important;
+            font-weight: 700 !important;
             letter-spacing: 0.01em !important;
-            background: #1e293b !important;
-            border: 1px solid #334155 !important;
+            background: rgba(30, 41, 59, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
             color: #f8fafc !important;
-            transition: all 0.2s ease !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.25s ease !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+            backdrop-filter: blur(8px) !important;
         }
         .stButton > button:hover, .stDownloadButton > button:hover {
-            background: #334155 !important;
-            border-color: #475569 !important;
+            background: rgba(51, 65, 85, 0.9) !important;
+            border-color: rgba(56, 189, 248, 0.4) !important;
             color: #ffffff !important;
+            transform: translateY(-1px) !important;
         }
 
-        /* Primary Type Buttons */
+        /* Primary Type Buttons - Glowing Gradient */
         .stButton > button[kind="primary"] {
-            background: #2563eb !important;
-            border: 1px solid #1d4ed8 !important;
+            background: linear-gradient(135deg, #4f46e5 0%, #0284c7 100%) !important;
+            border: 1px solid rgba(56, 189, 248, 0.5) !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.45) !important;
         }
         .stButton > button[kind="primary"]:hover {
-            background: #1d4ed8 !important;
-            border-color: #1e40af !important;
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45) !important;
+            background: linear-gradient(135deg, #4338ca 0%, #0369a1 100%) !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 6px 24px rgba(56, 189, 248, 0.6) !important;
+            transform: translateY(-2px) !important;
         }
 
         /* Metric Cards */
         [data-testid="stMetric"] {
-            background: #1e293b !important;
-            border: 1px solid #334155 !important;
-            border-radius: 12px !important;
-            padding: 14px 18px !important;
+            background: rgba(17, 24, 39, 0.75) !important;
+            backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(99, 102, 241, 0.25) !important;
+            border-radius: 14px !important;
+            padding: 16px 20px !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
         }
         [data-testid="stMetricValue"] {
             font-family: 'Outfit', sans-serif !important;
-            font-weight: 700 !important;
+            font-weight: 800 !important;
             color: #38bdf8 !important;
         }
 
-        /* Tabs - Dark Slate Pill Layout */
+        /* Tabs - Spatial Floating Glass Pills */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 6px !important;
-            background: #1e293b !important;
-            padding: 4px !important;
-            border-radius: 10px !important;
-            border: 1px solid #334155 !important;
-            margin-bottom: 14px !important;
+            gap: 8px !important;
+            background: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: blur(16px) !important;
+            padding: 6px !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(99, 102, 241, 0.2) !important;
+            margin-bottom: 18px !important;
         }
         .stTabs [data-baseweb="tab"] {
-            padding: 8px 16px !important;
-            border-radius: 6px !important;
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
             background: transparent !important;
             border: none !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
             color: #94a3b8 !important;
-            transition: all 0.2s ease !important;
+            transition: all 0.25s ease !important;
         }
         .stTabs [data-baseweb="tab"]:hover {
             color: #ffffff !important;
-            background: #334155 !important;
+            background: rgba(30, 41, 59, 0.6) !important;
         }
         .stTabs [aria-selected="true"] {
-            background: #334155 !important;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.3) 0%, rgba(14, 165, 233, 0.3) 100%) !important;
             color: #ffffff !important;
-            border: 1px solid #475569 !important;
+            border: 1px solid rgba(56, 189, 248, 0.4) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
         }
 
         /* Inputs & Textareas */
         .stTextInput > div > div > input, .stTextArea > div > div > textarea, .stSelectbox > div > div {
-            background: #1e293b !important;
-            border: 1px solid #334155 !important;
-            border-radius: 8px !important;
+            background: rgba(17, 24, 39, 0.8) !important;
+            border: 1px solid rgba(99, 102, 241, 0.25) !important;
+            border-radius: 10px !important;
             color: #f8fafc !important;
-            font-size: 0.92rem !important;
-            transition: border-color 0.2s ease !important;
+            font-size: 0.95rem !important;
+            transition: all 0.25s ease !important;
         }
         .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
-            border-color: #3b82f6 !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
         }
 
-        /* Expander Headers Dark Polish */
+        /* Expander Headers Glass Polish */
         [data-testid="stExpander"] {
-            background: #1e293b !important;
-            border: 1px solid #334155 !important;
-            border-radius: 10px !important;
+            background: rgba(17, 24, 39, 0.7) !important;
+            backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(99, 102, 241, 0.2) !important;
+            border-radius: 12px !important;
         }
         [data-testid="stExpander"] summary {
             font-weight: 700 !important;
@@ -195,15 +209,15 @@ def inject_global_css():
 
         /* Sidebar Styling */
         section[data-testid="stSidebar"] {
-            background: #0f172a !important;
-            border-right: 1px solid #334155 !important;
+            background: #090d16 !important;
+            border-right: 1px solid rgba(99, 102, 241, 0.2) !important;
         }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.5); }
         </style>
         """,
         unsafe_allow_html=True,
@@ -416,22 +430,24 @@ def render_top_nav_bar():
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 14px;
-            padding: 12px 22px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 16px;
+            padding: 14px 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         ">
             <div style="display:flex; align-items:center; gap:12px;">
-                <span style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.35rem; color:#3b82f6;">⚡ COACHAI COPILOT</span>
-                <span style="background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#93c5fd; padding:3px 10px; border-radius:12px; font-size:0.72rem; font-weight:700; letter-spacing:0.04em;">ENTERPRISE v2.0</span>
+                <span style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.4rem; background: linear-gradient(135deg, #818cf8 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ COACHAI COPILOT</span>
+                <span style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#c7d2fe; padding:4px 12px; border-radius:12px; font-size:0.75rem; font-weight:800; letter-spacing:0.04em;">ENTERPRISE v2.0</span>
             </div>
-            <div style="display:flex; gap:16px; align-items:center; font-size:0.8rem; font-family:'Plus Jakarta Sans', sans-serif;">
+            <div style="display:flex; gap:18px; align-items:center; font-size:0.82rem; font-family:'Plus Jakarta Sans', sans-serif;">
                 <span style="color:#34d399; font-weight:700; display:flex; align-items:center; gap:6px;">🟢 ENGINE: ONLINE</span>
-                <span style="color:#64748b;">•</span>
+                <span style="color:#475569;">•</span>
                 <span style="color:#fbbf24; font-weight:700;">🏆 ISO-9001 COMPLIANT</span>
-                <span style="color:#64748b;">•</span>
+                <span style="color:#475569;">•</span>
                 <span style="color:#38bdf8; font-weight:700;">⚡ SUB-5MS BM25 RAG</span>
             </div>
         </div>
@@ -480,20 +496,22 @@ def setup_page():
     st.markdown(
         """
         <div style="
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 14px;
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         ">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <div>
-                    <h1 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #ffffff;">⚡ CoachAI Enterprise</h1>
+                    <h1 style="margin:0; font-size: 1.9rem; font-weight: 800; color: #ffffff;">⚡ CoachAI Enterprise</h1>
                     <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.95rem; font-weight:500;">Real-time AI Copilot, Support Simulator & Quality Auditing Engine</p>
                 </div>
                 <div>
-                    <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding:6px 14px; border-radius:20px; font-weight:700; font-size:0.82rem;">🟢 AI Engine Operational</span>
+                    <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; padding:8px 16px; border-radius:20px; font-weight:800; font-size:0.82rem;">🟢 AI Engine Operational</span>
                 </div>
             </div>
         </div>
