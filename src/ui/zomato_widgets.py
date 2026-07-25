@@ -461,8 +461,8 @@ def render_decision_tree_live_panel(session):
     Renders an interactive Decision Tree Pathway simulator card when a decision tree scenario is active.
     """
     sc = getattr(session.config, "scenario", None) if session and hasattr(session, "config") else None
-    title = sc.title if sc else ""
-    context_str = sc.context if sc else ""
+    title = getattr(sc, "title", "") if sc else ""
+    context_str = getattr(sc, "problem_description", "") if sc else ""
     if not ("tree" in title.lower() or "🗺️" in title or "branch" in context_str.lower()):
         return
 
