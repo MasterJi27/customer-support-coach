@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import streamlit as st
 
-from src.core.models import InteractionMode
+from src.core.models import InteractionMode, Scenario
 from src.core.orchestrator import Orchestrator
 from src.ui.panels import (
     render_coaching_panel,
