@@ -294,6 +294,30 @@ def render_sidebar():
             unsafe_allow_html=True
         )
 
+        # Agent Mastery Rank Badge Card
+        st.markdown(
+            """
+            <div style="
+                background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+                border: 1px solid rgba(168, 85, 247, 0.4);
+                border-radius: 12px;
+                padding: 12px 14px;
+                margin-bottom: 14px;
+            ">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:800; font-size:0.82rem; color:#ffffff;">🏆 AGENT MASTERY RANK</span>
+                    <span style="background:#a855f7; color:#ffffff; font-weight:800; font-size:0.7rem; padding:2px 8px; border-radius:10px;">TIER 1 SENIOR</span>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:8px; font-size:0.75rem; color:#cbd5e1;">
+                    <span>⭐ <b>CSAT:</b> 4.9/5.0</span>
+                    <span>⚡ <b>AHT:</b> 01:42s</span>
+                    <span>🎯 <b>QA:</b> 99.2%</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
         # Humor Status Card (styled cleanly)
         humor_on = st.session_state.get("humor_mode", False)
         if humor_on:
@@ -1425,6 +1449,7 @@ def coaching_page():
         render_practical_crm_action_bar,
         render_practical_kpi_footer,
         render_decision_tree_live_panel,
+        render_supervisor_handoff_card,
         get_dynamic_order_and_rider,
     )
     dyn_order, dyn_rider = get_dynamic_order_and_rider(session)
@@ -1432,6 +1457,7 @@ def coaching_page():
     render_zomato_order_banner(dyn_order)
     render_rider_status_widget(dyn_rider)
     render_customer_attachment_card(dyn_order)
+    render_supervisor_handoff_card(dyn_order)
     render_practical_crm_action_bar(dyn_order)
     render_decision_tree_live_panel(session)
     render_zomato_bot_escalation_card()

@@ -426,6 +426,7 @@ def render_practical_crm_action_bar(order: OrderHeaderCard | None = None):
                 f"A supervisor is taking over your ticket to ensure immediate full resolution."
             )
             st.session_state["pending_agent_text"] = esc_msg
+            st.session_state["show_supervisor_handoff"] = True
             st.toast("🚀 Ticket Escalated to Senior Supervisor Desk!", icon="🚀")
             st.rerun()
 
@@ -534,3 +535,45 @@ def render_decision_tree_live_panel(session):
             st.session_state["pending_agent_text"] = branch_b_text
             st.toast("🔴 Selected Branch B: Reject Refund (Predicted Escalation & CSAT: 1.5 ⭐)", icon="🔴")
             st.rerun()
+
+
+def render_supervisor_handoff_card(order=None):
+    """
+    Renders an executive Supervisor Escalation Handoff Dossier when escalated.
+    """
+    if not st.session_state.get("show_supervisor_handoff", False):
+        return
+
+    order_id = getattr(order, "order_id", "ORD-8142K") if order else "ORD-8142K"
+    rest_name = getattr(order, "restaurant_name", "Biryani Blues") if order else "Biryani Blues"
+
+    st.markdown(
+        f"""
+        <div style="
+            background: rgba(239, 68, 68, 0.12);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        ">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-weight:800; color:#f87171; font-size:1.05rem; display:flex; align-items:center; gap:8px;">
+                    📋 Executive Supervisor Handoff Dossier
+                </span>
+                <span style="background:rgba(239, 68, 68, 0.25); color:#fca5a5; border:1px solid rgba(239, 68, 68, 0.5); padding:3px 12px; border-radius:12px; font-size:0.75rem; font-weight:800;">
+                    SUPERVISOR DESK DISPATCHED
+                </span>
+            </div>
+            <div style="color:#cbd5e1; font-size:0.86rem; line-height:1.6;">
+                <div style="margin-bottom:4px;">• <b>Order Reference:</b> #{order_id} ({rest_name})</div>
+                <div style="margin-bottom:4px;">• <b>Root Issue:</b> Claimed missing main course dish & high customer frustration index.</div>
+                <div style="margin-bottom:4px;">• <b>Risk Assessment:</b> 82% Churn Risk — Threatening competitor defection to Swiggy.</div>
+                <div>• <b>Authorized Policy:</b> Senior Supervisor authorized for max 100% order refund + ₹100 apology credit voucher.</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
