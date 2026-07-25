@@ -1305,19 +1305,41 @@ def coaching_page():
     humor_on = st.session_state.get("humor_mode", False)
     bot_mode = getattr(cm, "bot_mode", "zomato_bot")
 
+    chat_state = "🤖 Zomato AI Bot" if bot_mode == "zomato_bot" else "🧑‍💼 Live Human Agent"
     hdr1, hdr2 = st.columns([3, 1])
     with hdr1:
-        st.title(f"📞 {session.config.product_context}")
-        chat_state = "🤖 Zomato AI Bot" if bot_mode == "zomato_bot" else "🧑‍💼 Live Human Agent"
-        st.caption(f"**Mode:** {mode_label} | **Chat State:** `{chat_state}` | **Turn:** {session.current_turn}")
+        st.markdown(
+            f"""
+            <div style="
+                background: rgba(17, 24, 39, 0.75);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(99, 102, 241, 0.25);
+                border-radius: 16px;
+                padding: 18px 22px;
+                margin-bottom: 12px;
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            ">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size: 1.5rem; font-weight: 800; color: #ffffff;">📞 {session.config.product_context}</span>
+                            <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 0.75rem;">🟢 LIVE DESK SESSION</span>
+                        </div>
+                        <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.9rem;"><b>Mode:</b> {mode_label} &nbsp;|&nbsp; <b>Chat State:</b> <span style="color:#6366f1; font-weight:700;">{chat_state}</span> &nbsp;|&nbsp; <b>Turn:</b> #{session.current_turn}</p>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     with hdr2:
+        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
         if st.button("🛑 End Session", use_container_width=True, type="primary"):
             report = st.session_state.orchestrator.end_session()
             st.session_state.report = report
             st.session_state.page = "report"
             st.rerun()
-
-    st.divider()
 
     # Order context cards (read-only) + agent-side quick actions
     from src.ui.zomato_widgets import (
@@ -1758,16 +1780,24 @@ def analytics_page():
     st.markdown(
         """
         <div style="
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.25) 0%, rgba(124, 58, 237, 0.2) 100%);
+            background: rgba(17, 24, 39, 0.75);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(165, 180, 252, 0.3);
-            border-radius: 18px;
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         ">
-            <h2 style="margin:0; font-size:1.8rem; font-weight:800; color:white;">📊 Performance Analytics & Golden Vault</h2>
-            <p style="margin:4px 0 0 0; color:#cbd5e1; font-size:0.95rem;">Operational quality trends, ISO-9001 compliance scores, and Hall of Fame training benchmarks.</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h2 style="margin:0; font-size:1.9rem; font-weight:800; color:#ffffff;">📊 Performance Analytics & Golden Vault</h2>
+                    <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.95rem;">Operational quality trends, ISO-9001 compliance scores, and Hall of Fame training benchmarks.</p>
+                </div>
+                <div>
+                    <span style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem;">🏆 GOLDEN VAULT LIVE</span>
+                </div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True
@@ -1842,16 +1872,24 @@ def survival_arcade_page():
     st.markdown(
         """
         <div style="
-            background: linear-gradient(135deg, rgba(220, 38, 38, 0.25) 0%, rgba(185, 28, 28, 0.2) 100%);
+            background: rgba(17, 24, 39, 0.75);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(248, 113, 113, 0.35);
-            border-radius: 18px;
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.2);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 32px 0 rgba(239, 68, 68, 0.15);
         ">
-            <h2 style="margin:0; font-size:1.8rem; font-weight:800; color:#fca5a5;">⚔️ Support Survival Arcade Challenge</h2>
-            <p style="margin:4px 0 0 0; color:#fecdd3; font-size:0.95rem;">High-stakes contact center simulation! Manage 4 angry customer tickets simultaneously before team HP runs out!</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h2 style="margin:0; font-size:1.9rem; font-weight:800; color:#ffffff;">⚔️ Support Survival Arcade Challenge</h2>
+                    <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.95rem;">High-stakes contact center simulation! Manage 4 angry customer tickets simultaneously before team HP runs out!</p>
+                </div>
+                <div>
+                    <span style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem;">🔥 ARCADE DESK ACTIVE</span>
+                </div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True
