@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import streamlit as st
 
-from src.core.models import InteractionMode, Scenario
+from src.core.models import InteractionMode, Scenario, SentimentLabel
 from src.core.orchestrator import Orchestrator
 from src.ui.panels import (
     render_coaching_panel,
@@ -447,12 +447,14 @@ def _start_quick(mode_str: str):
         scenarios = st.session_state.orchestrator.list_scenarios()
         real_scenarios = st.session_state.orchestrator.session_config_module.load_real_scenarios()
         selected_real = real_scenarios[0] if real_scenarios else {}
+        persona = selected_real.get("customer_persona", "Frustrated customer waiting 55 mins for Biryani") if selected_real else "Customer needs support"
+        prob_desc = selected_real.get("context", selected_real.get("title", "Food delivery delayed by 55 minutes")) if selected_real else "Delayed order delivery"
         scenario_obj = Scenario(
-            id="zomato_biryani_blues",
             title="Zomato: Biryani Blues (Delayed Delivery)",
+            customer_persona=persona,
+            problem_description=prob_desc,
             product_context="Zomato Food Delivery",
-            customer_persona=selected_real.get("customer_persona", "Frustrated customer waiting 55 mins for Biryani"),
-            initial_emotion="frustrated",
+            emotional_start=SentimentLabel.FRUSTRATED,
         )
 
     t_path = os.path.join("data", "transcripts", "campaign_video_not_rendering.json") if mode == InteractionMode.REPLAY else None
@@ -629,12 +631,20 @@ def setup_page():
                 scenarios = st.session_state.orchestrator.list_scenarios()
                 s_id = scenario_choice or "zomato_biryani_blues"
                 s_title = scenarios.get(s_id, "Zomato: Biryani Blues")
+                persona = selected_real.get("customer_persona", "Frustrated customer waiting for order") if selected_real else "Customer needs support"
+                prob_desc = selected_real.get("context", selected_real.get("title", s_title)) if selected_real else s_title
+                p_ctx = selected_real.get("product_context", product_context) if selected_real else product_context
+
+                emo_label = SentimentLabel.FRUSTRATED
+                if emotional_start in [e.value for e in SentimentLabel]:
+                    emo_label = SentimentLabel(emotional_start)
+
                 scenario_obj = Scenario(
-                    id=s_id,
                     title=s_title,
-                    product_context=selected_real.get("product_context", product_context) if selected_real else product_context,
-                    customer_persona=selected_real.get("customer_persona", "") if selected_real else "",
-                    initial_emotion=emotional_start,
+                    customer_persona=persona,
+                    problem_description=prob_desc,
+                    product_context=p_ctx,
+                    emotional_start=emo_label,
                 )
 
             t_path = os.path.join("data", "transcripts", selected_transcript) if selected_transcript else None
