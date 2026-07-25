@@ -621,7 +621,7 @@ def setup_page():
                 st.caption("Step through message by message with live coaching")
 
         st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-        if st.button("🚀 Launch Coaching Session", type="primary", use_container_width=True):
+        if st.button("🚀 Start Session", type="primary", use_container_width=True):
             st.session_state.ui_interaction_mode = mode
             st.session_state.ui_agent_name = agent_name
             st.session_state.ui_product_context = product_context
@@ -1166,20 +1166,6 @@ def setup_page():
                             os.remove(fpath)
                             st.warning(f"Deleted draft {f}.")
                             st.rerun()
-
-    if st.button("Start Session", type="primary", use_container_width=True):
-        st.session_state.humor_mode = humor_mode
-        st.session_state.ml_tier = ml_tier
-        st.session_state.ui_agent_name = agent_name
-        st.session_state.ui_product_context = product_context
-        st.session_state.ui_interaction_mode = mode
-        _start_session(
-            mode, agent_name, product_context,
-            scenario_choice if mode == "simulator" else None,
-            emotional_start if mode == "simulator" else None,
-            selected_transcript if mode == "replay" else None,
-            st.session_state.risk_threshold / 100.0,
-        )
 def _start_quick(mode: str):
     orch = st.session_state.orchestrator
     scenarios = orch.list_scenarios()
