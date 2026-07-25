@@ -301,6 +301,23 @@ def render_sidebar():
         else:
             st.markdown("<div style='background:rgba(30, 41, 59, 0.6); border:1px solid rgba(255, 255, 255, 0.1); color:#94a3b8; padding:8px 12px; border-radius:8px; font-size:0.8rem; font-weight:600; margin-bottom:12px;'>😴 <b>Humor Mode OFF</b> — Professional mode</div>", unsafe_allow_html=True)
 
+        # Live Escalation Risk Sensitivity Control in Sidebar
+        with st.expander("🎚️ Escalation Sensitivity", expanded=False):
+            st.caption("Adjust real-time escalation trigger sensitivity.")
+            curr_r = int(st.session_state.get("risk_threshold", 70))
+            new_r = st.slider(
+                "Risk Threshold (%)",
+                min_value=0, max_value=100,
+                value=curr_r,
+                key="sidebar_risk_threshold_slider",
+                help="Higher threshold values require stronger anger/keywords to trigger critical escalation alerts.",
+            )
+            st.session_state.risk_threshold = new_r
+            r_float = float(new_r) / 100.0
+            if st.session_state.get("session") and hasattr(st.session_state.session, "config"):
+                st.session_state.session.config.risk_threshold = r_float
+            st.caption(f"Active Threshold: **{new_r}%** (`{r_float:.2f}`)")
+
         # 1. EXPANDER: Manager Shadow Control (Only during coaching)
         if st.session_state.get("page") == "coaching" and st.session_state.get("session"):
             with st.expander("🤫 Manager Shadow Control", expanded=True):
@@ -475,13 +492,16 @@ def _start_quick(mode_str: str):
 
     t_path = os.path.join("data", "transcripts", "campaign_video_not_rendering.json") if mode == InteractionMode.REPLAY else None
 
+    raw_thresh = st.session_state.get("risk_threshold", 70)
+    thresh_float = float(raw_thresh) / 100.0 if raw_thresh > 1 else float(raw_thresh)
+
     sess = st.session_state.orchestrator.start_session(
         mode=mode,
         agent_name=st.session_state.get("ui_agent_name", "Agent"),
         product_context="Zomato Food Delivery",
         scenario=scenario_obj,
         transcript_path=t_path,
-        risk_threshold=0.7,
+        risk_threshold=thresh_float,
     )
     st.session_state.session = sess
     st.session_state.page = "coaching"
@@ -698,14 +718,19 @@ def setup_page():
         with col_m:
             with st.container(border=True):
                 st.markdown("### 🎚️ Escalation & Voice")
+                curr_thresh = int(st.session_state.get("risk_threshold", 70))
                 threshold = st.slider(
                     "Escalation sensitivity",
                     min_value=0, max_value=100,
-                    value=st.session_state.risk_threshold,
-                    help="Higher values make the app more sensitive to escalation risk.",
+                    value=curr_thresh,
+                    key="setup_risk_threshold_slider",
+                    help="Higher threshold values require stronger anger/keywords before escalation triggers.",
                 )
-                st.caption(f"Risk threshold: {threshold}%")
                 st.session_state.risk_threshold = threshold
+                r_float = float(threshold) / 100.0
+                if st.session_state.get("session") and hasattr(st.session_state.session, "config"):
+                    st.session_state.session.config.risk_threshold = r_float
+                st.caption(f"Risk threshold: **{threshold}%** (`{r_float:.2f}`)")
                 tts_enabled = st.toggle(
                     "🔊 Read customer messages aloud",
                     value=st.session_state.get("tts_enabled", False),
