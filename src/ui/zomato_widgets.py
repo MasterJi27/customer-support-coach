@@ -577,3 +577,99 @@ def render_supervisor_handoff_card(order=None):
         """,
         unsafe_allow_html=True
     )
+
+
+def render_neural_multiverse_simulator():
+    """
+    Renders an Advanced Counterfactual Neural Multiverse Simulator Card.
+    Simulates 3 Parallel Quantum Timelines in real time.
+    """
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        ">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span style="font-weight:800; color:#e9d5ff; font-size:1.05rem; display:flex; align-items:center; gap:8px;">
+                    🌌 AI Neural Multiverse Counterfactual Simulator
+                </span>
+                <span style="background:rgba(168, 85, 247, 0.25); color:#f5d0fe; border:1px solid rgba(168, 85, 247, 0.5); padding:3px 12px; border-radius:12px; font-size:0.75rem; font-weight:800;">
+                    3 PARALLEL REALITIES ACTIVE
+                </span>
+            </div>
+            <p style="color:#cbd5e1; font-size:0.84rem; margin:0 0 12px 0;">
+                Quantum simulation evaluating 3 parallel resolution timelines for this exact turn:
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    m1, m2, m3 = st.columns(3)
+
+    with m1:
+        st.markdown(
+            """
+            <div style="background:rgba(15, 23, 42, 0.7); border:1px solid rgba(52, 211, 153, 0.4); border-radius:12px; padding:12px; height:100%;">
+                <div style="font-weight:800; color:#34d399; font-size:0.85rem; margin-bottom:4px;">🟢 TIMELINE ALPHA</div>
+                <div style="font-size:0.78rem; color:#e2e8f0; font-weight:700;">Apologize + ₹100 Coupon</div>
+                <div style="margin-top:8px; font-size:0.75rem; color:#94a3b8;">
+                    • Predicted CSAT: <b style="color:#fbbf24;">4.9 ⭐</b><br>
+                    • Retention: <b style="color:#34d399;">98%</b><br>
+                    • Cost: <b>₹100</b>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        if st.button("🚀 Shift to Alpha", key="multiverse_alpha_btn", use_container_width=True, type="primary"):
+            st.session_state["pending_agent_text"] = "I am deeply sorry for the issue. I have credited a ₹100 Goodwill Voucher (Code: APOLOGY100) to your account instantly!"
+            st.toast("🌌 Shifted Reality to Timeline Alpha (CSAT 4.9 ⭐)", icon="🟢")
+            st.rerun()
+
+    with m2:
+        st.markdown(
+            """
+            <div style="background:rgba(15, 23, 42, 0.7); border:1px solid rgba(248, 113, 113, 0.4); border-radius:12px; padding:12px; height:100%;">
+                <div style="font-weight:800; color:#f87171; font-size:0.85rem; margin-bottom:4px;">🔴 TIMELINE BETA</div>
+                <div style="font-size:0.78rem; color:#e2e8f0; font-weight:700;">Strict Policy Rejection</div>
+                <div style="margin-top:8px; font-size:0.75rem; color:#94a3b8;">
+                    • Predicted CSAT: <b style="color:#f87171;">1.2 ⭐</b><br>
+                    • Churn Risk: <b style="color:#f87171;">94%</b><br>
+                    • Social Risk: <b style="color:#f87171;">HIGH</b>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        if st.button("🔴 Shift to Beta", key="multiverse_beta_btn", use_container_width=True):
+            st.session_state["pending_agent_text"] = "Unfortunately, according to our terms of service, refunds are strictly non-refundable past 7 days."
+            st.toast("🔴 Shifted Reality to Timeline Beta (CSAT 1.2 ⭐)", icon="🔴")
+            st.rerun()
+
+    with m3:
+        st.markdown(
+            """
+            <div style="background:rgba(15, 23, 42, 0.7); border:1px solid rgba(56, 189, 248, 0.4); border-radius:12px; padding:12px; height:100%;">
+                <div style="font-weight:800; color:#38bdf8; font-size:0.85rem; margin-bottom:4px;">🔵 TIMELINE GAMMA</div>
+                <div style="font-size:0.78rem; color:#e2e8f0; font-weight:700;">Instant 100% Refund</div>
+                <div style="margin-top:8px; font-size:0.75rem; color:#94a3b8;">
+                    • Predicted CSAT: <b style="color:#fbbf24;">5.0 ⭐</b><br>
+                    • Retention: <b style="color:#34d399;">100%</b><br>
+                    • Cost: <b>₹340</b>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        if st.button("🔵 Shift to Gamma", key="multiverse_gamma_btn", use_container_width=True):
+            st.session_state["pending_agent_text"] = "I have authorized an instant 100% full refund of ₹340 back to your original payment method!"
+            st.toast("🔵 Shifted Reality to Timeline Gamma (CSAT 5.0 ⭐)", icon="🔵")
+            st.rerun()

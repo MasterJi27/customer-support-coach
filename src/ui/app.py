@@ -1481,6 +1481,7 @@ def coaching_page():
         render_practical_kpi_footer,
         render_decision_tree_live_panel,
         render_supervisor_handoff_card,
+        render_neural_multiverse_simulator,
         get_dynamic_order_and_rider,
     )
     dyn_order, dyn_rider = get_dynamic_order_and_rider(session)
@@ -1489,6 +1490,7 @@ def coaching_page():
     render_rider_status_widget(dyn_rider)
     render_customer_attachment_card(dyn_order)
     render_supervisor_handoff_card(dyn_order)
+    render_neural_multiverse_simulator()
     render_practical_crm_action_bar(dyn_order)
     render_decision_tree_live_panel(session)
     render_zomato_bot_escalation_card()
