@@ -248,7 +248,7 @@ def init_session_state():
     if "ui_agent_name" not in st.session_state:
         st.session_state.ui_agent_name = "Agent"
     if "ui_product_context" not in st.session_state:
-        st.session_state.ui_product_context = "SaaS Platform"
+        st.session_state.ui_product_context = "Zomato Food Delivery"
     if "scenario_choice" not in st.session_state:
         st.session_state.scenario_choice = None
     if "selected_transcript" not in st.session_state:
@@ -478,7 +478,7 @@ def _start_quick(mode_str: str):
     sess = st.session_state.orchestrator.start_session(
         mode=mode,
         agent_name=st.session_state.get("ui_agent_name", "Agent"),
-        product_context="Zomato Food Delivery" if mode == InteractionMode.SIMULATOR else "SaaS Platform",
+        product_context="Zomato Food Delivery",
         scenario=scenario_obj,
         transcript_path=t_path,
         risk_threshold=0.7,
@@ -1306,6 +1306,7 @@ def coaching_page():
     bot_mode = getattr(cm, "bot_mode", "zomato_bot")
 
     chat_state = "🤖 Zomato AI Bot" if bot_mode == "zomato_bot" else "🧑‍💼 Live Human Agent"
+    display_title = (session.config.scenario.title if (session.config and session.config.scenario) else session.config.product_context) or "Zomato Support Desk"
     hdr1, hdr2 = st.columns([3, 1])
     with hdr1:
         st.markdown(
@@ -1323,7 +1324,7 @@ def coaching_page():
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                     <div>
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <span style="font-size: 1.5rem; font-weight: 800; color: #ffffff;">📞 {session.config.product_context}</span>
+                            <span style="font-size: 1.5rem; font-weight: 800; color: #ffffff;">📞 {display_title}</span>
                             <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 0.75rem;">🟢 LIVE DESK SESSION</span>
                         </div>
                         <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.9rem;"><b>Mode:</b> {mode_label} &nbsp;|&nbsp; <b>Chat State:</b> <span style="color:#6366f1; font-weight:700;">{chat_state}</span> &nbsp;|&nbsp; <b>Turn:</b> #{session.current_turn}</p>
