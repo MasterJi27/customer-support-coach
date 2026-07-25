@@ -831,15 +831,54 @@ def setup_page():
             t_branch_a = st.text_input("Branch A (If Agent Apologizes + Offers Coupon):", value="Customer Outcome: Accepts coupon, stays subscribed. (CSAT 4.8 ⭐)", key="tree_branch_a_input")
             t_branch_b = st.text_input("Branch B (If Agent Rejects Refund):", value="Customer Outcome: Escalates to supervisor, threatens Twitter. (CSAT 1.5 ⭐)", key="tree_branch_b_input")
 
-            st.markdown("#### 📊 Live Decision Tree Pathway Preview")
             st.markdown(
                 f"""
-                ```mermaid
-                graph TD
-                    Root["👤 Customer Trigger<br/>{t_node1[:40]}..."]
-                    Root -->|Branch A: Apologize & Offer Coupon| PathA["🟢 CSAT 4.8 ⭐<br/>{t_branch_a[:45]}..."]
-                    Root -->|Branch B: Reject Refund| PathB["🔴 CSAT 1.5 ⭐<br/>{t_branch_b[:45]}..."]
-                ```
+                <div style="
+                    background: rgba(15, 23, 42, 0.85);
+                    backdrop-filter: blur(16px);
+                    border: 1px solid rgba(99, 102, 241, 0.35);
+                    border-radius: 16px;
+                    padding: 20px 24px;
+                    margin: 16px 0;
+                    font-family: 'Plus Jakarta Sans', sans-serif;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+                ">
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>🗺️ Visual Decision Tree Pathway Map: <b style="color: #a5b4fc;">{t_title}</b></span>
+                        <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 3px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">LIVE BRANCH MAP</span>
+                    </div>
+                    
+                    <div style="background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; text-align: center; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);">
+                        <div style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">ROOT NODE 1 — Opening Customer Trigger</div>
+                        <div style="font-size: 0.95rem; font-weight: 700; color: #ffffff; margin-top: 4px;">👤 "{t_node1}"</div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 14px; padding: 16px; text-align: left;">
+                            <div style="background: rgba(16, 185, 129, 0.25); color: #34d399; font-weight: 800; font-size: 0.78rem; padding: 3px 10px; border-radius: 8px; display: inline-block; margin-bottom: 8px;">
+                                🟢 BRANCH A (Empathetic Counter-Offer)
+                            </div>
+                            <div style="font-size: 0.88rem; color: #e2e8f0; font-weight: 600; line-height: 1.4;">
+                                {t_branch_a}
+                            </div>
+                            <div style="margin-top: 10px; font-weight: 800; color: #34d399; font-size: 0.82rem;">
+                                ⭐ Predicted CSAT: 4.8 / 5.0 (Retention Success)
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 14px; padding: 16px; text-align: left;">
+                            <div style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; font-weight: 800; font-size: 0.78rem; padding: 3px 10px; border-radius: 8px; display: inline-block; margin-bottom: 8px;">
+                                🔴 BRANCH B (Strict Policy Rejection)
+                            </div>
+                            <div style="font-size: 0.88rem; color: #e2e8f0; font-weight: 600; line-height: 1.4;">
+                                {t_branch_b}
+                            </div>
+                            <div style="margin-top: 10px; font-weight: 800; color: #f87171; font-size: 0.82rem;">
+                                🔥 Predicted CSAT: 1.5 / 5.0 (Escalation & PR Risk)
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 """,
                 unsafe_allow_html=True
             )
