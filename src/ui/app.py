@@ -1349,12 +1349,17 @@ def coaching_page():
         render_rider_status_widget,
         render_agent_quick_actions,
         render_zomato_bot_escalation_card,
+        render_customer_attachment_card,
+        render_practical_crm_action_bar,
+        render_practical_kpi_footer,
         get_dynamic_order_and_rider,
     )
     dyn_order, dyn_rider = get_dynamic_order_and_rider(session)
     render_live_sla_ticker()
     render_zomato_order_banner(dyn_order)
     render_rider_status_widget(dyn_rider)
+    render_customer_attachment_card(dyn_order)
+    render_practical_crm_action_bar(dyn_order)
     render_zomato_bot_escalation_card()
 
     main_cols = st.columns([6, 4])
@@ -1666,6 +1671,8 @@ def coaching_page():
         st.markdown("#### 📚 Relevant Articles")
         with st.container(border=True):
             render_knowledge_panel(st.session_state.last_turn, session)
+
+    render_practical_kpi_footer()
 
 
 def generate_markdown_report(report, session=None) -> str:
