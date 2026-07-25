@@ -625,12 +625,43 @@ def setup_page():
 
         with col2:
             if mode == "simulator":
-                scenarios = st.session_state.orchestrator.list_scenarios()
-                scenario_choice = st.selectbox(
-                    "Customer issue", options=list(scenarios.keys()),
-                    format_func=lambda x: scenarios[x],
+                ind_filter = st.selectbox(
+                    "Filter Industry:",
+                    [
+                        "All Industries",
+                        "🍔 Food & Quick Commerce",
+                        "💳 Payments & Fintech",
+                        "🚀 Cloud & SaaS Engineering",
+                        "🚗 Mobility & Rides",
+                        "🗺️ Decision Tree Scenarios"
+                    ],
+                    key="industry_filter_select"
                 )
+                
+                scenarios = st.session_state.orchestrator.list_scenarios()
                 real_scenarios = st.session_state.orchestrator.session_config_module.load_real_scenarios()
+
+                filtered_scenarios = {}
+                for k, v in scenarios.items():
+                    if ind_filter == "🍔 Food & Quick Commerce" and not ("Zomato" in v or "Swiggy" in v):
+                        continue
+                    if ind_filter == "💳 Payments & Fintech" and not ("AWS" in v or "Stripe" in v):
+                        continue
+                    if ind_filter == "🚀 Cloud & SaaS Engineering" and not ("Vercel" in v or "Cloudflare" in v or "Shopify" in v):
+                        continue
+                    if ind_filter == "🚗 Mobility & Rides" and not ("Uber" in v):
+                        continue
+                    if ind_filter == "🗺️ Decision Tree Scenarios" and not ("Tree" in v or "🗺️" in v):
+                        continue
+                    filtered_scenarios[k] = v
+
+                if not filtered_scenarios:
+                    filtered_scenarios = scenarios
+
+                scenario_choice = st.selectbox(
+                    "Customer issue", options=list(filtered_scenarios.keys()),
+                    format_func=lambda x: filtered_scenarios[x],
+                )
                 for rs in real_scenarios:
                     if rs["id"] == scenario_choice:
                         selected_real = rs
