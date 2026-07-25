@@ -233,12 +233,12 @@ def render_zomato_order_banner(order: OrderHeaderCard | None = None):
 
 def render_rider_status_widget(rider: RiderStatusCard | None = None):
     """
-    Renders an authentic live delivery rider tracking card.
+    Renders an authentic live delivery rider tracking card with PII-masked phone proxy.
     """
     if not rider:
         rider = RiderStatusCard()
 
-    col1, col2 = st.columns([3, 1])
+    col1, col2 = st.columns([3.2, 1])
     with col1:
         st.markdown(
             f"""
@@ -255,16 +255,19 @@ def render_rider_status_widget(rider: RiderStatusCard | None = None):
                     <span style="font-weight: 800; color: #34d399; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">🚴 Delivery / Support Partner Status</span>
                     <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 3px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">Status: {rider.rider_status} ({rider.eta_mins} mins ETA)</span>
                 </div>
-                <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 8px;">
-                    Assigned Lead: <b style="color: white">{rider.rider_name}</b> | Phone: <b style="color: white">{rider.rider_phone}</b>
+                <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 8px; display: flex; align-items: center; gap: 12px;">
+                    <span>Assigned Lead: <b style="color: white">{rider.rider_name}</b></span>
+                    <span>•</span>
+                    <span>Phone: <span style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.35); color: #a5b4fc; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.76rem;">🔒 Masked Proxy (+91-98XXXXXX10)</span></span>
                 </div>
             </div>
             """,
             unsafe_allow_html=True
         )
     with col2:
-        if st.button("📞 Call Partner", use_container_width=True):
-            st.toast(f"📞 Dialing {rider.rider_name} ({rider.rider_phone})...", icon="📞")
+        st.markdown("<div style='height:2px;'></div>", unsafe_allow_html=True)
+        if st.button("📞 Proxy IVR Call", use_container_width=True):
+            st.toast(f"📞 Initiating Encrypted Computerized Proxy Dial to {rider.rider_name}...", icon="📞")
 
 def render_zomato_bot_escalation_card():
     """

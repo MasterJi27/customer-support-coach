@@ -275,7 +275,7 @@ def reset_session():
 
 def render_sidebar():
     with st.sidebar:
-        # Executive Sidebar Header Card
+        # Academic / Internship Sidebar Header Card
         st.markdown(
             """
             <div style="
@@ -287,8 +287,8 @@ def render_sidebar():
                 text-align: center;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.25);
             ">
-                <div style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.35rem; color:white;">⚡ CoachAI Engine</div>
-                <div style="font-size:0.75rem; color:#94a3b8; font-weight:600; margin-top:2px; letter-spacing:0.05em; text-transform:uppercase;">Enterprise Copilot & Audit</div>
+                <div style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.3rem; color:white;">🎓 Zomato AI Coach Desk</div>
+                <div style="font-size:0.72rem; color:#94a3b8; font-weight:600; margin-top:3px; letter-spacing:0.04em; text-transform:uppercase;">AI Agent Evaluation & Training Console</div>
             </div>
             """,
             unsafe_allow_html=True
