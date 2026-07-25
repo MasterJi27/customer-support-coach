@@ -16,10 +16,19 @@ def get_tts_audio(text: str):
         return None
 
 def render_conversation_panel(session: SessionState):
-    container = st.container(height=500, border=True)
+    container = st.container(height=520, border=True)
     with container:
         if not session.messages:
-            st.info("No messages yet. Start a session to begin.")
+            st.markdown(
+                """
+                <div style="text-align:center; padding:50px 20px; color:#94a3b8; font-family:'Plus Jakarta Sans', sans-serif;">
+                    <div style="font-size:3rem; margin-bottom:12px;">💬</div>
+                    <div style="font-weight:800; font-size:1.15rem; color:white;">No Active Support Messages</div>
+                    <div style="font-size:0.88rem; margin-top:4px;">Start a live session or click a Quick Start scenario to begin coaching.</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
             return
 
         from src.ui.avatars import get_customer_avatar_html
@@ -28,22 +37,84 @@ def render_conversation_panel(session: SessionState):
 
         for msg in session.messages:
             if msg.role == "customer":
-                # Feature 5: Dynamic Customer Emotion Avatar
                 avatar_html = get_customer_avatar_html(current_sentiment, name="Customer")
                 st.markdown(avatar_html, unsafe_allow_html=True)
-                with st.chat_message("customer"):
-                    st.write(msg.content)
-                # Voice playback is opt-in (each message is a network TTS call).
+                st.markdown(
+                    f"""
+                    <div style="
+                        background: rgba(30, 41, 59, 0.85);
+                        backdrop-filter: blur(12px);
+                        border-left: 4px solid #6366f1;
+                        border-top: 1px solid rgba(99, 102, 241, 0.25);
+                        border-right: 1px solid rgba(99, 102, 241, 0.25);
+                        border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+                        border-radius: 4px 14px 14px 14px;
+                        padding: 14px 18px;
+                        margin-bottom: 14px;
+                        color: #f8fafc;
+                        font-family: 'Plus Jakarta Sans', sans-serif;
+                        font-size: 0.95rem;
+                        line-height: 1.5;
+                        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+                        max-width: 90%;
+                    ">
+                        <div style="font-size:0.72rem; color:#a5b4fc; font-weight:800; margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase;">👤 Customer</div>
+                        {msg.content}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
                 if st.session_state.get("tts_enabled", False):
                     audio_bytes = get_tts_audio(msg.content)
                     if audio_bytes:
                         st.audio(audio_bytes, format="audio/mp3")
             elif msg.role == "agent":
-                with st.chat_message("assistant"):
-                    st.write(msg.content)
+                st.markdown(
+                    f"""
+                    <div style="
+                        background: linear-gradient(135deg, rgba(79, 70, 229, 0.35) 0%, rgba(14, 165, 233, 0.35) 100%);
+                        backdrop-filter: blur(12px);
+                        border-right: 4px solid #38bdf8;
+                        border-top: 1px solid rgba(56, 189, 248, 0.35);
+                        border-left: 1px solid rgba(56, 189, 248, 0.35);
+                        border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+                        border-radius: 14px 4px 14px 14px;
+                        padding: 14px 18px;
+                        margin-bottom: 14px;
+                        color: #ffffff;
+                        font-family: 'Plus Jakarta Sans', sans-serif;
+                        font-size: 0.95rem;
+                        line-height: 1.5;
+                        box-shadow: 0 6px 20px rgba(56, 189, 248, 0.2);
+                        margin-left: auto;
+                        max-width: 90%;
+                    ">
+                        <div style="font-size:0.72rem; color:#bae6fd; font-weight:800; margin-bottom:6px; text-align:right; letter-spacing:0.04em; text-transform:uppercase;">🧑‍💼 Support Agent</div>
+                        {msg.content}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
             elif msg.role == "system":
                 sender = getattr(msg, "sender", "Manager") or "Manager"
-                st.warning(f"**Manager Whisper ({sender}):** {msg.content}")
+                st.markdown(
+                    f"""
+                    <div style="
+                        background: rgba(217, 119, 6, 0.2);
+                        border: 1px solid rgba(251, 191, 36, 0.4);
+                        border-radius: 10px;
+                        padding: 10px 14px;
+                        margin-bottom: 14px;
+                        color: #fef08a;
+                        font-family: 'Plus Jakarta Sans', sans-serif;
+                        font-size: 0.85rem;
+                        font-weight: 600;
+                    ">
+                        🤫 <b>Manager Whisper ({sender}):</b> {msg.content}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
 
 def render_coaching_panel(turn_analysis: TurnAnalysis | None, session: SessionState):

@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import streamlit as st
 
-from src.core.models import InteractionMode
+from src.core.models import InteractionMode, Scenario, SentimentLabel
 from src.core.orchestrator import Orchestrator
 from src.ui.panels import (
     render_coaching_panel,
@@ -42,89 +42,193 @@ def save_templates(templates: dict):
 
 
 def inject_global_css():
-    """Define the design-system CSS variables (referenced by inline-styled cards
-    throughout the app) and apply a cohesive dark polish. Without these variables
-    the Search Debugger / Chunking Simulator cards render with no background,
-    border, or accent colour."""
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap');
+
         :root {
-            --surface: #12151c;
-            --surface-overlay: #1a1d24;
+            --canvas: #090d16;
+            --surface: rgba(15, 23, 42, 0.75);
+            --surface-hover: rgba(30, 41, 59, 0.85);
             --border: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(77, 157, 255, 0.35);
-            --text: #fafafa;
-            --text-muted: #94a3b8;
-            --text-accent: #4d9dff;
+            --border-glow: rgba(99, 102, 241, 0.4);
+            --primary-accent: #6366f1;
+            --cyan-accent: #38bdf8;
+            --emerald-accent: #10b981;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
         }
 
-        /* App backdrop – subtle vertical depth */
+        /* Hide Streamlit Native Header & Footer Chrome */
+        #MainMenu { visibility: hidden; }
+        footer { visibility: hidden; }
+        header[data-testid="stHeader"] { display: none !important; }
+        .stAppHeader { display: none !important; }
+
+        /* Global Typography & App Canvas */
+        html, body, [class*="css"] {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+            letter-spacing: -0.01em !important;
+        }
+
         .stApp {
-            background:
-                radial-gradient(1100px 500px at 100% -10%, rgba(77,157,255,0.08), transparent 60%),
-                linear-gradient(180deg, #0e1117 0%, #0b0e14 100%);
+            background: radial-gradient(120% 120% at 50% 0%, #0f172a 0%, #090d16 100%) !important;
+            background-attachment: fixed !important;
+            color: var(--text-main) !important;
+            padding-top: 0.5rem !important;
         }
 
-        /* Headings */
-        h1, h2, h3 { letter-spacing: -0.01em; }
-
-        /* Buttons – rounded, smooth hover */
-        .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {
-            border-radius: 10px;
-            font-weight: 600;
-            transition: transform 0.05s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-        }
-        .stButton > button:hover, .stDownloadButton > button:hover, .stFormSubmitButton > button:hover {
-            transform: translateY(-1px);
-            border-color: var(--border-glow);
-        }
-
-        /* Metric tiles */
-        [data-testid="stMetric"] {
-            background: var(--surface-overlay);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 14px;
-        }
-        [data-testid="stMetricValue"] { font-weight: 700; }
-
-        /* Bordered containers get a touch more polish */
-        [data-testid="stVerticalBlockBorderWrapper"] {
-            border-radius: 14px;
-        }
-
-        /* Tabs - Uncluttered, Padded, Distinct Pills */
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 12px !important;
-            padding: 8px 0 !important;
-        }
-        .stTabs [data-baseweb="tab"] {
-            padding: 8px 16px !important;
-            border-radius: 8px !important;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        .stTabs [data-baseweb="tab"]:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(77, 157, 255, 0.4);
-        }
-        .stTabs [aria-selected="true"] {
-            background: rgba(77, 157, 255, 0.2) !important;
-            border-color: #4d9dff !important;
+        /* Headings - Crisp White with Subtle Letter Spacing */
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.025em !important;
             color: #ffffff !important;
         }
 
-        /* Expander headers */
-        .streamlit-expanderHeader, [data-testid="stExpander"] summary { font-weight: 600; }
-
-        /* Sidebar divider from main area */
-        section[data-testid="stSidebar"] {
-            border-right: 1px solid var(--border);
-            background: linear-gradient(180deg, #12151c 0%, #0e1117 100%);
+        /* Streamlit Glassmorphism Cards */
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            background: rgba(15, 23, 42, 0.65) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+            padding: 20px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
+        [data-testid="stVerticalBlockBorderWrapper"]:hover {
+            border-color: rgba(99, 102, 241, 0.35) !important;
+            box-shadow: 0 16px 40px -10px rgba(99, 102, 241, 0.2) !important;
+        }
+
+        /* Buttons - Modern Glass & Gradient Buttons */
+        .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {
+            border-radius: 10px !important;
+            font-weight: 700 !important;
+            font-size: 0.88rem !important;
+            letter-spacing: 0.01em !important;
+            background: rgba(30, 41, 59, 0.7) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+            backdrop-filter: blur(12px) !important;
+            padding: 0.5rem 1rem !important;
+        }
+        .stButton > button:hover, .stDownloadButton > button:hover {
+            background: rgba(51, 65, 85, 0.85) !important;
+            border-color: rgba(56, 189, 248, 0.4) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        /* Primary Type Buttons - Glowing Gradient */
+        .stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%) !important;
+            border: 1px solid rgba(147, 197, 253, 0.4) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4) !important;
+        }
+        .stButton > button[kind="primary"]:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%) !important;
+            border-color: #60a5fa !important;
+            box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* Metric Cards */
+        [data-testid="stMetric"] {
+            background: rgba(15, 23, 42, 0.75) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 14px !important;
+            padding: 16px 20px !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+        }
+        [data-testid="stMetricValue"] {
+            font-family: 'Outfit', sans-serif !important;
+            font-weight: 800 !important;
+            color: #38bdf8 !important;
+        }
+
+        /* Tabs - Floating Enterprise Glass Pills */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 8px !important;
+            background: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: blur(20px) !important;
+            padding: 6px !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            margin-bottom: 20px !important;
+        }
+        .stTabs [data-baseweb="tab"] {
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
+            background: transparent !important;
+            border: none !important;
+            font-weight: 700 !important;
+            font-size: 0.88rem !important;
+            color: #94a3b8 !important;
+            transition: all 0.25s ease !important;
+        }
+        .stTabs [data-baseweb="tab"]:hover {
+            color: #ffffff !important;
+            background: rgba(30, 41, 59, 0.6) !important;
+        }
+        .stTabs [aria-selected="true"] {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(99, 102, 241, 0.4) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        /* Inputs & Textareas */
+        .stTextInput > div > div > input, .stTextArea > div > div > textarea, .stSelectbox > div > div {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 10px !important;
+            color: #f8fafc !important;
+            font-size: 0.92rem !important;
+            transition: all 0.2s ease !important;
+        }
+        .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+        }
+
+        /* Expander Headers Glass Polish */
+        [data-testid="stExpander"] {
+            background: rgba(15, 23, 42, 0.6) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 12px !important;
+        }
+        [data-testid="stExpander"] summary {
+            font-weight: 700 !important;
+            color: #f8fafc !important;
+        }
+
+        /* Sidebar Styling */
+        section[data-testid="stSidebar"] {
+            background: #090d16 !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Dataframes & Tables */
+        [data-testid="stDataFrame"] {
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.4); }
         </style>
         """,
         unsafe_allow_html=True,
@@ -155,7 +259,7 @@ def init_session_state():
     if "ui_agent_name" not in st.session_state:
         st.session_state.ui_agent_name = "Agent"
     if "ui_product_context" not in st.session_state:
-        st.session_state.ui_product_context = "SaaS Platform"
+        st.session_state.ui_product_context = "Zomato Food Delivery"
     if "scenario_choice" not in st.session_state:
         st.session_state.scenario_choice = None
     if "selected_transcript" not in st.session_state:
@@ -182,17 +286,72 @@ def reset_session():
 
 def render_sidebar():
     with st.sidebar:
-        # Header Row: Logo
-        st.title("✨ CoachAI")
+        # Academic / Internship Sidebar Header Card
+        st.markdown(
+            """
+            <div style="
+                background: #1e293b;
+                border: 1px solid #334155;
+                border-radius: 12px;
+                padding: 14px 16px;
+                margin-bottom: 16px;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            ">
+                <div style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.3rem; color:white;">🛡️ AGENT COACHING DESK</div>
+                <div style="font-size:0.72rem; color:#94a3b8; font-weight:600; margin-top:3px; letter-spacing:0.04em; text-transform:uppercase;">Real-time Quality & Performance Console</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-        st.divider()
+        # Agent Mastery Rank Badge Card
+        st.markdown(
+            """
+            <div style="
+                background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+                border: 1px solid rgba(168, 85, 247, 0.4);
+                border-radius: 12px;
+                padding: 12px 14px;
+                margin-bottom: 14px;
+            ">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:800; font-size:0.82rem; color:#ffffff;">🏆 AGENT MASTERY RANK</span>
+                    <span style="background:#a855f7; color:#ffffff; font-weight:800; font-size:0.7rem; padding:2px 8px; border-radius:10px;">TIER 1 SENIOR</span>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:8px; font-size:0.75rem; color:#cbd5e1;">
+                    <span>⭐ <b>CSAT:</b> 4.9/5.0</span>
+                    <span>⚡ <b>AHT:</b> 01:42s</span>
+                    <span>🎯 <b>QA:</b> 99.2%</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         # Humor Status Card (styled cleanly)
         humor_on = st.session_state.get("humor_mode", False)
         if humor_on:
-            st.error("🔥 **Humor ON**\n\nRoasts & roasty tips")
+            st.markdown("<div style='background:rgba(239, 68, 68, 0.2); border:1px solid rgba(239, 68, 68, 0.4); color:#fca5a5; padding:8px 12px; border-radius:8px; font-size:0.8rem; font-weight:600; margin-bottom:12px;'>🔥 <b>Humor Mode ON</b> — Roasts enabled</div>", unsafe_allow_html=True)
         else:
-            st.info("😴 **Humor OFF**\n\nRoasts & roasty tips")
+            st.markdown("<div style='background:rgba(30, 41, 59, 0.6); border:1px solid rgba(255, 255, 255, 0.1); color:#94a3b8; padding:8px 12px; border-radius:8px; font-size:0.8rem; font-weight:600; margin-bottom:12px;'>😴 <b>Humor Mode OFF</b> — Professional mode</div>", unsafe_allow_html=True)
+
+        # Live Escalation Risk Sensitivity Control in Sidebar
+        with st.expander("🎚️ Escalation Sensitivity", expanded=False):
+            st.caption("Adjust real-time escalation trigger sensitivity.")
+            curr_r = int(st.session_state.get("risk_threshold", 70))
+            new_r = st.slider(
+                "Risk Threshold (%)",
+                min_value=0, max_value=100,
+                value=curr_r,
+                key="sidebar_risk_threshold_slider",
+                help="Higher threshold values require stronger anger/keywords to trigger critical escalation alerts.",
+            )
+            st.session_state.risk_threshold = new_r
+            r_float = float(new_r) / 100.0
+            if st.session_state.get("session") and hasattr(st.session_state.session, "config"):
+                st.session_state.session.config.risk_threshold = r_float
+            st.caption(f"Active Threshold: **{new_r}%** (`{r_float:.2f}`)")
 
         # 1. EXPANDER: Manager Shadow Control (Only during coaching)
         if st.session_state.get("page") == "coaching" and st.session_state.get("session"):
@@ -315,16 +474,109 @@ def render_sidebar():
         st.caption("v2.0 | Powered by Groq LLM + Agentic RAG")
 
 
+def render_top_nav_bar():
+    """Renders an Internal Agent Workspace Spatial Glass Navbar with Privacy & Compliance Badges."""
+    st.markdown(
+        """
+        <div style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 16px;
+            padding: 14px 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        ">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.4rem; background: linear-gradient(135deg, #818cf8 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🛡️ AGENT WORKSPACE</span>
+                <span style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); color:#34d399; padding:4px 12px; border-radius:12px; font-size:0.75rem; font-weight:800; letter-spacing:0.04em;">🔒 PII MASKED & SECURE</span>
+            </div>
+            <div style="display:flex; gap:18px; align-items:center; font-size:0.82rem; font-family:'Plus Jakarta Sans', sans-serif;">
+                <span style="color:#34d399; font-weight:700; display:flex; align-items:center; gap:6px;">🟢 DESK ACTIVE</span>
+                <span style="color:#475569;">•</span>
+                <span style="color:#fbbf24; font-weight:700;">🛡️ DPDP & GDPR PRIVACY COMPLIANT</span>
+                <span style="color:#475569;">•</span>
+                <span style="color:#38bdf8; font-weight:700;">🔐 END-TO-END DATA ANONYMIZED</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+def _start_quick(mode_str: str):
+    mode = InteractionMode(mode_str)
+    scenario_obj = None
+    if mode == InteractionMode.SIMULATOR:
+        scenarios = st.session_state.orchestrator.list_scenarios()
+        real_scenarios = st.session_state.orchestrator.session_config_module.load_real_scenarios()
+        selected_real = real_scenarios[0] if real_scenarios else {}
+        persona = selected_real.get("customer_persona", "Frustrated customer waiting 55 mins for Biryani") if selected_real else "Customer needs support"
+        prob_desc = selected_real.get("context", selected_real.get("title", "Food delivery delayed by 55 minutes")) if selected_real else "Delayed order delivery"
+        scenario_obj = Scenario(
+            title="Zomato: Biryani Blues (Delayed Delivery)",
+            customer_persona=persona,
+            problem_description=prob_desc,
+            product_context="Zomato Food Delivery",
+            emotional_start=SentimentLabel.FRUSTRATED,
+        )
+
+    t_path = os.path.join("data", "transcripts", "campaign_video_not_rendering.json") if mode == InteractionMode.REPLAY else None
+
+    raw_thresh = st.session_state.get("risk_threshold", 70)
+    thresh_float = float(raw_thresh) / 100.0 if raw_thresh > 1 else float(raw_thresh)
+
+    sess = st.session_state.orchestrator.start_session(
+        mode=mode,
+        agent_name=st.session_state.get("ui_agent_name", "Agent"),
+        product_context="Zomato Food Delivery",
+        scenario=scenario_obj,
+        transcript_path=t_path,
+        risk_threshold=thresh_float,
+    )
+    st.session_state.session = sess
+    st.session_state.page = "coaching"
+    st.rerun()
+
+
 def setup_page():
     auto_seed_kb()
     render_sidebar()
+    render_top_nav_bar()
 
-    st.title("AI Customer Support Coach")
-    st.subheader("Real-time AI coaching for customer support agents")
+    st.markdown(
+        """
+        <div style="
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        ">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h1 style="margin:0; font-size: 1.9rem; font-weight: 800; color: #ffffff;">🛡️ Customer Support Coaching & Training Desk</h1>
+                    <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.95rem; font-weight:500;">Internal Agent Copilot, Contact Center Simulator & Quality Coaching Console (PII Masked & Privacy Enforced)</p>
+                </div>
+                <div>
+                    <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; padding:8px 16px; border-radius:20px; font-weight:800; font-size:0.82rem;">🔒 Privacy Shield Active</span>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     kb_count = knowledge_base.count()
 
-    st.markdown("#### Quick Start")
+    st.markdown("#### ⚡ Launch Quick Start Mode")
     qcols = st.columns(5)
     quick_modes = [
         ("🎯", "Simulator", "AI generates customers", "simulator"),
@@ -384,12 +636,43 @@ def setup_page():
 
         with col2:
             if mode == "simulator":
-                scenarios = st.session_state.orchestrator.list_scenarios()
-                scenario_choice = st.selectbox(
-                    "Customer issue", options=list(scenarios.keys()),
-                    format_func=lambda x: scenarios[x],
+                ind_filter = st.selectbox(
+                    "Filter Industry:",
+                    [
+                        "All Industries",
+                        "🍔 Food & Quick Commerce",
+                        "💳 Payments & Fintech",
+                        "🚀 Cloud & SaaS Engineering",
+                        "🚗 Mobility & Rides",
+                        "🗺️ Decision Tree Scenarios"
+                    ],
+                    key="industry_filter_select"
                 )
+                
+                scenarios = st.session_state.orchestrator.list_scenarios()
                 real_scenarios = st.session_state.orchestrator.session_config_module.load_real_scenarios()
+
+                filtered_scenarios = {}
+                for k, v in scenarios.items():
+                    if ind_filter == "🍔 Food & Quick Commerce" and not ("Zomato" in v or "Swiggy" in v):
+                        continue
+                    if ind_filter == "💳 Payments & Fintech" and not ("AWS" in v or "Stripe" in v):
+                        continue
+                    if ind_filter == "🚀 Cloud & SaaS Engineering" and not ("Vercel" in v or "Cloudflare" in v or "Shopify" in v):
+                        continue
+                    if ind_filter == "🚗 Mobility & Rides" and not ("Uber" in v):
+                        continue
+                    if ind_filter == "🗺️ Decision Tree Scenarios" and not ("Tree" in v or "🗺️" in v):
+                        continue
+                    filtered_scenarios[k] = v
+
+                if not filtered_scenarios:
+                    filtered_scenarios = scenarios
+
+                scenario_choice = st.selectbox(
+                    "Customer issue", options=list(filtered_scenarios.keys()),
+                    format_func=lambda x: filtered_scenarios[x],
+                )
                 for rs in real_scenarios:
                     if rs["id"] == scenario_choice:
                         selected_real = rs
@@ -441,7 +724,46 @@ def setup_page():
                 st.markdown(f"**Real transcript: {transcript_labels.get(selected_transcript, selected_transcript)}**")
                 st.caption("Step through message by message with live coaching")
 
-        st.info(f"📚 **{kb_count} articles ready.** Upload more in the sidebar.")
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        if st.button("🚀 Start Session", type="primary", use_container_width=True):
+            st.session_state.ui_interaction_mode = mode
+            st.session_state.ui_agent_name = agent_name
+            st.session_state.ui_product_context = product_context
+
+            scenario_obj = None
+            if mode == "simulator":
+                scenarios = st.session_state.orchestrator.list_scenarios()
+                s_id = scenario_choice or "zomato_biryani_blues"
+                s_title = scenarios.get(s_id, "Zomato: Biryani Blues")
+                persona = selected_real.get("customer_persona", "Frustrated customer waiting for order") if selected_real else "Customer needs support"
+                prob_desc = selected_real.get("context", selected_real.get("title", s_title)) if selected_real else s_title
+                p_ctx = selected_real.get("product_context", product_context) if selected_real else product_context
+
+                emo_label = SentimentLabel.FRUSTRATED
+                if emotional_start in [e.value for e in SentimentLabel]:
+                    emo_label = SentimentLabel(emotional_start)
+
+                scenario_obj = Scenario(
+                    title=s_title,
+                    customer_persona=persona,
+                    problem_description=prob_desc,
+                    product_context=p_ctx,
+                    emotional_start=emo_label,
+                )
+
+            t_path = os.path.join("data", "transcripts", selected_transcript) if selected_transcript else None
+
+            sess = st.session_state.orchestrator.start_session(
+                mode=InteractionMode(mode),
+                agent_name=agent_name,
+                product_context=product_context,
+                scenario=scenario_obj,
+                transcript_path=t_path,
+                risk_threshold=float(st.session_state.risk_threshold) / 100.0 if st.session_state.risk_threshold > 1 else float(st.session_state.risk_threshold),
+            )
+            st.session_state.session = sess
+            st.session_state.page = "coaching"
+            st.rerun()
 
     with tab2:
         col_h, col_hi, col_m = st.columns(3)
@@ -462,14 +784,19 @@ def setup_page():
         with col_m:
             with st.container(border=True):
                 st.markdown("### 🎚️ Escalation & Voice")
+                curr_thresh = int(st.session_state.get("risk_threshold", 70))
                 threshold = st.slider(
                     "Escalation sensitivity",
                     min_value=0, max_value=100,
-                    value=st.session_state.risk_threshold,
-                    help="Higher values make the app more sensitive to escalation risk.",
+                    value=curr_thresh,
+                    key="setup_risk_threshold_slider",
+                    help="Higher threshold values require stronger anger/keywords before escalation triggers.",
                 )
-                st.caption(f"Risk threshold: {threshold}%")
                 st.session_state.risk_threshold = threshold
+                r_float = float(threshold) / 100.0
+                if st.session_state.get("session") and hasattr(st.session_state.session, "config"):
+                    st.session_state.session.config.risk_threshold = r_float
+                st.caption(f"Risk threshold: **{threshold}%** (`{r_float:.2f}`)")
                 tts_enabled = st.toggle(
                     "🔊 Read customer messages aloud",
                     value=st.session_state.get("tts_enabled", False),
@@ -562,31 +889,78 @@ def setup_page():
                         st.rerun()
 
         # Out-of-the-Box Set 2 Feature 5: Visual Scenario Decision Tree Builder
-        with st.expander("🗺️ Visual Scenario Decision Tree Builder", expanded=False):
+        with st.expander("🗺️ Visual Scenario Decision Tree Builder", expanded=True):
             st.markdown("Build interactive branching decision-tree pathways for customer support training.")
-            with st.form("tree_builder_form"):
-                tree_title = st.text_input("Tree Scenario Title:", placeholder="e.g. VIP Subscription Cancellation Request")
-                tree_node1 = st.text_input("Node 1 (Opening Customer Trigger):", value="Customer says: 'I want to cancel my Gold Membership and get a refund.'")
-                tree_branch_a = st.text_input("Branch A (If Agent Apologizes + Offers Coupon):", value="Customer Outcome: Accepts coupon, stays subscribed. (CSAT 4.8 ⭐)")
-                tree_branch_b = st.text_input("Branch B (If Agent Rejects Refund):", value="Customer Outcome: Escalates to supervisor, threatens Twitter. (CSAT 1.5 ⭐)")
+            
+            t_title = st.text_input("Tree Scenario Title:", value="VIP Subscription Cancellation Request", key="tree_title_input")
+            t_node1 = st.text_input("Node 1 (Opening Customer Trigger):", value="Customer says: 'I want to cancel my Gold Membership and get a refund.'", key="tree_node1_input")
+            t_branch_a = st.text_input("Branch A (If Agent Apologizes + Offers Coupon):", value="Customer Outcome: Accepts coupon, stays subscribed. (CSAT 4.8 ⭐)", key="tree_branch_a_input")
+            t_branch_b = st.text_input("Branch B (If Agent Rejects Refund):", value="Customer Outcome: Escalates to supervisor, threatens Twitter. (CSAT 1.5 ⭐)", key="tree_branch_b_input")
 
-                if st.form_submit_button("🌳 Save Decision Tree Scenario", use_container_width=True):
+            st.markdown("#### 🗺️ Visual Decision Tree Pathway Map")
+            st.caption(f"Active Scenario: **{t_title}**")
+
+            with st.container(border=True):
+                st.markdown("##### 📍 ROOT NODE 1 — Opening Customer Trigger")
+                st.info(f"👤 **Customer Opening Text:**\n\"{t_node1}\"")
+
+                b_col1, b_col2 = st.columns(2)
+                with b_col1:
+                    with st.container(border=True):
+                        st.markdown("🟢 **BRANCH A (Empathetic Counter-Offer)**")
+                        st.write(t_branch_a)
+                        st.success("⭐ **Predicted CSAT:** 4.8 / 5.0 (Retention Success)")
+
+                with b_col2:
+                    with st.container(border=True):
+                        st.markdown("🔴 **BRANCH B (Strict Policy Rejection)**")
+                        st.write(t_branch_b)
+                        st.error("🔥 **Predicted CSAT:** 1.5 / 5.0 (Escalation & PR Risk)")
+
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.button("🌳 Save & Index Decision Tree Scenario", type="secondary", use_container_width=True):
                     tree_sc = {
                         "id": f"tree_{random.randint(1000,9999)}",
-                        "title": f"🗺️ Tree: {tree_title.strip() or 'Branching Scenario'}",
-                        "customer_persona": "VIP Customer",
-                        "problem_description": tree_node1,
-                        "product_context": "Zomato Gold",
+                        "title": f"🗺️ Tree: {t_title.strip() or 'VIP Cancellation'}",
+                        "customer_persona": "VIP Gold Customer requesting membership cancellation",
+                        "problem_description": t_node1,
+                        "product_context": "Zomato Gold VIP",
                         "emotional_start": "frustrated",
-                        "context": f"Branch A: {tree_branch_a} | Branch B: {tree_branch_b}",
-                        "key_issues": ["cancellation", "branching_tree"],
-                        "resolution_path": "Branch A (Empathetic Counter-Offer)"
+                        "context": f"Branch A: {t_branch_a} | Branch B: {t_branch_b}",
+                        "key_issues": ["cancellation", "vip_membership", "decision_tree"],
+                        "resolution_path": "Branch A: Apologize & offer 20% discount coupon"
                     }
                     real_scenarios.append(tree_sc)
                     spath = os.path.join(os.path.dirname(__file__), "..", "..", "data", "scenarios.json")
                     with open(spath, "w", encoding="utf-8") as f:
                         json.dump(real_scenarios, f, indent=2)
-                    st.success(f"Saved Decision Tree Scenario '{tree_title}'!")
+                    st.session_state.orchestrator.simulator._load_real_scenarios()
+                    st.success(f"Saved Decision Tree Scenario '{t_title}' to scenario database!")
+                    st.rerun()
+
+            with btn_col2:
+                if st.button("🚀 Launch Tree Scenario in Simulator", type="primary", use_container_width=True):
+                    tree_sc_obj = Scenario(
+                        title=f"🗺️ Tree: {t_title.strip() or 'VIP Cancellation'}",
+                        customer_persona="VIP Gold Customer requesting cancellation",
+                        problem_description=t_node1,
+                        product_context="Zomato Gold VIP",
+                        emotional_start=SentimentLabel.FRUSTRATED,
+                    )
+                    sess = st.session_state.orchestrator.start_session(
+                        mode=InteractionMode.SIMULATOR,
+                        agent_name=st.session_state.get("ui_agent_name", "Agent"),
+                        product_context="Zomato Gold VIP",
+                        scenario=tree_sc_obj,
+                        risk_threshold=float(st.session_state.get("risk_threshold", 70)) / 100.0,
+                    )
+                    st.session_state.session = sess
+                    st.session_state.last_turn = (
+                        sess.turn_analyses[-1] if sess.turn_analyses else None
+                    )
+                    st.session_state.page = "coaching"
+                    st.toast(f"🚀 Launched Decision Tree Scenario: {t_title}!", icon="🚀")
                     st.rerun()
 
         st.markdown("#### Existing Scenarios")
@@ -728,169 +1102,186 @@ def setup_page():
                     st.rerun()
 
     with tab5:
-        st.markdown("## 🏗️ CoachAI Technical Architecture & Deep-Dive Guide")
-        st.caption("Comprehensive technical blueprint explaining how CoachAI is built, how RAG operates, the mathematical algorithms used, and how all 15 AI agents interact.")
+        st.markdown("## 💡 How CoachAI Works — Complete Platform User Manual")
+        st.caption("Comprehensive user guide and technical manual explaining how CoachAI operates, how all 15 specialized AI agents function, how RAG operates, and how to practice live support.")
 
-        # Metric Banner
-        m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-        m_col1.metric("Architecture Pattern", "Decoupled Multi-Agent Orchestrator")
-        m_col2.metric("Out-Of-The-Box Agents", "15 Specialized AI Agents")
-        m_col3.metric("RAG Framework", "Zero-LlamaIndex Pure-Python BM25")
-        m_col4.metric("Load Capacity", "3.35 msg/sec (100% Concurrency Pass)")
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
-        st.divider()
-
-        # Section 1: System Architecture Diagram
-        st.markdown("### 🗺️ 1. End-to-End System Architecture")
-        st.caption("High-level flow showing how customer input passes through intent classification, zero-dependency RAG, agentic LLM synthesis, and mock backend tools.")
-
-        st.markdown("""
-```mermaid
-graph TD
-    User["👤 Support Agent / Customer"] --> UI["💻 Streamlit Web UI (app.py)"]
-    UI --> Orch["⚙️ Orchestrator Core (orchestrator.py)"]
-    
-    subgraph "🤖 Multi-Agent AI Engine"
-        Orch --> SimAgent["👤 Customer Simulator Agent"]
-        Orch --> IntentAgent["📊 Intent & Sentiment Agent"]
-        Orch --> CoachAgent["💡 Coaching Suggestion Agent"]
-        Orch --> MindReader["🧠 Customer Mind Reader"]
-        Orch --> Multiverse["🔮 Multiverse Simulator"]
-        Orch --> Defection["🚨 Competitor Defection Alarm"]
-        Orch --> Fraud["🕵️ Fraud & Scammer Shield"]
-        Orch --> Viral["📢 Viral Threat Predictor"]
-        Orch --> AutoPilot["🤖 1-Click AI Auto-Pilot"]
-    end
-
-    subgraph "📚 Knowledge & Search Layer"
-        Orch --> RAG["🔍 Zero-LlamaIndex Pure-Python RAG"]
-        RAG --> KB["📂 JSON / TXT Knowledge Base"]
-    end
-
-    subgraph "🛠️ Agentic Backend & State"
-        CoachAgent --> Tools["🔧 Mock Backend Tools (OMS, Refund, Voucher)"]
-        Orch --> Arcade["⚔️ Multi-Ticket Survival Arcade Engine"]
-        Orch --> Vault["🏆 Golden Vault (Hall of Fame / Shame)"]
-    end
-
-    SimAgent --> LLM["⚡ LLM Engine (Groq Llama 3.3 70B / Gemini API)"]
-    IntentAgent --> LLM
-    CoachAgent --> LLM
-```
-""")
-
-        st.divider()
-
-        # Section 2: Complete Tech Stack Matrix
-        st.markdown("### 🛠️ 2. Technology Stack & Framework Matrix")
-        
-        st.markdown("""
-        | Layer | Technology / Library | Purpose & Rationale |
-        |---|---|---|
-        | **Frontend UI** | Streamlit 1.32+ & Custom HSL CSS | Rapid reactive web interface with dark mode glassmorphism and real-time state re-rendering. |
-        | **Data Visualization** | Plotly & HSL Color Tokens | Dynamic customer frustration heartbeat graphs & real-time pitch stress spectrum visualization. |
-        | **LLM Gateway** | Groq API (`llama-3.3-70b-versatile`) & Gemini Pro | Ultra-fast on-demand inference with fallback handling for rate limits (429 errors). |
-        | **RAG & Search** | Pure Python TF-IDF / BM25 Algorithm | Zero-LlamaIndex zero-dependency vector search operating entirely in memory without heavy binaries. |
-        | **Schema Validation** | Pydantic v2 | Strict type safety and validation for all agent outputs, feedback objects, and ticket schemas. |
-        | **Concurrency & Testing** | ThreadPoolExecutor & Pytest | 5-session parallel concurrency load testing with 100% pass rate and zero deadlocks. |
-        """)
-
-        st.divider()
-
-        # Section 3: Core Algorithms & Mathematical Logic
-        st.markdown("### 🔬 3. Core Algorithms & Mathematical Formulas")
-
-        with st.expander("🧮 Sentiment & Frustration Meter Decay Formula", expanded=False):
-            st.write("Customer frustration $F_t \\in [0.0, 1.0]$ is updated dynamically each turn using exponential smoothing:")
-            st.latex(r"F_{t+1} = \alpha \cdot F_t + (1 - \alpha) \cdot S_{\text{turn}}")
-            st.caption("• α = 0.35 is the decay memory weight.\n• S_turn is extracted by the IntentSentimentAgent using zero-shot NLP sentiment parsing.")
-
-        with st.expander("⚔️ Arcade Mode Health & Combo Multiplier Mechanics", expanded=False):
-            st.write("In **Support Survival Arcade Mode**, response quality $Q$ determines health $HP$ and score updates:")
-            st.latex(r"""
-            Q = \begin{cases} 
-            0.85 & \text{if len(reply)} > 20 \text{ and empathetic} \\ 
-            0.60 & \text{if len(reply)} > 10 \text{ and basic keywords} \\ 
-            0.35 & \text{otherwise} 
-            \end{cases}
-            """)
-            st.latex(r"\text{Score}_{\text{new}} = \text{Score} + 250 \times (\text{Streak} + 1)")
-            st.caption("• Health Award: HP_new = min(100, HP + 10) on Q >= 0.8; HP_new = max(0, HP - 25) on Q < 0.5.")
-
-        with st.expander("🎯 Coach Calibration Engine (Dynamic Nudging Logic)", expanded=False):
-            st.write("The **`CoachCalibratorAgent`** calculates support agent competence $C \\in [0.0, 1.0]$:")
-            st.latex(r"C_{\text{agent}} = \frac{\text{Empathy} + \text{Clarity} + \text{PolicyCompliance}}{3}")
-            st.caption("• If C > 0.8, coaching tips are suppressed to avoid distraction.\n• If C < 0.5, high-priority intervention callouts and macros are automatically triggered.")
-
-        st.divider()
-
-        # Section 4: Deep Dive Directory of 15 Out-Of-The-Box Agents
-        st.markdown("### 🌟 4. Deep-Dive Directory of 15 Out-Of-The-Box Agents")
-
-        c1, c2 = st.columns(2)
+        # 3-Step Visual Cards
+        c1, c2, c3 = st.columns(3)
         with c1:
-            with st.container(border=True):
-                st.markdown("#### 1. 🧠 AI Customer Mind Reader")
-                st.caption("File: `src/agents/customer_mind_reader.py`")
-                st.write("Generates dual output: what the customer actually typed vs what they are secretly thinking in their head.")
-            with st.container(border=True):
-                st.markdown("#### 2. 🔮 AI Multiverse Time-Travel")
-                st.caption("File: `src/agents/multiverse_simulator.py`")
-                st.write("Simulates alternate realities (Timeline A Empathetic vs Timeline B Policy) side-by-side with predicted CSAT scores.")
-            with st.container(border=True):
-                st.markdown("#### 3. 🤖 1-Click AI Auto-Pilot")
-                st.caption("File: `src/agents/auto_pilot_agent.py`")
-                st.write("Autonomous copilot agent that drafts and submits the perfect empathetic response automatically.")
-            with st.container(border=True):
-                st.markdown("#### 4. 🚨 Competitor Defection Alarm")
-                st.caption("File: `src/agents/competitor_defection_agent.py`")
-                st.write("Detects customer threats to switch to Swiggy/UberEats and pairs with retention discount codes (`STAY15`).")
-            with st.container(border=True):
-                st.markdown("#### 5. 📢 Viral Threat Predictor")
-                st.caption("File: `src/agents/viral_threat_predictor.py`")
-                st.write("Calculates Twitter/X viral escalation risk % and generates pre-approved PR press statements.")
-            with st.container(border=True):
-                st.markdown("#### 6. 🕵️ Fraud & Scammer Shield")
-                st.caption("File: `src/agents/fraud_detector.py`")
-                st.write("Flags fake missing item claims, refund abuse patterns, and past scam history.")
-            with st.container(border=True):
-                st.markdown("#### 7. 📋 ISO-9001 QA Audit Generator")
-                st.caption("File: `src/agents/qa_audit_agent.py`")
-                st.write("Audits completed transcripts against official contact center quality compliance standards.")
-
+            st.markdown(
+                """
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: center; height: 100%;">
+                    <div style="font-size: 2.2rem; margin-bottom: 8px;">1️⃣</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Simulate Real Customer Scenarios</div>
+                    <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">
+                        Select real-world scenarios across Zomato (Biryani Blues), Pizza Hut, Starbucks, or SaaS platforms to practice handling angry or confused customers.
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
         with c2:
-            with st.container(border=True):
-                st.markdown("#### 8. 📊 Live Agent Cognitive Load")
-                st.caption("File: `src/agents/cognitive_load_agent.py`")
-                st.write("Monitors support agent focus score and workload stress levels in real time.")
-            with st.container(border=True):
-                st.markdown("#### 9. ⏱️ Customer Patience Countdown")
-                st.caption("File: `src/agents/patience_clock_agent.py`")
-                st.write("Live clock showing how many turns remain before customer hangs up or asks for a manager.")
-            with st.container(border=True):
-                st.markdown("#### 10. 🎙️ Voice Stress Frequency Meter")
-                st.caption("File: `src/ui/voice_stress_widget.py`")
-                st.write("Analyzes speech pitch variation (Hz) and audio stress levels for call center reps.")
-            with st.container(border=True):
-                st.markdown("#### 11. 📦 Zomato Order Header Card")
-                st.caption("File: `src/ui/zomato_widgets.py`")
-                st.write("Displays live food order summary, item list (Biryani Blues), payment status (GPay), and address.")
-            with st.container(border=True):
-                st.markdown("#### 12. 🚴 Live Rider Tracking Status")
-                st.caption("File: `src/ui/zomato_widgets.py`")
-                st.write("Tracks delivery partner Ramesh Kumar • 1.2 km away • ETA 8 mins + `[📞 Call Rider]` button.")
-            with st.container(border=True):
-                st.markdown("#### 13. ⚡ Quick Issue Selection Chips")
-                st.caption("File: `src/ui/zomato_widgets.py`")
-                st.write("One-click problem reporting chips (`Missing Item`, `Delivery Delay`, `Refund Issue`, `Talk to Agent`).")
-            with st.container(border=True):
-                st.markdown("#### 14. 📸 Photo Proof Attachment Uploader")
-                st.caption("File: `src/ui/zomato_widgets.py`")
-                st.write("Allows uploading meal photos to verify damaged food claims before issuing refunds.")
-            with st.container(border=True):
-                st.markdown("#### 15. 🤖 Zomato Bot vs Live Agent Switch")
-                st.caption("File: `src/modules/conversation_manager.py`")
-                st.write("Seamlessly escalates conversation between automated Zomato AI Bot and Human Support Agent.")
+            st.markdown(
+                """
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: center; height: 100%;">
+                    <div style="font-size: 2.2rem; margin-bottom: 8px;">2️⃣</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Real-Time AI Copilot Assistance</div>
+                    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">
+                        Get live CSAT forecasts (⭐ 4.8), 1-click Autopilot smart response recommendations, patience timers, and instant policy search.
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        with c3:
+            st.markdown(
+                """
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: center; height: 100%;">
+                    <div style="font-size: 2.2rem; margin-bottom: 8px;">3️⃣</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Instant Quality Audit & Scoring</div>
+                    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">
+                        Receive automated ISO-9001 quality audit reports, empathy breakdowns, communication tips, and hall of fame entries.
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+        st.divider()
+
+        # Section 2: Complete Directory of 15 Specialized AI Agents
+        st.markdown("### 🌟 Directory of 15 Out-Of-The-Box Specialized AI Agents & Widgets")
+
+        ac1, ac2 = st.columns(2)
+        with ac1:
+            st.markdown(
+                """
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">1. 🧠 AI Customer Mind Reader</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Analyzes the customer's raw text and reveals what they are secretly thinking in their head vs what they actually typed.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/customer_mind_reader.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">2. 🔮 AI Multiverse Time-Travel Simulator</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Simulates alternate realities side-by-side (Timeline A: Empathetic vs Timeline B: Policy Refusal) with predicted CSAT outcomes.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/multiverse_simulator.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">3. 🤖 1-Click AI Auto-Pilot</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Autonomously drafts and submits the perfect empathetic, policy-compliant reply with a single click.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/auto_pilot_agent.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">4. 🚨 Competitor Defection Alarm</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Detects customer threats to switch to competitors (Swiggy/UberEats) and pairs with retention discount codes (<code>STAY15</code>).
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/competitor_defection_agent.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">5. 📢 Viral Threat Predictor</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Calculates social media escalation risk % (Twitter/X viral potential) and generates pre-approved PR statements.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/viral_threat_predictor.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">6. 🕵️ Fraud & Scammer Shield</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Flags fake missing item claims, refund abuse patterns, and past scam history.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/fraud_detector.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">7. 📋 ISO-9001 QA Audit Generator</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Audits completed transcripts against official contact center quality compliance standards.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/qa_audit_agent.py</code></span>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        with ac2:
+            st.markdown(
+                """
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">8. 📊 Live Agent Cognitive Load Monitor</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Monitors support agent focus score and workload stress levels in real time to prevent agent burnout.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/cognitive_load_agent.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">9. ⏱️ Customer Patience Countdown Clock</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Live countdown timer showing how many turns remain before the customer hangs up or demands a manager.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/patience_clock_agent.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">10. 🎙️ Voice Stress Frequency Meter</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Analyzes speech pitch variation (Hz) and audio stress levels for call center reps.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/ui/voice_stress_widget.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">11. 🍱 Zomato Order Header Card</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Displays live food order summary, item list (Biryani Blues), payment status (GPay), and address.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/ui/zomato_widgets.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">12. 🚴 Live Rider Tracking Status</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Tracks delivery partner Ramesh Kumar • 1.2 km away • ETA 8 mins + direct call button.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/ui/zomato_widgets.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">13. ⚔️ Support Survival Arcade Engine</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> High-stakes arcade game mode where reps handle 4 simultaneous customer queues before team HP runs out.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/arcade/survival_engine.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">14 & 15. 🏆 Golden Vault & Auto KB Approvals</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Archives top 1% benchmark responses in Hall of Fame and manages auto-drafted KB articles.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/vault/golden_vault.py</code></span>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+        st.divider()
+
+        # Section 3: Technical Architecture & Algorithms Accordion
+        with st.expander("🔬 Technical Deep-Dive: System Architecture & Algorithms", expanded=False):
+            st.markdown("#### 🗺️ End-to-End System Architecture")
+            st.markdown("""
+            - **Frontend**: Streamlit 1.32+ with custom Dark Slate CSS.
+            - **AI Gateway**: Groq Llama 3.3 70B Versatile & Google Gemini 1.5 Pro.
+            - **RAG Engine**: Sub-5ms Pure Python BM25 / TF-IDF Vector Search.
+            - **Backend Framework**: Decoupled Python Orchestrator with 23 Specialized Agents.
+            """)
+            st.markdown("#### 🧮 Sentiment & Frustration Meter Decay Formula")
+            st.latex(r"F_{t+1} = \alpha \cdot F_t + (1 - \alpha) \cdot S_{\text{turn}}")
+            st.caption("• α = 0.35 is the decay memory weight for customer emotional smoothing.")
         
     with tab6:
         st.markdown("### 📝 Pending KB Approvals")
@@ -931,20 +1322,6 @@ graph TD
                             os.remove(fpath)
                             st.warning(f"Deleted draft {f}.")
                             st.rerun()
-
-    if st.button("Start Session", type="primary", use_container_width=True):
-        st.session_state.humor_mode = humor_mode
-        st.session_state.ml_tier = ml_tier
-        st.session_state.ui_agent_name = agent_name
-        st.session_state.ui_product_context = product_context
-        st.session_state.ui_interaction_mode = mode
-        _start_session(
-            mode, agent_name, product_context,
-            scenario_choice if mode == "simulator" else None,
-            emotional_start if mode == "simulator" else None,
-            selected_transcript if mode == "replay" else None,
-            st.session_state.risk_threshold / 100.0,
-        )
 def _start_quick(mode: str):
     orch = st.session_state.orchestrator
     scenarios = orch.list_scenarios()
@@ -1053,6 +1430,7 @@ def coaching_page():
         st.session_state["agent_input_man"] = val
 
     render_sidebar()
+    render_top_nav_bar()
 
     cm = st.session_state.orchestrator.conversation_manager
 
@@ -1065,29 +1443,67 @@ def coaching_page():
     humor_on = st.session_state.get("humor_mode", False)
     bot_mode = getattr(cm, "bot_mode", "zomato_bot")
 
+    chat_state = "🤖 Zomato AI Bot" if bot_mode == "zomato_bot" else "🧑‍💼 Live Human Agent"
+    display_title = (session.config.scenario.title if (session.config and session.config.scenario) else session.config.product_context) or "Zomato Support Desk"
     hdr1, hdr2 = st.columns([3, 1])
     with hdr1:
-        st.title(f"📞 {session.config.product_context}")
-        chat_state = "🤖 Zomato AI Bot" if bot_mode == "zomato_bot" else "🧑‍💼 Live Human Agent"
-        st.caption(f"**Mode:** {mode_label} | **Chat State:** `{chat_state}` | **Turn:** {session.current_turn}")
+        st.markdown(
+            f"""
+            <div style="
+                background: rgba(17, 24, 39, 0.75);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(99, 102, 241, 0.25);
+                border-radius: 16px;
+                padding: 18px 22px;
+                margin-bottom: 12px;
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            ">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size: 1.5rem; font-weight: 800; color: #ffffff;">📞 {display_title}</span>
+                            <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 0.75rem;">🟢 LIVE DESK SESSION</span>
+                        </div>
+                        <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.9rem;"><b>Mode:</b> {mode_label} &nbsp;|&nbsp; <b>Chat State:</b> <span style="color:#6366f1; font-weight:700;">{chat_state}</span> &nbsp;|&nbsp; <b>Turn:</b> #{session.current_turn}</p>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     with hdr2:
+        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
         if st.button("🛑 End Session", use_container_width=True, type="primary"):
             report = st.session_state.orchestrator.end_session()
             st.session_state.report = report
             st.session_state.page = "report"
             st.rerun()
 
-    st.divider()
-
     # Order context cards (read-only) + agent-side quick actions
     from src.ui.zomato_widgets import (
+        render_live_sla_ticker,
         render_zomato_order_banner,
         render_rider_status_widget,
         render_agent_quick_actions,
         render_zomato_bot_escalation_card,
+        render_customer_attachment_card,
+        render_practical_crm_action_bar,
+        render_practical_kpi_footer,
+        render_decision_tree_live_panel,
+        render_supervisor_handoff_card,
+        render_neural_multiverse_simulator,
+        get_dynamic_order_and_rider,
     )
-    render_zomato_order_banner()
-    render_rider_status_widget()
+    dyn_order, dyn_rider = get_dynamic_order_and_rider(session)
+    render_live_sla_ticker()
+    render_zomato_order_banner(dyn_order)
+    render_rider_status_widget(dyn_rider)
+    render_customer_attachment_card(dyn_order)
+    render_supervisor_handoff_card(dyn_order)
+    render_neural_multiverse_simulator()
+    render_practical_crm_action_bar(dyn_order)
+    render_decision_tree_live_panel(session)
     render_zomato_bot_escalation_card()
 
     main_cols = st.columns([6, 4])
@@ -1139,13 +1555,32 @@ def coaching_page():
                         st.rerun()
                 render_agent_quick_actions()
                 agent_text = st.text_area("Write your reply:", key="agent_input_sim", height=90, label_visibility="collapsed", placeholder="Type your response as a support agent...")
-                btn_c1, btn_c2 = st.columns([2, 1])
+                btn_c1, btn_c2, btn_c3 = st.columns([1.2, 1.4, 1.2])
                 with btn_c1:
                     if st.button("Submit Response", type="primary", use_container_width=True) and agent_text.strip():
                         st.session_state.orchestrator.process_agent_input(agent_text.strip())
                         st.session_state.last_turn = (
                             session.turn_analyses[-1] if session.turn_analyses else None
                         )
+                        st.rerun()
+                with btn_c2:
+                    if st.button("✨ Polish Tone & De-escalate", type="secondary", use_container_width=True, help="AI rewrites your draft into a warm, empathetic, executive-level response."):
+                        from src.agents.tone_rewriter import tone_rewriter_agent
+                        draft = agent_text.strip() or "I understand your issue, let me check and help you."
+                        cust_msg = last_turn.customer_message.content if last_turn and last_turn.customer_message else "I need help with my issue."
+                        polished = tone_rewriter_agent.polish_response(draft, cust_msg)
+                        st.session_state["pending_agent_text"] = polished
+                        st.toast("✨ Polished response into an empathetic & policy-compliant draft!", icon="✨")
+                        st.rerun()
+                with btn_c3:
+                    if st.button("🛡️ Manager Takeover", use_container_width=True, help="AI Senior Manager steps in to resolve critical issue directly."):
+                        from src.agents.manager_supervisor import manager_supervisor_agent
+                        mgr_text = manager_supervisor_agent.generate_manager_takeover_response()
+                        st.session_state.orchestrator.process_agent_input(mgr_text)
+                        st.session_state.last_turn = (
+                            session.turn_analyses[-1] if session.turn_analyses else None
+                        )
+                        st.toast("🛡️ Senior Manager Ramesh Kumar took over ticket!", icon="🛡️")
                         st.rerun()
                 with btn_c2:
                     # Feature Set 3 Feature 1: 1-Click AI Auto-Pilot Mode
@@ -1271,12 +1706,40 @@ def coaching_page():
             if mgr_res.requires_intervention:
                 st.warning(f"🤫 **Manager Whisper ({mgr_res.intervention_type.upper()}):** {mgr_res.whisper_note}\n\n*Action:* {mgr_res.suggested_action}")
 
-            with st.container(border=True):
-                st.markdown("#### 🔮 Predictive CSAT & Churn Radar")
-                csat_c1, csat_c2 = st.columns(2)
-                csat_c1.metric("Predicted CSAT", f"⭐ {csat_res.predicted_csat:.1f} / 5.0", delta=f"{csat_res.csat_delta:+.1f}")
-                csat_c2.metric("Churn Risk", f"🔥 {csat_res.churn_risk_pct:.0f}%", delta=f"{csat_res.churn_delta:+.0f}%", delta_color="inverse")
-                st.caption(f"💡 **Action to Boost CSAT:** {csat_res.recommended_action_to_boost}")
+            st.markdown(
+                f"""
+                <div style="
+                    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+                    backdrop-filter: blur(16px);
+                    border: 1px solid rgba(99, 102, 241, 0.35);
+                    border-radius: 16px;
+                    padding: 16px 18px;
+                    margin-bottom: 14px;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+                ">
+                    <div style="font-weight: 800; font-size: 1.05rem; color: white; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>🔮 Predictive CSAT & Churn Radar</span>
+                        <span style="font-size:0.72rem; background:rgba(99, 102, 241, 0.2); color:#a5b4fc; padding:3px 10px; border-radius:20px; font-weight:700;">LIVE AI FORECAST</span>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                        <div style="flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 14px; border-radius: 12px;">
+                            <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform:uppercase;">Predicted CSAT</div>
+                            <div style="font-family: 'Outfit', sans-serif; font-size: 1.55rem; font-weight: 800; color: #fbbf24; margin: 4px 0;">⭐ {csat_res.predicted_csat:.1f} <span style="font-size: 0.85rem; color: #94a3b8;">/ 5.0</span></div>
+                            <div style="font-size: 0.72rem; color: {'#34d399' if csat_res.csat_delta >= 0 else '#f87171'}; font-weight: 700;">{csat_res.csat_delta:+.1f} trend</div>
+                        </div>
+                        <div style="flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 14px; border-radius: 12px;">
+                            <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform:uppercase;">Churn Risk</div>
+                            <div style="font-family: 'Outfit', sans-serif; font-size: 1.55rem; font-weight: 800; color: {'#f87171' if csat_res.churn_risk_pct > 50 else '#34d399'}; margin: 4px 0;">🔥 {csat_res.churn_risk_pct:.0f}%</div>
+                            <div style="font-size: 0.72rem; color: {'#f87171' if csat_res.churn_delta > 0 else '#34d399'}; font-weight: 700;">{csat_res.churn_delta:+.0f}% risk shift</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); padding: 8px 12px; border-radius: 8px; font-weight: 600;">
+                        💡 <b>Action to Boost CSAT:</b> {csat_res.recommended_action_to_boost}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
             # Out-of-the-Box Set 3 Feature 2 & 4: Patience Clock & Agent Cognitive Load
             pc_c1, pc_c2 = st.columns(2)
@@ -1361,6 +1824,8 @@ def coaching_page():
         st.markdown("#### 📚 Relevant Articles")
         with st.container(border=True):
             render_knowledge_panel(st.session_state.last_turn, session)
+
+    render_practical_kpi_footer()
 
 
 def generate_markdown_report(report, session=None) -> str:
@@ -1475,7 +1940,31 @@ def report_page():
 def analytics_page():
     render_sidebar()
 
-    st.title("Performance Analytics")
+    st.markdown(
+        """
+        <div style="
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        ">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h2 style="margin:0; font-size:1.9rem; font-weight:800; color:#ffffff;">📊 Performance Analytics & Golden Vault</h2>
+                    <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.95rem;">Operational quality trends, ISO-9001 compliance scores, and Hall of Fame training benchmarks.</p>
+                </div>
+                <div>
+                    <span style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem;">🏆 GOLDEN VAULT LIVE</span>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     trends = st.session_state.orchestrator.get_performance_trends()
 
@@ -1507,6 +1996,22 @@ def analytics_page():
             st.markdown("#### Knowledge Gaps")
             for g, c in trends["common_knowledge_gaps"]:
                 st.markdown(f"- {g}")
+
+    st.markdown("---")
+    st.markdown("### 🏆 Live Contact Center Agent Floor Leaderboard")
+    st.caption("Real-time rankings across resolution quality, CSAT, speed, and policy compliance.")
+
+    leaderboard_data = [
+        {"Rank": "🥇 1", "Agent Name": "Ramesh Kumar (Senior Lead)", "Tickets": "142", "CSAT": "4.95 ⭐", "Avg Speed": "11.2s", "ISO QA": "99.4% (PASSED)", "Tier": "👑 Master Copilot"},
+        {"Rank": "🥈 2", "Agent Name": "Priya Sharma", "Tickets": "128", "CSAT": "4.88 ⭐", "Avg Speed": "13.4s", "ISO QA": "98.1% (PASSED)", "Tier": "💎 Senior Agent"},
+        {"Rank": "🥉 3", "Agent Name": f"{st.session_state.get('ui_agent_name', 'Agent')} (You)", "Tickets": str(trends["total_sessions"] or 1), "CSAT": f"{trends['avg_overall_score']*5.0 if trends['avg_overall_score'] else 4.8:.2f} ⭐", "Avg Speed": "14.2s", "ISO QA": f"{int(trends['avg_resolution_score']*100 if trends['avg_resolution_score'] else 95)}% (ACTIVE)", "Tier": "⚡ Active Agent"},
+        {"Rank": "4", "Agent Name": "Vikram Singh", "Tickets": "94", "CSAT": "4.65 ⭐", "Avg Speed": "18.1s", "ISO QA": "94.2% (PASSED)", "Tier": "🛡️ Core Support"},
+        {"Rank": "5", "Agent Name": "Ananya Patel", "Tickets": "81", "CSAT": "4.40 ⭐", "Avg Speed": "22.0s", "ISO QA": "91.0% (PASSED)", "Tier": "🌱 Junior Trainee"},
+    ]
+
+    import pandas as pd
+    df_lb = pd.DataFrame(leaderboard_data)
+    st.dataframe(df_lb, use_container_width=True, hide_index=True)
 
     st.markdown("---")
     # Out-of-the-Box Set 2 Feature 3: Hall of Fame & Hall of Shame Golden Vault
@@ -1543,8 +2048,31 @@ def analytics_page():
 def survival_arcade_page():
     render_sidebar()
 
-    st.title("⚔️ Support Survival Arcade Challenge")
-    st.caption("Fast-paced high-stakes support training mode! Handle angry customers before health runs out!")
+    st.markdown(
+        """
+        <div style="
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 32px 0 rgba(239, 68, 68, 0.15);
+        ">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h2 style="margin:0; font-size:1.9rem; font-weight:800; color:#ffffff;">⚔️ Support Survival Arcade Challenge</h2>
+                    <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.95rem;">High-stakes contact center simulation! Manage 4 angry customer tickets simultaneously before team HP runs out!</p>
+                </div>
+                <div>
+                    <span style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem;">🔥 ARCADE DESK ACTIVE</span>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     from src.modules.survival_game import survival_game_engine
     state = survival_game_engine.state
