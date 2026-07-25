@@ -875,169 +875,123 @@ def setup_page():
                     st.rerun()
 
     with tab5:
-        st.markdown("## 🏗️ CoachAI Technical Architecture & Deep-Dive Guide")
-        st.caption("Comprehensive technical blueprint explaining how CoachAI is built, how RAG operates, the mathematical algorithms used, and how all 15 AI agents interact.")
+        st.markdown("## 💡 How CoachAI Works — User Guide & System Overview")
+        st.caption("Welcome to CoachAI! Here is how our AI-powered copilot helps support agents practice, de-escalate customers, and boost quality scores.")
 
-        # Metric Banner
-        m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-        m_col1.metric("Architecture Pattern", "Decoupled Multi-Agent Orchestrator")
-        m_col2.metric("Out-Of-The-Box Agents", "15 Specialized AI Agents")
-        m_col3.metric("RAG Framework", "Zero-LlamaIndex Pure-Python BM25")
-        m_col4.metric("Load Capacity", "3.35 msg/sec (100% Concurrency Pass)")
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
-        st.divider()
-
-        # Section 1: System Architecture Diagram
-        st.markdown("### 🗺️ 1. End-to-End System Architecture")
-        st.caption("High-level flow showing how customer input passes through intent classification, zero-dependency RAG, agentic LLM synthesis, and mock backend tools.")
-
-        st.markdown("""
-```mermaid
-graph TD
-    User["👤 Support Agent / Customer"] --> UI["💻 Streamlit Web UI (app.py)"]
-    UI --> Orch["⚙️ Orchestrator Core (orchestrator.py)"]
-    
-    subgraph "🤖 Multi-Agent AI Engine"
-        Orch --> SimAgent["👤 Customer Simulator Agent"]
-        Orch --> IntentAgent["📊 Intent & Sentiment Agent"]
-        Orch --> CoachAgent["💡 Coaching Suggestion Agent"]
-        Orch --> MindReader["🧠 Customer Mind Reader"]
-        Orch --> Multiverse["🔮 Multiverse Simulator"]
-        Orch --> Defection["🚨 Competitor Defection Alarm"]
-        Orch --> Fraud["🕵️ Fraud & Scammer Shield"]
-        Orch --> Viral["📢 Viral Threat Predictor"]
-        Orch --> AutoPilot["🤖 1-Click AI Auto-Pilot"]
-    end
-
-    subgraph "📚 Knowledge & Search Layer"
-        Orch --> RAG["🔍 Zero-LlamaIndex Pure-Python RAG"]
-        RAG --> KB["📂 JSON / TXT Knowledge Base"]
-    end
-
-    subgraph "🛠️ Agentic Backend & State"
-        CoachAgent --> Tools["🔧 Mock Backend Tools (OMS, Refund, Voucher)"]
-        Orch --> Arcade["⚔️ Multi-Ticket Survival Arcade Engine"]
-        Orch --> Vault["🏆 Golden Vault (Hall of Fame / Shame)"]
-    end
-
-    SimAgent --> LLM["⚡ LLM Engine (Groq Llama 3.3 70B / Gemini API)"]
-    IntentAgent --> LLM
-    CoachAgent --> LLM
-```
-""")
-
-        st.divider()
-
-        # Section 2: Complete Tech Stack Matrix
-        st.markdown("### 🛠️ 2. Technology Stack & Framework Matrix")
-        
-        st.markdown("""
-        | Layer | Technology / Library | Purpose & Rationale |
-        |---|---|---|
-        | **Frontend UI** | Streamlit 1.32+ & Custom HSL CSS | Rapid reactive web interface with dark mode glassmorphism and real-time state re-rendering. |
-        | **Data Visualization** | Plotly & HSL Color Tokens | Dynamic customer frustration heartbeat graphs & real-time pitch stress spectrum visualization. |
-        | **LLM Gateway** | Groq API (`llama-3.3-70b-versatile`) & Gemini Pro | Ultra-fast on-demand inference with fallback handling for rate limits (429 errors). |
-        | **RAG & Search** | Pure Python TF-IDF / BM25 Algorithm | Zero-LlamaIndex zero-dependency vector search operating entirely in memory without heavy binaries. |
-        | **Schema Validation** | Pydantic v2 | Strict type safety and validation for all agent outputs, feedback objects, and ticket schemas. |
-        | **Concurrency & Testing** | ThreadPoolExecutor & Pytest | 5-session parallel concurrency load testing with 100% pass rate and zero deadlocks. |
-        """)
-
-        st.divider()
-
-        # Section 3: Core Algorithms & Mathematical Logic
-        st.markdown("### 🔬 3. Core Algorithms & Mathematical Formulas")
-
-        with st.expander("🧮 Sentiment & Frustration Meter Decay Formula", expanded=False):
-            st.write("Customer frustration $F_t \\in [0.0, 1.0]$ is updated dynamically each turn using exponential smoothing:")
-            st.latex(r"F_{t+1} = \alpha \cdot F_t + (1 - \alpha) \cdot S_{\text{turn}}")
-            st.caption("• α = 0.35 is the decay memory weight.\n• S_turn is extracted by the IntentSentimentAgent using zero-shot NLP sentiment parsing.")
-
-        with st.expander("⚔️ Arcade Mode Health & Combo Multiplier Mechanics", expanded=False):
-            st.write("In **Support Survival Arcade Mode**, response quality $Q$ determines health $HP$ and score updates:")
-            st.latex(r"""
-            Q = \begin{cases} 
-            0.85 & \text{if len(reply)} > 20 \text{ and empathetic} \\ 
-            0.60 & \text{if len(reply)} > 10 \text{ and basic keywords} \\ 
-            0.35 & \text{otherwise} 
-            \end{cases}
-            """)
-            st.latex(r"\text{Score}_{\text{new}} = \text{Score} + 250 \times (\text{Streak} + 1)")
-            st.caption("• Health Award: HP_new = min(100, HP + 10) on Q >= 0.8; HP_new = max(0, HP - 25) on Q < 0.5.")
-
-        with st.expander("🎯 Coach Calibration Engine (Dynamic Nudging Logic)", expanded=False):
-            st.write("The **`CoachCalibratorAgent`** calculates support agent competence $C \\in [0.0, 1.0]$:")
-            st.latex(r"C_{\text{agent}} = \frac{\text{Empathy} + \text{Clarity} + \text{PolicyCompliance}}{3}")
-            st.caption("• If C > 0.8, coaching tips are suppressed to avoid distraction.\n• If C < 0.5, high-priority intervention callouts and macros are automatically triggered.")
-
-        st.divider()
-
-        # Section 4: Deep Dive Directory of 15 Out-Of-The-Box Agents
-        st.markdown("### 🌟 4. Deep-Dive Directory of 15 Out-Of-The-Box Agents")
-
-        c1, c2 = st.columns(2)
+        # 3-Step Visual Cards
+        c1, c2, c3 = st.columns(3)
         with c1:
-            with st.container(border=True):
-                st.markdown("#### 1. 🧠 AI Customer Mind Reader")
-                st.caption("File: `src/agents/customer_mind_reader.py`")
-                st.write("Generates dual output: what the customer actually typed vs what they are secretly thinking in their head.")
-            with st.container(border=True):
-                st.markdown("#### 2. 🔮 AI Multiverse Time-Travel")
-                st.caption("File: `src/agents/multiverse_simulator.py`")
-                st.write("Simulates alternate realities (Timeline A Empathetic vs Timeline B Policy) side-by-side with predicted CSAT scores.")
-            with st.container(border=True):
-                st.markdown("#### 3. 🤖 1-Click AI Auto-Pilot")
-                st.caption("File: `src/agents/auto_pilot_agent.py`")
-                st.write("Autonomous copilot agent that drafts and submits the perfect empathetic response automatically.")
-            with st.container(border=True):
-                st.markdown("#### 4. 🚨 Competitor Defection Alarm")
-                st.caption("File: `src/agents/competitor_defection_agent.py`")
-                st.write("Detects customer threats to switch to Swiggy/UberEats and pairs with retention discount codes (`STAY15`).")
-            with st.container(border=True):
-                st.markdown("#### 5. 📢 Viral Threat Predictor")
-                st.caption("File: `src/agents/viral_threat_predictor.py`")
-                st.write("Calculates Twitter/X viral escalation risk % and generates pre-approved PR press statements.")
-            with st.container(border=True):
-                st.markdown("#### 6. 🕵️ Fraud & Scammer Shield")
-                st.caption("File: `src/agents/fraud_detector.py`")
-                st.write("Flags fake missing item claims, refund abuse patterns, and past scam history.")
-            with st.container(border=True):
-                st.markdown("#### 7. 📋 ISO-9001 QA Audit Generator")
-                st.caption("File: `src/agents/qa_audit_agent.py`")
-                st.write("Audits completed transcripts against official contact center quality compliance standards.")
-
+            st.markdown(
+                """
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: center; height: 100%;">
+                    <div style="font-size: 2.2rem; margin-bottom: 8px;">1️⃣</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Simulate Real Chats</div>
+                    <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">
+                        Practice with realistic AI customer personas across Zomato, Pizza Hut, Starbucks, and SaaS scenarios.
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
         with c2:
-            with st.container(border=True):
-                st.markdown("#### 8. 📊 Live Agent Cognitive Load")
-                st.caption("File: `src/agents/cognitive_load_agent.py`")
-                st.write("Monitors support agent focus score and workload stress levels in real time.")
-            with st.container(border=True):
-                st.markdown("#### 9. ⏱️ Customer Patience Countdown")
-                st.caption("File: `src/agents/patience_clock_agent.py`")
-                st.write("Live clock showing how many turns remain before customer hangs up or asks for a manager.")
-            with st.container(border=True):
-                st.markdown("#### 10. 🎙️ Voice Stress Frequency Meter")
-                st.caption("File: `src/ui/voice_stress_widget.py`")
-                st.write("Analyzes speech pitch variation (Hz) and audio stress levels for call center reps.")
-            with st.container(border=True):
-                st.markdown("#### 11. 📦 Zomato Order Header Card")
-                st.caption("File: `src/ui/zomato_widgets.py`")
-                st.write("Displays live food order summary, item list (Biryani Blues), payment status (GPay), and address.")
-            with st.container(border=True):
-                st.markdown("#### 12. 🚴 Live Rider Tracking Status")
-                st.caption("File: `src/ui/zomato_widgets.py`")
-                st.write("Tracks delivery partner Ramesh Kumar • 1.2 km away • ETA 8 mins + `[📞 Call Rider]` button.")
-            with st.container(border=True):
-                st.markdown("#### 13. ⚡ Quick Issue Selection Chips")
-                st.caption("File: `src/ui/zomato_widgets.py`")
-                st.write("One-click problem reporting chips (`Missing Item`, `Delivery Delay`, `Refund Issue`, `Talk to Agent`).")
-            with st.container(border=True):
-                st.markdown("#### 14. 📸 Photo Proof Attachment Uploader")
-                st.caption("File: `src/ui/zomato_widgets.py`")
-                st.write("Allows uploading meal photos to verify damaged food claims before issuing refunds.")
-            with st.container(border=True):
-                st.markdown("#### 15. 🤖 Zomato Bot vs Live Agent Switch")
-                st.caption("File: `src/modules/conversation_manager.py`")
-                st.write("Seamlessly escalates conversation between automated Zomato AI Bot and Human Support Agent.")
+            st.markdown(
+                """
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: center; height: 100%;">
+                    <div style="font-size: 2.2rem; margin-bottom: 8px;">2️⃣</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Live Copilot Assistance</div>
+                    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">
+                        Get real-time CSAT forecasts (⭐ 4.8), 1-click Autopilot smart replies, and instant policy search.
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        with c3:
+            st.markdown(
+                """
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: center; height: 100%;">
+                    <div style="font-size: 2.2rem; margin-bottom: 8px;">3️⃣</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Instant Quality Audit</div>
+                    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">
+                        Receive automated ISO-9001 compliance scores, communication tips, and post-call performance summaries.
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+        st.divider()
+
+        # Core Features Showcase
+        st.markdown("### 🌟 Key Intelligent Features at a Glance")
+
+        fcol1, fcol2 = st.columns(2)
+        with fcol1:
+            st.markdown(
+                """
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">🧠 Customer Mind Reader</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
+                        Reveals what the customer is secretly thinking in their head vs what they actually typed.
+                    </p>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">🤖 1-Click AI Auto-Pilot</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
+                        Automatically drafts and submits empathetic, policy-compliant replies with a single click.
+                    </p>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">🚨 Competitor Defection Alarm</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
+                        Detects customer threats to switch to competitors (Swiggy/UberEats) and suggests retention vouchers.
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        with fcol2:
+            st.markdown(
+                """
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">⚔️ Support Survival Arcade Mode</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
+                        Gamified high-stakes mode where agents manage 4 simultaneous customer queues before team HP runs out.
+                    </p>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">📢 Viral Threat Predictor</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
+                        Predicts social media escalation risk % and generates pre-approved PR statements for high-risk complaints.
+                    </p>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">🔍 Sub-5ms BM25 Knowledge Retrieval</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
+                        Instantly pulls exact refund, cancellation, and delivery policy snippets in under 5 milliseconds.
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+
+        # Optional Technical Architecture Accordion for Developers
+        with st.expander("🔬 Technical Deep-Dive: System Architecture & Algorithms", expanded=False):
+            st.markdown("#### 🗺️ End-to-End System Architecture")
+            st.markdown("""
+            - **Frontend**: Streamlit 1.32+ with custom Linear Obsidian CSS.
+            - **AI Gateway**: Groq Llama 3.3 70B Versatile & Google Gemini 1.5 Pro.
+            - **RAG Engine**: Sub-5ms Pure Python BM25 / TF-IDF Vector Search.
+            - **Backend Framework**: Decoupled Python Orchestrator with 23 Specialized Agents.
+            """)
+            st.markdown("#### 🧮 Sentiment & Frustration Meter Decay Formula")
+            st.latex(r"F_{t+1} = \alpha \cdot F_t + (1 - \alpha) \cdot S_{\text{turn}}")
+            st.caption("• α = 0.35 is the decay memory weight for customer emotional smoothing.")
         
     with tab6:
         st.markdown("### 📝 Pending KB Approvals")
