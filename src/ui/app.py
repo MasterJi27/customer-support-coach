@@ -49,10 +49,10 @@ def inject_global_css():
 
         :root {
             --canvas: #090d16;
-            --surface: rgba(17, 24, 39, 0.75);
+            --surface: rgba(15, 23, 42, 0.75);
             --surface-hover: rgba(30, 41, 59, 0.85);
-            --border: rgba(99, 102, 241, 0.2);
-            --border-glow: rgba(56, 189, 248, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(99, 102, 241, 0.4);
             --primary-accent: #6366f1;
             --cyan-accent: #38bdf8;
             --emerald-accent: #10b981;
@@ -69,10 +69,11 @@ def inject_global_css():
         /* Global Typography & App Canvas */
         html, body, [class*="css"] {
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+            letter-spacing: -0.01em !important;
         }
 
         .stApp {
-            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #090d16 60%) !important;
+            background: radial-gradient(120% 120% at 50% 0%, #0f172a 0%, #090d16 100%) !important;
             background-attachment: fixed !important;
             color: var(--text-main) !important;
             padding-top: 0.5rem !important;
@@ -88,62 +89,64 @@ def inject_global_css():
 
         /* Streamlit Glassmorphism Cards */
         [data-testid="stVerticalBlockBorderWrapper"] {
-            background: rgba(17, 24, 39, 0.7) !important;
-            backdrop-filter: blur(16px) !important;
-            -webkit-backdrop-filter: blur(16px) !important;
-            border: 1px solid rgba(99, 102, 241, 0.25) !important;
+            background: rgba(15, 23, 42, 0.65) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
             border-radius: 16px !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
-            padding: 18px !important;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+            padding: 20px !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
         [data-testid="stVerticalBlockBorderWrapper"]:hover {
-            border-color: rgba(56, 189, 248, 0.5) !important;
-            box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15) !important;
-            transform: translateY(-2px) !important;
+            border-color: rgba(99, 102, 241, 0.35) !important;
+            box-shadow: 0 16px 40px -10px rgba(99, 102, 241, 0.2) !important;
         }
 
         /* Buttons - Modern Glass & Gradient Buttons */
         .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {
             border-radius: 10px !important;
             font-weight: 700 !important;
+            font-size: 0.88rem !important;
             letter-spacing: 0.01em !important;
-            background: rgba(30, 41, 59, 0.8) !important;
+            background: rgba(30, 41, 59, 0.7) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             color: #f8fafc !important;
-            transition: all 0.25s ease !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
-            backdrop-filter: blur(8px) !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+            backdrop-filter: blur(12px) !important;
+            padding: 0.5rem 1rem !important;
         }
         .stButton > button:hover, .stDownloadButton > button:hover {
-            background: rgba(51, 65, 85, 0.9) !important;
+            background: rgba(51, 65, 85, 0.85) !important;
             border-color: rgba(56, 189, 248, 0.4) !important;
             color: #ffffff !important;
             transform: translateY(-1px) !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35) !important;
         }
 
         /* Primary Type Buttons - Glowing Gradient */
         .stButton > button[kind="primary"] {
-            background: linear-gradient(135deg, #4f46e5 0%, #0284c7 100%) !important;
-            border: 1px solid rgba(56, 189, 248, 0.5) !important;
+            background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%) !important;
+            border: 1px solid rgba(147, 197, 253, 0.4) !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.45) !important;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4) !important;
         }
         .stButton > button[kind="primary"]:hover {
-            background: linear-gradient(135deg, #4338ca 0%, #0369a1 100%) !important;
-            border-color: #38bdf8 !important;
-            box-shadow: 0 6px 24px rgba(56, 189, 248, 0.6) !important;
+            background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%) !important;
+            border-color: #60a5fa !important;
+            box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6) !important;
             transform: translateY(-2px) !important;
         }
 
         /* Metric Cards */
         [data-testid="stMetric"] {
-            background: rgba(17, 24, 39, 0.75) !important;
-            backdrop-filter: blur(12px) !important;
-            border: 1px solid rgba(99, 102, 241, 0.25) !important;
+            background: rgba(15, 23, 42, 0.75) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
             border-radius: 14px !important;
             padding: 16px 20px !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
         }
         [data-testid="stMetricValue"] {
             font-family: 'Outfit', sans-serif !important;
@@ -151,15 +154,15 @@ def inject_global_css():
             color: #38bdf8 !important;
         }
 
-        /* Tabs - Spatial Floating Glass Pills */
+        /* Tabs - Floating Enterprise Glass Pills */
         .stTabs [data-baseweb="tab-list"] {
             gap: 8px !important;
             background: rgba(15, 23, 42, 0.8) !important;
-            backdrop-filter: blur(16px) !important;
+            backdrop-filter: blur(20px) !important;
             padding: 6px !important;
             border-radius: 12px !important;
-            border: 1px solid rgba(99, 102, 241, 0.2) !important;
-            margin-bottom: 18px !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            margin-bottom: 20px !important;
         }
         .stTabs [data-baseweb="tab"] {
             padding: 10px 20px !important;
@@ -167,6 +170,7 @@ def inject_global_css():
             background: transparent !important;
             border: none !important;
             font-weight: 700 !important;
+            font-size: 0.88rem !important;
             color: #94a3b8 !important;
             transition: all 0.25s ease !important;
         }
@@ -175,31 +179,31 @@ def inject_global_css():
             background: rgba(30, 41, 59, 0.6) !important;
         }
         .stTabs [aria-selected="true"] {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.3) 0%, rgba(14, 165, 233, 0.3) 100%) !important;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%) !important;
             color: #ffffff !important;
-            border: 1px solid rgba(56, 189, 248, 0.4) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid rgba(99, 102, 241, 0.4) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
         }
 
         /* Inputs & Textareas */
         .stTextInput > div > div > input, .stTextArea > div > div > textarea, .stSelectbox > div > div {
-            background: rgba(17, 24, 39, 0.8) !important;
-            border: 1px solid rgba(99, 102, 241, 0.25) !important;
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
             border-radius: 10px !important;
             color: #f8fafc !important;
-            font-size: 0.95rem !important;
-            transition: all 0.25s ease !important;
+            font-size: 0.92rem !important;
+            transition: all 0.2s ease !important;
         }
         .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
-            border-color: #38bdf8 !important;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
         }
 
         /* Expander Headers Glass Polish */
         [data-testid="stExpander"] {
-            background: rgba(17, 24, 39, 0.7) !important;
-            backdrop-filter: blur(12px) !important;
-            border: 1px solid rgba(99, 102, 241, 0.2) !important;
+            background: rgba(15, 23, 42, 0.6) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
             border-radius: 12px !important;
         }
         [data-testid="stExpander"] summary {
@@ -210,14 +214,21 @@ def inject_global_css():
         /* Sidebar Styling */
         section[data-testid="stSidebar"] {
             background: #090d16 !important;
-            border-right: 1px solid rgba(99, 102, 241, 0.2) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Dataframes & Tables */
+        [data-testid="stDataFrame"] {
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #090d16; }
-        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.4); }
         </style>
         """,
         unsafe_allow_html=True,
