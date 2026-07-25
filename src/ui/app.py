@@ -49,14 +49,14 @@ def inject_global_css():
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap');
 
         :root {
-            --surface: #18181b;
-            --surface-overlay: #18181b;
-            --border: #27272a;
-            --border-glow: #3f3f46;
-            --primary-accent: #10b981;
+            --surface: #ffffff;
+            --surface-overlay: #ffffff;
+            --border: #e2e8f0;
+            --border-glow: #cbd5e1;
+            --primary-accent: #4f46e5;
             --secondary-accent: #f59e0b;
-            --text-main: #f4f4f5;
-            --text-sub: #a1a1aa;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
         }
 
         /* Hide Streamlit Native Header & Footer Chrome */
@@ -71,80 +71,84 @@ def inject_global_css():
         }
 
         .stApp {
-            background: #09090b !important;
+            background: #f8fafc !important;
             color: var(--text-main) !important;
             padding-top: 1rem !important;
         }
 
-        /* Headings - Crisp & Bold */
+        /* Headings - Crisp & Professional Deep Slate */
         h1, h2, h3, h4 {
             font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
             font-weight: 700 !important;
             letter-spacing: -0.02em !important;
-            color: #ffffff !important;
+            color: #0f172a !important;
         }
 
-        /* Streamlit Bordered Container Cards (Impeccable Linear Style) */
+        /* Streamlit Bordered Container Cards (Executive Pristine Light Style) */
         [data-testid="stVerticalBlockBorderWrapper"] {
-            background: #18181b !important;
-            border: 1px solid #27272a !important;
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
             border-radius: 12px !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
             padding: 16px !important;
-            transition: border-color 0.2s ease !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }
         [data-testid="stVerticalBlockBorderWrapper"]:hover {
-            border-color: #3f3f46 !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06) !important;
         }
 
-        /* Buttons - Linear Obsidian Style */
+        /* Buttons - Executive Slate Style */
         .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {
             border-radius: 8px !important;
             font-weight: 600 !important;
             letter-spacing: 0.01em !important;
-            background: #18181b !important;
-            border: 1px solid #27272a !important;
-            color: #f4f4f5 !important;
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #1e293b !important;
             transition: all 0.2s ease !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03) !important;
         }
         .stButton > button:hover, .stDownloadButton > button:hover {
-            background: #27272a !important;
-            border-color: #3f3f46 !important;
-            color: #ffffff !important;
+            background: #f1f5f9 !important;
+            border-color: #94a3b8 !important;
+            color: #0f172a !important;
         }
 
         /* Primary Type Buttons */
         .stButton > button[kind="primary"] {
-            background: #27272a !important;
-            border: 1px solid #3f3f46 !important;
+            background: #4f46e5 !important;
+            border: 1px solid #4338ca !important;
             color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
         }
         .stButton > button[kind="primary"]:hover {
-            background: #3f3f46 !important;
-            border-color: #52525b !important;
+            background: #4338ca !important;
+            border-color: #3730a3 !important;
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35) !important;
         }
 
         /* Metric Cards */
         [data-testid="stMetric"] {
-            background: #18181b !important;
-            border: 1px solid #27272a !important;
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
             border-radius: 12px !important;
             padding: 14px 18px !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
         }
         [data-testid="stMetricValue"] {
             font-family: 'Outfit', sans-serif !important;
             font-weight: 700 !important;
-            color: #ffffff !important;
+            color: #0f172a !important;
         }
 
-        /* Tabs - Linear Obsidian Pill Layout */
+        /* Tabs - Executive Light Pill Layout */
         .stTabs [data-baseweb="tab-list"] {
             gap: 6px !important;
-            background: #18181b !important;
+            background: #f1f5f9 !important;
             padding: 4px !important;
             border-radius: 10px !important;
-            border: 1px solid #27272a !important;
+            border: 1px solid #e2e8f0 !important;
             margin-bottom: 14px !important;
         }
         .stTabs [data-baseweb="tab"] {
@@ -153,54 +157,57 @@ def inject_global_css():
             background: transparent !important;
             border: none !important;
             font-weight: 600 !important;
-            color: #a1a1aa !important;
+            color: #64748b !important;
             transition: all 0.2s ease !important;
         }
         .stTabs [data-baseweb="tab"]:hover {
-            color: #ffffff !important;
-            background: #27272a !important;
+            color: #0f172a !important;
+            background: #e2e8f0 !important;
         }
         .stTabs [aria-selected="true"] {
-            background: #27272a !important;
-            color: #ffffff !important;
-            border: 1px solid #3f3f46 !important;
+            background: #ffffff !important;
+            color: #4f46e5 !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
         }
 
         /* Inputs & Textareas */
         .stTextInput > div > div > input, .stTextArea > div > div > textarea, .stSelectbox > div > div {
-            background: #18181b !important;
-            border: 1px solid #27272a !important;
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
             border-radius: 8px !important;
-            color: #f4f4f5 !important;
+            color: #0f172a !important;
             font-size: 0.92rem !important;
             transition: border-color 0.2s ease !important;
         }
         .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
-            border-color: #3f3f46 !important;
+            border-color: #4f46e5 !important;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
         }
 
-        /* Expander Headers Linear Polish */
+        /* Expander Headers Executive Polish */
         [data-testid="stExpander"] {
-            background: #18181b !important;
-            border: 1px solid #27272a !important;
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
             border-radius: 10px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
         }
         [data-testid="stExpander"] summary {
             font-weight: 700 !important;
-            color: #f4f4f5 !important;
+            color: #0f172a !important;
         }
 
         /* Sidebar Styling */
         section[data-testid="stSidebar"] {
-            background: #09090b !important;
-            border-right: 1px solid #27272a !important;
+            background: #ffffff !important;
+            border-right: 1px solid #e2e8f0 !important;
         }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #09090b; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+        ::-webkit-scrollbar-track { background: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -413,24 +420,23 @@ def render_top_nav_bar():
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(90deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.85) 50%, rgba(15, 23, 42, 0.92) 100%);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(99, 102, 241, 0.35);
-            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
             padding: 12px 22px;
-            margin-bottom: 22px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
         ">
             <div style="display:flex; align-items:center; gap:12px;">
-                <span style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.35rem; background:linear-gradient(90deg, #6366f1 0%, #a855f7 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">⚡ COACHAI COPILOT</span>
-                <span style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#a5b4fc; padding:3px 10px; border-radius:12px; font-size:0.72rem; font-weight:700; letter-spacing:0.04em;">ENTERPRISE v2.0</span>
+                <span style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.35rem; color:#4f46e5;">⚡ COACHAI COPILOT</span>
+                <span style="background:#e0e7ff; border:1px solid #c7d2fe; color:#4338ca; padding:3px 10px; border-radius:12px; font-size:0.72rem; font-weight:700; letter-spacing:0.04em;">ENTERPRISE v2.0</span>
             </div>
             <div style="display:flex; gap:16px; align-items:center; font-size:0.8rem; font-family:'Plus Jakarta Sans', sans-serif;">
-                <span style="color:#34d399; font-weight:700; display:flex; align-items:center; gap:6px;">🟢 ENGINE: ONLINE</span>
-                <span style="color:#64748b;">•</span>
-                <span style="color:#fbbf24; font-weight:700;">🏆 ISO-9001 COMPLIANT</span>
-                <span style="color:#64748b;">•</span>
-                <span style="color:#38bdf8; font-weight:700;">⚡ SUB-5MS BM25 RAG</span>
+                <span style="color:#059669; font-weight:700; display:flex; align-items:center; gap:6px;">🟢 ENGINE: ONLINE</span>
+                <span style="color:#cbd5e1;">•</span>
+                <span style="color:#d97706; font-weight:700;">🏆 ISO-9001 COMPLIANT</span>
+                <span style="color:#cbd5e1;">•</span>
+                <span style="color:#0284c7; font-weight:700;">⚡ SUB-5MS BM25 RAG</span>
             </div>
         </div>
         """,
@@ -446,20 +452,20 @@ def setup_page():
     st.markdown(
         """
         <div style="
-            background: #18181b;
-            border: 1px solid #27272a;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 14px;
             padding: 20px 24px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
         ">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <div>
-                    <h1 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #ffffff;">⚡ CoachAI Enterprise</h1>
-                    <p style="margin:4px 0 0 0; color:#a1a1aa; font-size:0.95rem; font-weight:500;">Real-time AI Copilot, Support Simulator & Quality Auditing Engine</p>
+                    <h1 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #0f172a;">⚡ CoachAI Enterprise</h1>
+                    <p style="margin:4px 0 0 0; color:#64748b; font-size:0.95rem; font-weight:500;">Real-time AI Copilot, Support Simulator & Quality Auditing Engine</p>
                 </div>
                 <div>
-                    <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding:6px 14px; border-radius:20px; font-weight:700; font-size:0.82rem;">🟢 AI Engine Operational</span>
+                    <span style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #059669; padding:6px 14px; border-radius:20px; font-weight:700; font-size:0.82rem;">🟢 AI Engine Operational</span>
                 </div>
             </div>
         </div>

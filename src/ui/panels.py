@@ -42,19 +42,19 @@ def render_conversation_panel(session: SessionState):
                 st.markdown(
                     f"""
                     <div style="
-                        background: #18181b;
-                        border: 1px solid #27272a;
+                        background: #f0f9ff;
+                        border: 1px solid #bae6fd;
                         border-radius: 4px 12px 12px 12px;
                         padding: 14px 18px;
                         margin-bottom: 14px;
-                        color: #f4f4f5;
+                        color: #0f172a;
                         font-family: 'Plus Jakarta Sans', sans-serif;
                         font-size: 0.94rem;
                         line-height: 1.5;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
                         max-width: 90%;
                     ">
-                        <div style="font-size:0.72rem; color:#a1a1aa; font-weight:800; margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase;">👤 Customer</div>
+                        <div style="font-size:0.72rem; color:#0284c7; font-weight:800; margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase;">👤 Customer</div>
                         {msg.content}
                     </div>
                     """,
@@ -68,8 +68,8 @@ def render_conversation_panel(session: SessionState):
                 st.markdown(
                     f"""
                     <div style="
-                        background: #27272a;
-                        border: 1px solid #3f3f46;
+                        background: #4f46e5;
+                        border: 1px solid #4338ca;
                         border-radius: 12px 4px 12px 12px;
                         padding: 14px 18px;
                         margin-bottom: 14px;
@@ -77,11 +77,11 @@ def render_conversation_panel(session: SessionState):
                         font-family: 'Plus Jakarta Sans', sans-serif;
                         font-size: 0.94rem;
                         line-height: 1.5;
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
                         margin-left: auto;
                         max-width: 90%;
                     ">
-                        <div style="font-size:0.72rem; color:#d4d4d8; font-weight:800; margin-bottom:6px; text-align:right; letter-spacing:0.04em; text-transform:uppercase;">🧑‍💼 Support Agent</div>
+                        <div style="font-size:0.72rem; color:#e0e7ff; font-weight:800; margin-bottom:6px; text-align:right; letter-spacing:0.04em; text-transform:uppercase;">🧑‍💼 Support Agent</div>
                         {msg.content}
                     </div>
                     """,
@@ -92,12 +92,12 @@ def render_conversation_panel(session: SessionState):
                 st.markdown(
                     f"""
                     <div style="
-                        background: rgba(217, 119, 6, 0.15);
-                        border: 1px solid rgba(251, 191, 36, 0.3);
+                        background: #fffbeb;
+                        border: 1px solid #fde68a;
                         border-radius: 10px;
                         padding: 10px 14px;
                         margin-bottom: 14px;
-                        color: #fef08a;
+                        color: #92400e;
                         font-family: 'Plus Jakarta Sans', sans-serif;
                         font-size: 0.85rem;
                         font-weight: 600;

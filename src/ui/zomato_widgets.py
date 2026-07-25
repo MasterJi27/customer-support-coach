@@ -8,25 +8,25 @@ def render_live_sla_ticker():
     st.markdown(
         """
         <div style="
-            background: #18181b;
-            border: 1px solid #27272a;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 10px;
             padding: 10px 16px;
             margin-bottom: 14px;
             font-size: 0.8rem;
-            color: #f4f4f5;
+            color: #0f172a;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-family: 'Plus Jakarta Sans', monospace;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         ">
             <div>
                 <span style="background: #dc2626; color: white; padding: 3px 8px; border-radius: 6px; font-weight: 800; margin-right: 10px; font-size: 0.72rem; letter-spacing: 0.05em;">🚨 SLA MONITOR</span>
-                <span>Active Desk Queue: <b>4 Tickets</b> | Avg Response Time: <b style="color: #34d399;">14.2s</b> | CSAT Target: <b style="color: #fbbf24;">4.8 ⭐</b></span>
+                <span>Active Desk Queue: <b>4 Tickets</b> | Avg Response Time: <b style="color: #059669;">14.2s</b> | CSAT Target: <b style="color: #d97706;">4.8 ⭐</b></span>
             </div>
             <div>
-                <span style="background: #27272a; border: 1px solid #3f3f46; color: #a1a1aa; padding: 3px 10px; border-radius: 20px; font-weight: 700; font-size: 0.75rem;">🟢 System Health: 99.9%</span>
+                <span style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 3px 10px; border-radius: 20px; font-weight: 700; font-size: 0.75rem;">🟢 System Health: 99.9%</span>
             </div>
         </div>
         """,
@@ -44,28 +44,28 @@ def render_zomato_order_banner(order: OrderHeaderCard | None = None):
     st.markdown(
         f"""
         <div style="
-            background: #18181b;
-            border: 1px solid #27272a;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
             padding: 16px 18px;
             margin-bottom: 14px;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            color: white;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            color: #0f172a;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
         ">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <div style="font-weight: 800; font-size: 1.15rem; color: #f87171; display: flex; align-items: center; gap: 8px;">
-                    🍱 {order.restaurant_name} <span style="font-size: 0.82rem; color: #a1a1aa; font-weight: 500;">({order.order_id})</span>
+                <div style="font-weight: 800; font-size: 1.15rem; color: #dc2626; display: flex; align-items: center; gap: 8px;">
+                    🍱 {order.restaurant_name} <span style="font-size: 0.82rem; color: #64748b; font-weight: 500;">({order.order_id})</span>
                 </div>
-                <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.03em;">
+                <div style="background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.03em;">
                     {order.order_status}
                 </div>
             </div>
-            <div style="font-size: 0.88rem; color: #e4e4e7; margin-bottom: 10px; font-weight: 500;">
+            <div style="font-size: 0.88rem; color: #334155; margin-bottom: 10px; font-weight: 500;">
                 <b>Items:</b> {order.items_summary}
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #a1a1aa; border-top: 1px solid #27272a; padding-top: 10px;">
-                <span>Total: <b style="color: white; font-weight: 700;">₹{int(order.order_amount)}</b> ({order.payment_method})</span>
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                <span>Total: <b style="color: #0f172a; font-weight: 700;">₹{int(order.order_amount)}</b> ({order.payment_method})</span>
                 <span>📍 {order.delivery_address}</span>
             </div>
         </div>
@@ -85,19 +85,19 @@ def render_rider_status_widget(rider: RiderStatusCard | None = None):
         st.markdown(
             f"""
             <div style="
-                background: #18181b;
-                border: 1px solid #27272a;
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
                 border-radius: 12px;
                 padding: 12px 16px;
                 margin-bottom: 12px;
                 font-family: 'Plus Jakarta Sans', sans-serif;
             ">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 800; color: #34d399; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">🚴 Delivery Partner Status</span>
-                    <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7; padding: 2px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">ETA: {rider.eta_mins} mins ({rider.distance_km} km away)</span>
+                    <span style="font-weight: 800; color: #059669; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">🚴 Delivery Partner Status</span>
+                    <span style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; padding: 2px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">ETA: {rider.eta_mins} mins ({rider.distance_km} km away)</span>
                 </div>
-                <div style="font-size: 0.82rem; color: #a1a1aa; margin-top: 6px;">
-                    Rider: <b style="color: white">{rider.rider_name}</b> | Phone: <b style="color: white">{rider.rider_phone}</b>
+                <div style="font-size: 0.82rem; color: #64748b; margin-top: 6px;">
+                    Rider: <b style="color: #0f172a">{rider.rider_name}</b> | Phone: <b style="color: #0f172a">{rider.rider_phone}</b>
                 </div>
             </div>
             """,
