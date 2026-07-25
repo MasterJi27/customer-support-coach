@@ -423,7 +423,7 @@ def render_sidebar():
 
 
 def render_top_nav_bar():
-    """Renders a fixed 2026 Executive Spatial Glass Navbar across the top of the app."""
+    """Renders an Internal Agent Workspace Spatial Glass Navbar with Privacy & Compliance Badges."""
     st.markdown(
         """
         <div style="
@@ -440,15 +440,15 @@ def render_top_nav_bar():
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         ">
             <div style="display:flex; align-items:center; gap:12px;">
-                <span style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.4rem; background: linear-gradient(135deg, #818cf8 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ COACHAI COPILOT</span>
-                <span style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#c7d2fe; padding:4px 12px; border-radius:12px; font-size:0.75rem; font-weight:800; letter-spacing:0.04em;">ENTERPRISE v2.0</span>
+                <span style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.4rem; background: linear-gradient(135deg, #818cf8 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🛡️ AGENT WORKSPACE</span>
+                <span style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); color:#34d399; padding:4px 12px; border-radius:12px; font-size:0.75rem; font-weight:800; letter-spacing:0.04em;">🔒 PII MASKED & SECURE</span>
             </div>
             <div style="display:flex; gap:18px; align-items:center; font-size:0.82rem; font-family:'Plus Jakarta Sans', sans-serif;">
-                <span style="color:#34d399; font-weight:700; display:flex; align-items:center; gap:6px;">🟢 ENGINE: ONLINE</span>
+                <span style="color:#34d399; font-weight:700; display:flex; align-items:center; gap:6px;">🟢 DESK ACTIVE</span>
                 <span style="color:#475569;">•</span>
-                <span style="color:#fbbf24; font-weight:700;">🏆 ISO-9001 COMPLIANT</span>
+                <span style="color:#fbbf24; font-weight:700;">🛡️ DPDP & GDPR PRIVACY COMPLIANT</span>
                 <span style="color:#475569;">•</span>
-                <span style="color:#38bdf8; font-weight:700;">⚡ SUB-5MS BM25 RAG</span>
+                <span style="color:#38bdf8; font-weight:700;">🔐 END-TO-END DATA ANONYMIZED</span>
             </div>
         </div>
         """,
@@ -507,11 +507,11 @@ def setup_page():
         ">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <div>
-                    <h1 style="margin:0; font-size: 1.9rem; font-weight: 800; color: #ffffff;">⚡ CoachAI Enterprise</h1>
-                    <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.95rem; font-weight:500;">Real-time AI Copilot, Support Simulator & Quality Auditing Engine</p>
+                    <h1 style="margin:0; font-size: 1.9rem; font-weight: 800; color: #ffffff;">🛡️ Customer Support Coaching & Training Desk</h1>
+                    <p style="margin:4px 0 0 0; color:#94a3b8; font-size:0.95rem; font-weight:500;">Internal Agent Copilot, Contact Center Simulator & Quality Coaching Console (PII Masked & Privacy Enforced)</p>
                 </div>
                 <div>
-                    <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; padding:8px 16px; border-radius:20px; font-weight:800; font-size:0.82rem;">🟢 AI Engine Operational</span>
+                    <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; padding:8px 16px; border-radius:20px; font-weight:800; font-size:0.82rem;">🔒 Privacy Shield Active</span>
                 </div>
             </div>
         </div>
@@ -1348,10 +1348,12 @@ def coaching_page():
         render_rider_status_widget,
         render_agent_quick_actions,
         render_zomato_bot_escalation_card,
+        get_dynamic_order_and_rider,
     )
+    dyn_order, dyn_rider = get_dynamic_order_and_rider(session)
     render_live_sla_ticker()
-    render_zomato_order_banner()
-    render_rider_status_widget()
+    render_zomato_order_banner(dyn_order)
+    render_rider_status_widget(dyn_rider)
     render_zomato_bot_escalation_card()
 
     main_cols = st.columns([6, 4])

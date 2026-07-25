@@ -1,6 +1,160 @@
 import streamlit as st
 from src.core.models import OrderHeaderCard, RiderStatusCard
 
+def get_dynamic_order_and_rider(session) -> tuple[OrderHeaderCard, RiderStatusCard]:
+    """
+    Dynamically resolves order header and delivery partner/engineer status cards 
+    based on the active scenario and product context.
+    """
+    if not session or not hasattr(session, "config") or not session.config:
+        return OrderHeaderCard(), RiderStatusCard()
+
+    scenario = session.config.scenario
+    title = (scenario.title if scenario else session.config.product_context) or ""
+    p_ctx = (scenario.product_context if scenario else session.config.product_context) or ""
+    t_lower = (title + " " + p_ctx).lower()
+
+    if "zomato" in t_lower or "biryani" in t_lower or "missing items" in t_lower:
+        order = OrderHeaderCard(
+            order_id="ORD-8142K",
+            restaurant_name="Biryani Blues",
+            items_summary="Chicken Hyderabadi Biryani (1x), Paneer Tikka (1x), Mirchi Salan",
+            order_amount=340.0,
+            payment_method="GPay UPI",
+            delivery_address="Flat 402, Block B, Green Glen Layout",
+            order_status="Out for Delivery (Missing Main Course Claimed)",
+        )
+        rider = RiderStatusCard(
+            rider_name="Ramesh Kumar",
+            rider_phone="+91-9876543210",
+            distance_km=1.2,
+            eta_mins=8,
+            rider_status="En-route to Customer Location",
+        )
+    elif "aws" in t_lower or "ec2" in t_lower or "double charge" in t_lower or "cloud" in t_lower:
+        order = OrderHeaderCard(
+            order_id="INV-9412EC2",
+            restaurant_name="AWS Cloud Infrastructure",
+            items_summary="EC2 i3.2xlarge Instance Upgrade (2x), EBS Storage 500GB",
+            order_amount=124500.0,
+            payment_method="Corporate Visa (Double Charged)",
+            delivery_address="AWS Billing Console (us-east-1)",
+            order_status="Pending Invoice Audit (Double Charge)",
+        )
+        rider = RiderStatusCard(
+            rider_name="Vikram Singh (Cloud Billing Lead)",
+            rider_phone="+91-9812345678",
+            distance_km=0.0,
+            eta_mins=2,
+            rider_status="Reviewing Bank Chargeback Logs",
+        )
+    elif "stripe" in t_lower or "payment" in t_lower or "api" in t_lower:
+        order = OrderHeaderCard(
+            order_id="TXN-4029ST",
+            restaurant_name="Stripe Payments Gateway",
+            items_summary="E-commerce Checkout Charge (HTTP 402 Failed Intent)",
+            order_amount=41500.0,
+            payment_method="End-User Debit Card",
+            delivery_address="API Endpoint: v1/charges",
+            order_status="Payment Failed (Authorization Hold Active)",
+        )
+        rider = RiderStatusCard(
+            rider_name="Suresh Patel (Integrations Architect)",
+            rider_phone="+91-9899887766",
+            distance_km=0.0,
+            eta_mins=1,
+            rider_status="Tracing Auth Hold ARN",
+        )
+    elif "vercel" in t_lower or "deploy" in t_lower or "404" in t_lower:
+        order = OrderHeaderCard(
+            order_id="DPL-9481VC",
+            restaurant_name="Vercel Edge Cloud Platform",
+            items_summary="Next.js Production Build #482 (Edge Routing Error)",
+            order_amount=0.0,
+            payment_method="Vercel Pro Plan",
+            delivery_address="https://prod.mycompany.com",
+            order_status="Production 404 Incident Active",
+        )
+        rider = RiderStatusCard(
+            rider_name="Anita Sharma (Edge Operations Lead)",
+            rider_phone="+91-9876112233",
+            distance_km=0.0,
+            eta_mins=3,
+            rider_status="Purging CDN Network Cache",
+        )
+    elif "swiggy" in t_lower or "grocery" in t_lower or "instamart" in t_lower:
+        order = OrderHeaderCard(
+            order_id="INSTA-5521",
+            restaurant_name="Swiggy Instamart (Indiranagar Store)",
+            items_summary="Fresh Royal Apples 1kg, Hass Avocado 2x, Organic Milk 1L",
+            order_amount=480.0,
+            payment_method="Swiggy Money Wallet",
+            delivery_address="Tower 3, Apt 804, Horizon Heights",
+            order_status="Delivered (Rotten Produce Claimed)",
+        )
+        rider = RiderStatusCard(
+            rider_name="Rahul Verma",
+            rider_phone="+91-9876500112",
+            distance_km=0.5,
+            eta_mins=5,
+            rider_status="Delivered at Guard Gate",
+        )
+    elif "uber" in t_lower or "ride" in t_lower or "driver" in t_lower:
+        order = OrderHeaderCard(
+            order_id="TRIP-9982UB",
+            restaurant_name="Uber Premier Mobility",
+            items_summary="Trip: Airport Terminal 2 -> Sector 54, Gurgaon",
+            order_amount=850.0,
+            payment_method="Uber Cash Wallet",
+            delivery_address="Dropoff: Sector 54",
+            order_status="Cancelled by Driver (Driver Cash Demand)",
+        )
+        rider = RiderStatusCard(
+            rider_name="Rajesh Yadav (Uber Driver)",
+            rider_phone="+91-9811223344",
+            distance_km=0.1,
+            eta_mins=0,
+            rider_status="Cancelled Trip Abruptly",
+        )
+    elif "shopify" in t_lower or "discount" in t_lower or "promo" in t_lower:
+        order = OrderHeaderCard(
+            order_id="SHPFY-8841",
+            restaurant_name="Shopify Checkout Engine",
+            items_summary="Promo Code BFCM50 (50% Off Holiday Cart)",
+            order_amount=12500.0,
+            payment_method="Shop Pay",
+            delivery_address="Checkout Cart ID #8841",
+            order_status="Discount Code Rejected at Checkout",
+        )
+        rider = RiderStatusCard(
+            rider_name="Deepak Sharma (Shopify Merchant Support)",
+            rider_phone="+91-9844556677",
+            distance_km=0.0,
+            eta_mins=2,
+            rider_status="Inspecting Discount Rule Logic",
+        )
+    else:
+        h_code = abs(hash(title)) % 8999 + 1000
+        order = OrderHeaderCard(
+            order_id=f"TICK-{h_code}",
+            restaurant_name=p_ctx or "Support Operations Portal",
+            items_summary=title or "Customer Support Ticket",
+            order_amount=0.0,
+            payment_method="Internal Enterprise Portal",
+            delivery_address="Customer Account Console",
+            order_status="Active Escalation Ticket",
+        )
+        rider = RiderStatusCard(
+            rider_name="Priya Nair (Lead Escalations Officer)",
+            rider_phone="+91-9800011122",
+            distance_km=0.0,
+            eta_mins=1,
+            rider_status="Assigned Support Officer Active",
+        )
+
+    return order, rider
+
+
 def render_live_sla_ticker():
     """
     Renders an authentic Enterprise Contact Center Floor SLA Alert Marquee Ticker.
@@ -25,10 +179,10 @@ def render_live_sla_ticker():
         ">
             <div>
                 <span style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; padding: 3px 10px; border-radius: 6px; font-weight: 800; margin-right: 12px; font-size: 0.72rem; letter-spacing: 0.05em; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);">🚨 SLA MONITOR</span>
-                <span>Active Desk Queue: <b style="color: #ffffff;">4 Tickets</b> | Avg Response Time: <b style="color: #34d399;">14.2s</b> | CSAT Target: <b style="color: #fbbf24;">4.8 ⭐</b></span>
+                <span>Active Desk Queue: <b style="color: #ffffff;">4 Tickets</b> | Avg Response Time: <b style="color: #34d399;">14.2s</b> | Target CSAT: <b style="color: #fbbf24;">4.8 ⭐</b></span>
             </div>
             <div>
-                <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.75rem;">🟢 System Health: 99.9%</span>
+                <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.75rem;">🔒 PII MASKED & SECURE</span>
             </div>
         </div>
         """,
@@ -98,19 +252,19 @@ def render_rider_status_widget(rider: RiderStatusCard | None = None):
                 font-family: 'Plus Jakarta Sans', sans-serif;
             ">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 800; color: #34d399; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">🚴 Delivery Partner Status</span>
-                    <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 3px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">ETA: {rider.eta_mins} mins ({rider.distance_km} km away)</span>
+                    <span style="font-weight: 800; color: #34d399; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">🚴 Delivery / Support Partner Status</span>
+                    <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 3px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">Status: {rider.rider_status} ({rider.eta_mins} mins ETA)</span>
                 </div>
                 <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 8px;">
-                    Rider: <b style="color: white">{rider.rider_name}</b> | Phone: <b style="color: white">{rider.rider_phone}</b>
+                    Assigned Lead: <b style="color: white">{rider.rider_name}</b> | Phone: <b style="color: white">{rider.rider_phone}</b>
                 </div>
             </div>
             """,
             unsafe_allow_html=True
         )
     with col2:
-        if st.button("📞 Call Rider", use_container_width=True):
-            st.toast(f"📞 Dialing Ramesh Kumar ({rider.rider_phone})...", icon="📞")
+        if st.button("📞 Call Partner", use_container_width=True):
+            st.toast(f"📞 Dialing {rider.rider_name} ({rider.rider_phone})...", icon="📞")
 
 def render_zomato_bot_escalation_card():
     """
@@ -131,7 +285,7 @@ def render_zomato_bot_escalation_card():
             align-items: center;
             justify-content: space-between;
         ">
-            <span>🤖 <b>Zomato AI Bot Escalation:</b> Customer requested human support executive</span>
+            <span>🤖 <b>Automated AI Bot Handover:</b> Customer escalated to human support executive</span>
             <span style="background: rgba(99, 102, 241, 0.25); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">HANDOVER COMPLETE</span>
         </div>
         """,
