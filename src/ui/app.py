@@ -823,31 +823,67 @@ def setup_page():
                         st.rerun()
 
         # Out-of-the-Box Set 2 Feature 5: Visual Scenario Decision Tree Builder
-        with st.expander("🗺️ Visual Scenario Decision Tree Builder", expanded=False):
+        with st.expander("🗺️ Visual Scenario Decision Tree Builder", expanded=True):
             st.markdown("Build interactive branching decision-tree pathways for customer support training.")
-            with st.form("tree_builder_form"):
-                tree_title = st.text_input("Tree Scenario Title:", placeholder="e.g. VIP Subscription Cancellation Request")
-                tree_node1 = st.text_input("Node 1 (Opening Customer Trigger):", value="Customer says: 'I want to cancel my Gold Membership and get a refund.'")
-                tree_branch_a = st.text_input("Branch A (If Agent Apologizes + Offers Coupon):", value="Customer Outcome: Accepts coupon, stays subscribed. (CSAT 4.8 ⭐)")
-                tree_branch_b = st.text_input("Branch B (If Agent Rejects Refund):", value="Customer Outcome: Escalates to supervisor, threatens Twitter. (CSAT 1.5 ⭐)")
+            
+            t_title = st.text_input("Tree Scenario Title:", value="VIP Subscription Cancellation Request", key="tree_title_input")
+            t_node1 = st.text_input("Node 1 (Opening Customer Trigger):", value="Customer says: 'I want to cancel my Gold Membership and get a refund.'", key="tree_node1_input")
+            t_branch_a = st.text_input("Branch A (If Agent Apologizes + Offers Coupon):", value="Customer Outcome: Accepts coupon, stays subscribed. (CSAT 4.8 ⭐)", key="tree_branch_a_input")
+            t_branch_b = st.text_input("Branch B (If Agent Rejects Refund):", value="Customer Outcome: Escalates to supervisor, threatens Twitter. (CSAT 1.5 ⭐)", key="tree_branch_b_input")
 
-                if st.form_submit_button("🌳 Save Decision Tree Scenario", use_container_width=True):
+            st.markdown("#### 📊 Live Decision Tree Pathway Preview")
+            st.markdown(
+                f"""
+                ```mermaid
+                graph TD
+                    Root["👤 Customer Trigger<br/>{t_node1[:40]}..."]
+                    Root -->|Branch A: Apologize & Offer Coupon| PathA["🟢 CSAT 4.8 ⭐<br/>{t_branch_a[:45]}..."]
+                    Root -->|Branch B: Reject Refund| PathB["🔴 CSAT 1.5 ⭐<br/>{t_branch_b[:45]}..."]
+                ```
+                """,
+                unsafe_allow_html=True
+            )
+
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.button("🌳 Save & Index Decision Tree Scenario", type="secondary", use_container_width=True):
                     tree_sc = {
                         "id": f"tree_{random.randint(1000,9999)}",
-                        "title": f"🗺️ Tree: {tree_title.strip() or 'Branching Scenario'}",
-                        "customer_persona": "VIP Customer",
-                        "problem_description": tree_node1,
-                        "product_context": "Zomato Gold",
+                        "title": f"🗺️ Tree: {t_title.strip() or 'VIP Cancellation'}",
+                        "customer_persona": "VIP Gold Customer requesting membership cancellation",
+                        "problem_description": t_node1,
+                        "product_context": "Zomato Gold VIP",
                         "emotional_start": "frustrated",
-                        "context": f"Branch A: {tree_branch_a} | Branch B: {tree_branch_b}",
-                        "key_issues": ["cancellation", "branching_tree"],
-                        "resolution_path": "Branch A (Empathetic Counter-Offer)"
+                        "context": f"Branch A: {t_branch_a} | Branch B: {t_branch_b}",
+                        "key_issues": ["cancellation", "vip_membership", "decision_tree"],
+                        "resolution_path": "Branch A: Apologize & offer 20% discount coupon"
                     }
                     real_scenarios.append(tree_sc)
                     spath = os.path.join(os.path.dirname(__file__), "..", "..", "data", "scenarios.json")
                     with open(spath, "w", encoding="utf-8") as f:
                         json.dump(real_scenarios, f, indent=2)
-                    st.success(f"Saved Decision Tree Scenario '{tree_title}'!")
+                    st.success(f"Saved Decision Tree Scenario '{t_title}' to scenario database!")
+                    st.rerun()
+
+            with btn_col2:
+                if st.button("🚀 Launch Tree Scenario in Simulator", type="primary", use_container_width=True):
+                    tree_sc_obj = Scenario(
+                        title=f"🗺️ Tree: {t_title.strip() or 'VIP Cancellation'}",
+                        customer_persona="VIP Gold Customer requesting cancellation",
+                        problem_description=t_node1,
+                        product_context="Zomato Gold VIP",
+                        emotional_start=SentimentLabel.FRUSTRATED,
+                    )
+                    sess = st.session_state.orchestrator.start_session(
+                        mode=InteractionMode.SIMULATOR,
+                        agent_name=st.session_state.get("ui_agent_name", "Agent"),
+                        product_context="Zomato Gold VIP",
+                        scenario=tree_sc_obj,
+                        risk_threshold=float(st.session_state.get("risk_threshold", 70)) / 100.0,
+                    )
+                    st.session_state.session = sess
+                    st.session_state.page = "coaching"
+                    st.toast(f"🚀 Launched Decision Tree Scenario: {t_title}!", icon="🚀")
                     st.rerun()
 
         st.markdown("#### Existing Scenarios")
