@@ -97,127 +97,110 @@ def inject_global_css():
             border-color: #3f3f46 !important;
         }
 
-        /* Buttons - Modern Gradient & Micro-Animations */
+        /* Buttons - Linear Obsidian Style */
         .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {
-            border-radius: 10px !important;
+            border-radius: 8px !important;
             font-weight: 600 !important;
             letter-spacing: 0.01em !important;
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            color: #f8fafc !important;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            color: #f4f4f5 !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
         }
         .stButton > button:hover, .stDownloadButton > button:hover {
-            transform: translateY(-2px) !important;
-            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
-            border-color: rgba(165, 180, 252, 0.5) !important;
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4) !important;
+            background: #27272a !important;
+            border-color: #3f3f46 !important;
             color: #ffffff !important;
         }
 
         /* Primary Type Buttons */
         .stButton > button[kind="primary"] {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-            border: 1px solid rgba(199, 210, 254, 0.3) !important;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35) !important;
+            background: #27272a !important;
+            border: 1px solid #3f3f46 !important;
+            color: #ffffff !important;
         }
         .stButton > button[kind="primary"]:hover {
-            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.55) !important;
+            background: #3f3f46 !important;
+            border-color: #52525b !important;
         }
 
         /* Metric Cards */
         [data-testid="stMetric"] {
-            background: rgba(15, 23, 42, 0.6) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 14px !important;
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 12px !important;
             padding: 14px 18px !important;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
         }
         [data-testid="stMetricValue"] {
             font-family: 'Outfit', sans-serif !important;
             font-weight: 700 !important;
-            color: #38bdf8 !important;
+            color: #ffffff !important;
         }
 
-        /* Tabs - Pill Layout */
+        /* Tabs - Linear Obsidian Pill Layout */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 8px !important;
-            background: rgba(15, 23, 42, 0.6) !important;
-            padding: 6px !important;
-            border-radius: 12px !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            gap: 6px !important;
+            background: #18181b !important;
+            padding: 4px !important;
+            border-radius: 10px !important;
+            border: 1px solid #27272a !important;
             margin-bottom: 14px !important;
         }
         .stTabs [data-baseweb="tab"] {
-            padding: 10px 20px !important;
-            border-radius: 8px !important;
+            padding: 8px 16px !important;
+            border-radius: 6px !important;
             background: transparent !important;
             border: none !important;
             font-weight: 600 !important;
-            color: #94a3b8 !important;
+            color: #a1a1aa !important;
             transition: all 0.2s ease !important;
         }
         .stTabs [data-baseweb="tab"]:hover {
-            color: #f8fafc !important;
-            background: rgba(255, 255, 255, 0.06) !important;
+            color: #ffffff !important;
+            background: #27272a !important;
         }
         .stTabs [aria-selected="true"] {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            background: #27272a !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+            border: 1px solid #3f3f46 !important;
         }
 
         /* Inputs & Textareas */
         .stTextInput > div > div > input, .stTextArea > div > div > textarea, .stSelectbox > div > div {
-            background: rgba(15, 23, 42, 0.75) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            border-radius: 12px !important;
-            color: #f8fafc !important;
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 8px !important;
+            color: #f4f4f5 !important;
             font-size: 0.92rem !important;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+            transition: border-color 0.2s ease !important;
         }
         .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
-            border-color: #6366f1 !important;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+            border-color: #3f3f46 !important;
         }
 
-        /* Neon Glow Keyframes */
-        @keyframes glowPulse {
-            0% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.4); }
-            50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.8), 0 0 30px rgba(236, 72, 153, 0.4); }
-            100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.4); }
-        }
-
-        /* Active Glow Pulse for Primary Buttons */
-        .stButton > button[kind="primary"] {
-            animation: glowPulse 3s infinite ease-in-out !important;
-        }
-
-        /* Expander Headers Glass Polish */
+        /* Expander Headers Linear Polish */
         [data-testid="stExpander"] {
-            background: rgba(15, 23, 42, 0.5) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: 12px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 10px !important;
         }
         [data-testid="stExpander"] summary {
             font-weight: 700 !important;
-            color: #e2e8f0 !important;
+            color: #f4f4f5 !important;
         }
 
         /* Sidebar Styling */
         section[data-testid="stSidebar"] {
-            background: linear-gradient(180deg, #090d16 0%, #0f172a 100%) !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+            background: #09090b !important;
+            border-right: 1px solid #27272a !important;
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
-        ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.5); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
         </style>
         """,
         unsafe_allow_html=True,
