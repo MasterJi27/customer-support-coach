@@ -440,6 +440,36 @@ def render_top_nav_bar():
     )
 
 
+def _start_quick(mode_str: str):
+    mode = InteractionMode(mode_str)
+    scenario_obj = None
+    if mode == InteractionMode.SIMULATOR:
+        scenarios = st.session_state.orchestrator.list_scenarios()
+        real_scenarios = st.session_state.orchestrator.session_config_module.load_real_scenarios()
+        selected_real = real_scenarios[0] if real_scenarios else {}
+        scenario_obj = Scenario(
+            id="zomato_biryani_blues",
+            title="Zomato: Biryani Blues (Delayed Delivery)",
+            product_context="Zomato Food Delivery",
+            customer_persona=selected_real.get("customer_persona", "Frustrated customer waiting 55 mins for Biryani"),
+            initial_emotion="frustrated",
+        )
+
+    t_path = os.path.join("data", "transcripts", "campaign_video_not_rendering.json") if mode == InteractionMode.REPLAY else None
+
+    sess = st.session_state.orchestrator.start_session(
+        mode=mode,
+        agent_name=st.session_state.get("ui_agent_name", "Agent"),
+        product_context="Zomato Food Delivery" if mode == InteractionMode.SIMULATOR else "SaaS Platform",
+        scenario=scenario_obj,
+        transcript_path=t_path,
+        risk_threshold=0.7,
+    )
+    st.session_state.session = sess
+    st.session_state.page = "coaching"
+    st.rerun()
+
+
 def setup_page():
     auto_seed_kb()
     render_sidebar()
@@ -593,14 +623,29 @@ def setup_page():
             st.session_state.ui_interaction_mode = mode
             st.session_state.ui_agent_name = agent_name
             st.session_state.ui_product_context = product_context
+
+            scenario_obj = None
+            if mode == "simulator":
+                scenarios = st.session_state.orchestrator.list_scenarios()
+                s_id = scenario_choice or "zomato_biryani_blues"
+                s_title = scenarios.get(s_id, "Zomato: Biryani Blues")
+                scenario_obj = Scenario(
+                    id=s_id,
+                    title=s_title,
+                    product_context=selected_real.get("product_context", product_context) if selected_real else product_context,
+                    customer_persona=selected_real.get("customer_persona", "") if selected_real else "",
+                    initial_emotion=emotional_start,
+                )
+
+            t_path = os.path.join("data", "transcripts", selected_transcript) if selected_transcript else None
+
             sess = st.session_state.orchestrator.start_session(
-                mode=mode,
+                mode=InteractionMode(mode),
                 agent_name=agent_name,
                 product_context=product_context,
-                scenario_id=scenario_choice if mode == "simulator" else None,
-                emotional_start=emotional_start,
-                transcript_filename=selected_transcript if mode == "replay" else None,
-                risk_threshold=st.session_state.risk_threshold,
+                scenario=scenario_obj,
+                transcript_path=t_path,
+                risk_threshold=float(st.session_state.risk_threshold) / 100.0 if st.session_state.risk_threshold > 1 else float(st.session_state.risk_threshold),
             )
             st.session_state.session = sess
             st.session_state.page = "coaching"
