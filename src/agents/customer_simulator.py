@@ -53,6 +53,13 @@ class CustomerSimulatorAgent:
         Kicks off the simulated conversation by generating the very first 
         message from the 'customer'.
         """
+        if scenario and scenario.problem_description:
+            prob = scenario.problem_description.strip()
+            if prob.startswith("Customer says:") or "cancel my Gold Membership" in prob or "tree" in scenario.title.lower() or "🗺️" in scenario.title:
+                clean_text = prob.replace("Customer says:", "").strip(" '\"")
+                if clean_text:
+                    return Message(role="customer", content=clean_text)
+
         # Define the personality and goal of the simulated customer
         real = self._find_real_scenario(scenario)
         if real:
@@ -64,7 +71,7 @@ class CustomerSimulatorAgent:
 
             llm_msg = self._llm_generate(
                 persona=real.get("customer_persona", "Customer"),
-                product=real.get("product_context", "Infosys Springboard"),
+                product=real.get("product_context", "Zomato Gold VIP"),
                 issue=real.get("title", scenario.problem_description),
                 context="\n".join(context_parts),
                 sentiment=scenario.emotional_start,
@@ -75,7 +82,7 @@ class CustomerSimulatorAgent:
 
         llm_msg = self._llm_generate(
             persona="Customer",
-            product=scenario.product_context or "Infosys Springboard",
+            product=scenario.product_context or "Zomato Gold VIP",
             issue=scenario.problem_description,
             context="",
             sentiment=scenario.emotional_start,
@@ -84,7 +91,7 @@ class CustomerSimulatorAgent:
         if llm_msg:
             return Message(role="customer", content=llm_msg)
 
-        return Message(role="customer", content="Hi, I need help with my account. Can you assist me?")
+        return Message(role="customer", content="I want to cancel my Gold Membership and get a refund.")
 
     def generate_reply(
         self,

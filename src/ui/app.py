@@ -869,8 +869,8 @@ def setup_page():
                     spath = os.path.join(os.path.dirname(__file__), "..", "..", "data", "scenarios.json")
                     with open(spath, "w", encoding="utf-8") as f:
                         json.dump(real_scenarios, f, indent=2)
+                    st.session_state.orchestrator.simulator._load_real_scenarios()
                     st.success(f"Saved Decision Tree Scenario '{t_title}' to scenario database!")
-                    st.rerun()
                     st.rerun()
 
             with btn_col2:
@@ -890,6 +890,9 @@ def setup_page():
                         risk_threshold=float(st.session_state.get("risk_threshold", 70)) / 100.0,
                     )
                     st.session_state.session = sess
+                    st.session_state.last_turn = (
+                        sess.turn_analyses[-1] if sess.turn_analyses else None
+                    )
                     st.session_state.page = "coaching"
                     st.toast(f"🚀 Launched Decision Tree Scenario: {t_title}!", icon="🚀")
                     st.rerun()
