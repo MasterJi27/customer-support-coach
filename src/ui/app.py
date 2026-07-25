@@ -262,17 +262,16 @@ def render_sidebar():
         st.markdown(
             """
             <div style="
-                background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.2) 100%);
-                border: 1px solid rgba(165, 180, 252, 0.3);
-                border-radius: 14px;
+                background: #18181b;
+                border: 1px solid #27272a;
+                border-radius: 12px;
                 padding: 14px 16px;
                 margin-bottom: 16px;
                 text-align: center;
-                backdrop-filter: blur(12px);
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             ">
-                <div style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.45rem; color:white; letter-spacing: -0.01em;">⚡ CoachAI</div>
-                <div style="font-size:0.75rem; color:#c7d2fe; font-weight:600; margin-top:2px; letter-spacing:0.05em; text-transform:uppercase;">Enterprise Support Engine</div>
+                <div style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.35rem; color:white;">⚡ CoachAI Engine</div>
+                <div style="font-size:0.75rem; color:#a1a1aa; font-weight:600; margin-top:2px; letter-spacing:0.05em; text-transform:uppercase;">Enterprise Copilot & Audit</div>
             </div>
             """,
             unsafe_allow_html=True
@@ -447,21 +446,20 @@ def setup_page():
     st.markdown(
         """
         <div style="
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.22) 0%, rgba(168, 85, 247, 0.18) 50%, rgba(236, 72, 153, 0.12) 100%);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(165, 180, 252, 0.25);
-            border-radius: 20px;
-            padding: 24px 28px;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
         ">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <div>
-                    <h1 style="margin:0; font-size: 2.1rem; font-weight: 800; background: linear-gradient(90deg, #ffffff 0%, #c7d2fe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ CoachAI Enterprise</h1>
-                    <p style="margin:4px 0 0 0; color:#cbd5e1; font-size:1.02rem; font-weight:500;">Real-time AI Copilot, Support Simulator & Quality Auditing Engine</p>
+                    <h1 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #ffffff;">⚡ CoachAI Enterprise</h1>
+                    <p style="margin:4px 0 0 0; color:#a1a1aa; font-size:0.95rem; font-weight:500;">Real-time AI Copilot, Support Simulator & Quality Auditing Engine</p>
                 </div>
                 <div>
-                    <span style="background:rgba(52, 211, 153, 0.18); border:1px solid rgba(52, 211, 153, 0.35); color:#6ee7b7; padding:6px 14px; border-radius:20px; font-weight:700; font-size:0.82rem;">🟢 AI Engine Operational</span>
+                    <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding:6px 14px; border-radius:20px; font-weight:700; font-size:0.82rem;">🟢 AI Engine Operational</span>
                 </div>
             </div>
         </div>
