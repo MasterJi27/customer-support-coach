@@ -360,17 +360,35 @@ def render_customer_attachment_card(order: OrderHeaderCard | None = None):
 
 def render_practical_crm_action_bar(order: OrderHeaderCard | None = None):
     """
-    Renders 1-Click Practical CRM Resolution Buttons directly on the support desk.
+    Renders 1-click operational CRM action execution bar for human support agents.
     """
     if not order:
         order = OrderHeaderCard()
 
-    st.markdown("**⚡ 1-Click Operational CRM Actions (Direct Resolution Execution)**")
-    
-    col1, col2, col3, col4 = st.columns(4)
+    st.markdown(
+        """
+        <div style="
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        ">
+            <div style="font-weight: 800; font-size: 1rem; color: white; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                <span>⚡ 1-Click Operational CRM Actions (Direct Resolution Execution)</span>
+                <span style="font-size:0.72rem; background:rgba(99, 102, 241, 0.2); color:#a5b4fc; padding:3px 10px; border-radius:20px; font-weight:700;">LIVE ACTIONS ACTIVE</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
-        if st.button(f"💳 Process ₹{int(order.order_amount)} Refund", use_container_width=True, type="primary"):
+        if st.button(f"💳 Process ₹{int(order.order_amount)} Refund", key="crm_btn_refund_exec", use_container_width=True):
             refund_msg = (
                 f"I have authorized and initiated an instant refund of ₹{int(order.order_amount)} "
                 f"back to your original payment method ({order.payment_method}). "
@@ -381,7 +399,7 @@ def render_practical_crm_action_bar(order: OrderHeaderCard | None = None):
             st.rerun()
 
     with col2:
-        if st.button("🍲 Priority Express Re-Order", use_container_width=True):
+        if st.button("🍲 Priority Express Re-Order", key="crm_btn_reorder_exec", use_container_width=True):
             reorder_msg = (
                 f"I am deeply sorry for the missing item. I have just dispatched a Priority Express "
                 f"Replacement Order directly from {order.restaurant_name}. "
@@ -392,7 +410,7 @@ def render_practical_crm_action_bar(order: OrderHeaderCard | None = None):
             st.rerun()
 
     with col3:
-        if st.button("🎁 ₹100 Goodwill Voucher", use_container_width=True):
+        if st.button("🎁 ₹100 Goodwill Voucher", key="crm_btn_voucher_exec", use_container_width=True):
             voucher_msg = (
                 f"We truly value your relationship with us. To make things right, I have credited a ₹100 "
                 f"Goodwill Compensation Voucher (Code: APOLOGY100) to your account wallet for your next order."
@@ -402,7 +420,7 @@ def render_practical_crm_action_bar(order: OrderHeaderCard | None = None):
             st.rerun()
 
     with col4:
-        if st.button("🚀 Escalate to Supervisor", use_container_width=True):
+        if st.button("🚀 Escalate to Supervisor", key="crm_btn_escalate_exec", use_container_width=True):
             esc_msg = (
                 f"I have escalated your case ID {order.order_id} directly to our Senior Floor Supervisor. "
                 f"A supervisor is taking over your ticket to ensure immediate full resolution."
@@ -497,7 +515,7 @@ def render_decision_tree_live_panel(session):
 
     t_col1, t_col2 = st.columns(2)
     with t_col1:
-        if st.button("🟢 Branch A: Apologize & Offer Coupon (CSAT 4.8 ⭐)", use_container_width=True, type="primary"):
+        if st.button("🟢 Branch A: Apologize & Offer Coupon (CSAT 4.8 ⭐)", key="dt_btn_branch_a_exec", use_container_width=True, type="primary"):
             branch_a_text = (
                 "I am deeply sorry for your frustration with your membership. I completely understand your concern "
                 "and I would love for you to remain a valued member. I have authorized a special 20% discount coupon "
@@ -508,7 +526,7 @@ def render_decision_tree_live_panel(session):
             st.rerun()
 
     with t_col2:
-        if st.button("🔴 Branch B: Reject Refund Request (CSAT 1.5 ⭐)", use_container_width=True):
+        if st.button("🔴 Branch B: Reject Refund Request (CSAT 1.5 ⭐)", key="dt_btn_branch_b_exec", use_container_width=True):
             branch_b_text = (
                 "Unfortunately, according to our terms of service, membership cancellation and refund requests "
                 "are strictly non-refundable past the initial 7-day trial period. We cannot process a refund."
