@@ -454,3 +454,65 @@ def render_practical_kpi_footer():
         """,
         unsafe_allow_html=True
     )
+
+
+def render_decision_tree_live_panel(session):
+    """
+    Renders an interactive Decision Tree Pathway simulator card when a decision tree scenario is active.
+    """
+    sc = getattr(session.config, "scenario", None) if session and hasattr(session, "config") else None
+    title = sc.title if sc else ""
+    context_str = sc.context if sc else ""
+    if not ("tree" in title.lower() or "🗺️" in title or "branch" in context_str.lower()):
+        return
+
+    st.markdown(
+        """
+        <div style="
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        ">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-weight:800; color:#ffffff; font-size:1.05rem; display:flex; align-items:center; gap:8px;">
+                    🗺️ Active Branching Decision Tree Navigator
+                </span>
+                <span style="background:rgba(99, 102, 241, 0.2); color:#a5b4fc; border:1px solid rgba(99, 102, 241, 0.4); padding:3px 12px; border-radius:12px; font-size:0.75rem; font-weight:700;">
+                    LIVE BRANCH SIMULATOR
+                </span>
+            </div>
+            <p style="margin:0 0 12px 0; color:#94a3b8; font-size:0.85rem;">
+                Select an agent branch path below to simulate decision tree execution and predict CSAT outcome:
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    t_col1, t_col2 = st.columns(2)
+    with t_col1:
+        if st.button("🟢 Branch A: Apologize & Offer Coupon (CSAT 4.8 ⭐)", use_container_width=True, type="primary"):
+            branch_a_text = (
+                "I am deeply sorry for your frustration with your membership. I completely understand your concern "
+                "and I would love for you to remain a valued member. I have authorized a special 20% discount coupon "
+                "(Code: GOLD20) to renew your Gold Membership at a lower rate!"
+            )
+            st.session_state["pending_agent_text"] = branch_a_text
+            st.toast("🟢 Selected Branch A: Apologize + Offer Coupon (Predicted CSAT: 4.8 ⭐)", icon="🟢")
+            st.rerun()
+
+    with t_col2:
+        if st.button("🔴 Branch B: Reject Refund Request (CSAT 1.5 ⭐)", use_container_width=True):
+            branch_b_text = (
+                "Unfortunately, according to our terms of service, membership cancellation and refund requests "
+                "are strictly non-refundable past the initial 7-day trial period. We cannot process a refund."
+            )
+            st.session_state["pending_agent_text"] = branch_b_text
+            st.toast("🔴 Selected Branch B: Reject Refund (Predicted Escalation & CSAT: 1.5 ⭐)", icon="🔴")
+            st.rerun()
