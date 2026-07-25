@@ -588,7 +588,23 @@ def setup_page():
                 st.markdown(f"**Real transcript: {transcript_labels.get(selected_transcript, selected_transcript)}**")
                 st.caption("Step through message by message with live coaching")
 
-        st.info(f"📚 **{kb_count} articles ready.** Upload more in the sidebar.")
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        if st.button("🚀 Launch Coaching Session", type="primary", use_container_width=True):
+            st.session_state.ui_interaction_mode = mode
+            st.session_state.ui_agent_name = agent_name
+            st.session_state.ui_product_context = product_context
+            sess = st.session_state.orchestrator.start_session(
+                mode=mode,
+                agent_name=agent_name,
+                product_context=product_context,
+                scenario_id=scenario_choice if mode == "simulator" else None,
+                emotional_start=emotional_start,
+                transcript_filename=selected_transcript if mode == "replay" else None,
+                risk_threshold=st.session_state.risk_threshold,
+            )
+            st.session_state.session = sess
+            st.session_state.page = "coaching"
+            st.rerun()
 
     with tab2:
         col_h, col_hi, col_m = st.columns(3)
@@ -875,8 +891,8 @@ def setup_page():
                     st.rerun()
 
     with tab5:
-        st.markdown("## 💡 How CoachAI Works — User Guide & System Overview")
-        st.caption("Welcome to CoachAI! Here is how our AI-powered copilot helps support agents practice, de-escalate customers, and boost quality scores.")
+        st.markdown("## 💡 How CoachAI Works — Complete Platform User Manual")
+        st.caption("Comprehensive user guide and technical manual explaining how CoachAI operates, how all 15 specialized AI agents function, how RAG operates, and how to practice live support.")
 
         st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
@@ -887,9 +903,9 @@ def setup_page():
                 """
                 <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: center; height: 100%;">
                     <div style="font-size: 2.2rem; margin-bottom: 8px;">1️⃣</div>
-                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Simulate Real Chats</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Simulate Real Customer Scenarios</div>
                     <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">
-                        Practice with realistic AI customer personas across Zomato, Pizza Hut, Starbucks, and SaaS scenarios.
+                        Select real-world scenarios across Zomato (Biryani Blues), Pizza Hut, Starbucks, or SaaS platforms to practice handling angry or confused customers.
                     </p>
                 </div>
                 """,
@@ -900,9 +916,9 @@ def setup_page():
                 """
                 <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: center; height: 100%;">
                     <div style="font-size: 2.2rem; margin-bottom: 8px;">2️⃣</div>
-                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Live Copilot Assistance</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Real-Time AI Copilot Assistance</div>
                     <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">
-                        Get real-time CSAT forecasts (⭐ 4.8), 1-click Autopilot smart replies, and instant policy search.
+                        Get live CSAT forecasts (⭐ 4.8), 1-click Autopilot smart response recommendations, patience timers, and instant policy search.
                     </div>
                 </div>
                 """,
@@ -913,9 +929,9 @@ def setup_page():
                 """
                 <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: center; height: 100%;">
                     <div style="font-size: 2.2rem; margin-bottom: 8px;">3️⃣</div>
-                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Instant Quality Audit</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 6px;">Instant Quality Audit & Scoring</div>
                     <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">
-                        Receive automated ISO-9001 compliance scores, communication tips, and post-call performance summaries.
+                        Receive automated ISO-9001 quality audit reports, empathy breakdowns, communication tips, and hall of fame entries.
                     </div>
                 </div>
                 """,
@@ -925,66 +941,129 @@ def setup_page():
         st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
         st.divider()
 
-        # Core Features Showcase
-        st.markdown("### 🌟 Key Intelligent Features at a Glance")
+        # Section 2: Complete Directory of 15 Specialized AI Agents
+        st.markdown("### 🌟 Directory of 15 Out-Of-The-Box Specialized AI Agents & Widgets")
 
-        fcol1, fcol2 = st.columns(2)
-        with fcol1:
+        ac1, ac2 = st.columns(2)
+        with ac1:
             st.markdown(
                 """
                 <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
-                    <b style="color: #38bdf8; font-size: 1rem;">🧠 Customer Mind Reader</b>
-                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
-                        Reveals what the customer is secretly thinking in their head vs what they actually typed.
+                    <b style="color: #38bdf8; font-size: 1rem;">1. 🧠 AI Customer Mind Reader</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Analyzes the customer's raw text and reveals what they are secretly thinking in their head vs what they actually typed.
                     </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/customer_mind_reader.py</code></span>
                 </div>
                 <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
-                    <b style="color: #38bdf8; font-size: 1rem;">🤖 1-Click AI Auto-Pilot</b>
-                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
-                        Automatically drafts and submits empathetic, policy-compliant replies with a single click.
+                    <b style="color: #38bdf8; font-size: 1rem;">2. 🔮 AI Multiverse Time-Travel Simulator</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Simulates alternate realities side-by-side (Timeline A: Empathetic vs Timeline B: Policy Refusal) with predicted CSAT outcomes.
                     </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/multiverse_simulator.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">3. 🤖 1-Click AI Auto-Pilot</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Autonomously drafts and submits the perfect empathetic, policy-compliant reply with a single click.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/auto_pilot_agent.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">4. 🚨 Competitor Defection Alarm</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Detects customer threats to switch to competitors (Swiggy/UberEats) and pairs with retention discount codes (<code>STAY15</code>).
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/competitor_defection_agent.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">5. 📢 Viral Threat Predictor</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Calculates social media escalation risk % (Twitter/X viral potential) and generates pre-approved PR statements.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/viral_threat_predictor.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">6. 🕵️ Fraud & Scammer Shield</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Flags fake missing item claims, refund abuse patterns, and past scam history.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/fraud_detector.py</code></span>
                 </div>
                 <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px;">
-                    <b style="color: #38bdf8; font-size: 1rem;">🚨 Competitor Defection Alarm</b>
-                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
-                        Detects customer threats to switch to competitors (Swiggy/UberEats) and suggests retention vouchers.
+                    <b style="color: #38bdf8; font-size: 1rem;">7. 📋 ISO-9001 QA Audit Generator</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Audits completed transcripts against official contact center quality compliance standards.
                     </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/qa_audit_agent.py</code></span>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-        with fcol2:
+        with ac2:
             st.markdown(
                 """
                 <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
-                    <b style="color: #38bdf8; font-size: 1rem;">⚔️ Support Survival Arcade Mode</b>
-                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
-                        Gamified high-stakes mode where agents manage 4 simultaneous customer queues before team HP runs out.
+                    <b style="color: #38bdf8; font-size: 1rem;">8. 📊 Live Agent Cognitive Load Monitor</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Monitors support agent focus score and workload stress levels in real time to prevent agent burnout.
                     </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/cognitive_load_agent.py</code></span>
                 </div>
                 <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
-                    <b style="color: #38bdf8; font-size: 1rem;">📢 Viral Threat Predictor</b>
-                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
-                        Predicts social media escalation risk % and generates pre-approved PR statements for high-risk complaints.
+                    <b style="color: #38bdf8; font-size: 1rem;">9. ⏱️ Customer Patience Countdown Clock</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Live countdown timer showing how many turns remain before the customer hangs up or demands a manager.
                     </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/agents/patience_clock_agent.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">10. 🎙️ Voice Stress Frequency Meter</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Analyzes speech pitch variation (Hz) and audio stress levels for call center reps.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/ui/voice_stress_widget.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">11. 🍱 Zomato Order Header Card</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Displays live food order summary, item list (Biryani Blues), payment status (GPay), and address.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/ui/zomato_widgets.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">12. 🚴 Live Rider Tracking Status</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Tracks delivery partner Ramesh Kumar • 1.2 km away • ETA 8 mins + direct call button.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/ui/zomato_widgets.py</code></span>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;">
+                    <b style="color: #38bdf8; font-size: 1rem;">13. ⚔️ Support Survival Arcade Engine</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> High-stakes arcade game mode where reps handle 4 simultaneous customer queues before team HP runs out.
+                    </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/arcade/survival_engine.py</code></span>
                 </div>
                 <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px;">
-                    <b style="color: #38bdf8; font-size: 1rem;">🔍 Sub-5ms BM25 Knowledge Retrieval</b>
-                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
-                        Instantly pulls exact refund, cancellation, and delivery policy snippets in under 5 milliseconds.
+                    <b style="color: #38bdf8; font-size: 1rem;">14 & 15. 🏆 Golden Vault & Auto KB Approvals</b>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; margin-bottom: 2px;">
+                        <b>Function:</b> Archives top 1% benchmark responses in Hall of Fame and manages auto-drafted KB articles.
                     </p>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">File: <code>src/vault/golden_vault.py</code></span>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+        st.divider()
 
-        # Optional Technical Architecture Accordion for Developers
+        # Section 3: Technical Architecture & Algorithms Accordion
         with st.expander("🔬 Technical Deep-Dive: System Architecture & Algorithms", expanded=False):
             st.markdown("#### 🗺️ End-to-End System Architecture")
             st.markdown("""
-            - **Frontend**: Streamlit 1.32+ with custom Linear Obsidian CSS.
+            - **Frontend**: Streamlit 1.32+ with custom Dark Slate CSS.
             - **AI Gateway**: Groq Llama 3.3 70B Versatile & Google Gemini 1.5 Pro.
             - **RAG Engine**: Sub-5ms Pure Python BM25 / TF-IDF Vector Search.
             - **Backend Framework**: Decoupled Python Orchestrator with 23 Specialized Agents.

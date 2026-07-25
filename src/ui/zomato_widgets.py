@@ -107,6 +107,31 @@ def render_rider_status_widget(rider: RiderStatusCard | None = None):
         if st.button("📞 Call Rider", use_container_width=True):
             st.toast(f"📞 Dialing Ramesh Kumar ({rider.rider_phone})...", icon="📞")
 
+def render_zomato_bot_escalation_card():
+    """
+    Renders Zomato Bot Escalation Card indicator when automated bot transfers chat to human agent.
+    """
+    st.markdown(
+        """
+        <div style="
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-size: 0.82rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        ">
+            <span>🤖 <b>Zomato AI Bot Escalation:</b> Customer requested human support executive</span>
+            <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">HANDOVER COMPLETE</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 def render_agent_quick_actions():
     """Agent-side quick actions."""
     st.markdown("**⚡ Quick Agent Response Templates**")
