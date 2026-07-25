@@ -1511,7 +1511,7 @@ def coaching_page():
                         st.rerun()
                 render_agent_quick_actions()
                 agent_text = st.text_area("Write your reply:", key="agent_input_sim", height=90, label_visibility="collapsed", placeholder="Type your response as a support agent...")
-                btn_c1, btn_c2 = st.columns([2, 1])
+                btn_c1, btn_c2, btn_c3 = st.columns([1.2, 1.4, 1.2])
                 with btn_c1:
                     if st.button("Submit Response", type="primary", use_container_width=True) and agent_text.strip():
                         st.session_state.orchestrator.process_agent_input(agent_text.strip())
@@ -1520,6 +1520,15 @@ def coaching_page():
                         )
                         st.rerun()
                 with btn_c2:
+                    if st.button("✨ Polish Tone & De-escalate", type="secondary", use_container_width=True, help="AI rewrites your draft into a warm, empathetic, executive-level response."):
+                        from src.agents.tone_rewriter import tone_rewriter_agent
+                        draft = agent_text.strip() or "I understand your issue, let me check and help you."
+                        cust_msg = last_turn.customer_message.content if last_turn and last_turn.customer_message else "I need help with my issue."
+                        polished = tone_rewriter_agent.polish_response(draft, cust_msg)
+                        st.session_state["pending_agent_text"] = polished
+                        st.toast("✨ Polished response into an empathetic & policy-compliant draft!", icon="✨")
+                        st.rerun()
+                with btn_c3:
                     if st.button("🛡️ Manager Takeover", use_container_width=True, help="AI Senior Manager steps in to resolve critical issue directly."):
                         from src.agents.manager_supervisor import manager_supervisor_agent
                         mgr_text = manager_supervisor_agent.generate_manager_takeover_response()
