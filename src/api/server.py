@@ -37,6 +37,22 @@ class SendMessageRequest(BaseModel):
     message: str
     role: str = "agent"  # 'agent' or 'customer'
 
+@app.get("/")
+def root():
+    return {
+        "service": "CoachAI Enterprise API",
+        "version": "2.0",
+        "docs": "/docs",
+        "health": "/health",
+        "endpoints": [
+            "GET /health",
+            "POST /api/session/start",
+            "POST /api/chat/message",
+            "POST /api/chat/autopilot",
+            "POST /api/chat/manager-takeover",
+        ],
+    }
+
 @app.get("/health")
 def health_check():
     return {"status": "online", "engine": "Groq Llama 3.3 70B & Gemini", "rag": "Sub-5ms BM25"}
