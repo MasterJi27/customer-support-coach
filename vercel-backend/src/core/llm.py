@@ -97,21 +97,64 @@ def _groq_chat(system: str, user: str, temperature: float) -> str:
     return ""
 
 
+def _azure_chat(system: str, user: str, temperature: float = 0.7) -> str:
+    """Chat via Azure OpenAI (Foundry project) Responses API. Empty string on failure."""
+    endpoint = settings.azure_openai_endpoint or os.environ.get("AZURE_OPENAI_ENDPOINT", "")
+    api_key = settings.azure_openai_key or os.environ.get("AZURE_OPENAI_KEY", "")
+    if not settings.azure_openai_enabled or not endpoint or not api_key:
+        return ""
+    try:
+        resp = httpx.post(
+            endpoint,
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            json={
+                "model": settings.azure_openai_deployment,
+                "instructions": system,
+                "input": user,
+                "temperature": temperature,
+                "max_output_tokens": 512,
+            },
+            timeout=90,
+        )
+        if resp.status_code != 200:
+            print(f"Azure LLM Error: {resp.status_code} {resp.text[:200]}")
+            return ""
+        data = resp.json()
+        if data.get("output_text"):
+            return data["output_text"].strip()
+        for item in data.get("output", []) or []:
+            if item.get("type") != "message":
+                continue
+            for part in item.get("content", []) or []:
+                if part.get("type") == "output_text" and part.get("text", "").strip():
+                    return part["text"].strip()
+        return ""
+    except Exception as e:
+        print(f"Azure LLM Error: {e}")
+        return ""
+
+
 def llm_chat(system: str, user: str, temperature: float = 0.7) -> str:
-    # Race OpenRouter free (NVIDIA) vs Groq free — return whichever answers first.
-    # Guarantees lowest latency while staying 100% free.
-    with ThreadPoolExecutor(max_workers=2) as pool:
+    # 1. Azure OpenAI first (fast, no queue). Use only if configured.
+    out = _azure_chat(system, user, temperature)
+    if out:
+        return out
+    # 2. Fallback: race OpenRouter free vs Groq free — first winner returns.
+    #    wait=False so slow free-tier calls never block the caller.
+    pool = ThreadPoolExecutor(max_workers=2)
+    try:
         or_fut = pool.submit(llm_chat_openrouter, system, user, temperature)
         gq_fut = pool.submit(_groq_chat, system, user, temperature)
-        futures = [or_fut, gq_fut]
-        for fut in futures:
+        for fut in as_completed([or_fut, gq_fut]):
             try:
                 out = fut.result()
             except Exception:
                 continue
             if out:
                 return out
-    return ""
+        return ""
+    finally:
+        pool.shutdown(wait=False)
 
 
 def get_openrouter_api_key() -> str:

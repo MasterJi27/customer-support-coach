@@ -27,6 +27,11 @@ class Settings(BaseSettings):
     use_mock_llm: bool = True
     groq_api_key: str = ""
 
+    azure_openai_endpoint: str = ""
+    azure_openai_key: str = ""
+    azure_openai_deployment: str = "gpt-5.4-mini"
+    azure_openai_enabled: bool = True
+
     max_turns_per_session: int = 50
     escalation_high_threshold: float = 0.7
     escalation_critical_threshold: float = 0.9
