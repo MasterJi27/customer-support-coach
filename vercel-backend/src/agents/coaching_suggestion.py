@@ -23,11 +23,17 @@ class CoachingSuggestionAgent:
         agent_message: Message | None,
         intent: IntentAnalysis | None,
         humor_mode: bool = False,
+        knowledge_items: list | None = None,
+        escalation_pct: int = 0,
+        deep: dict | None = None,
     ) -> CoachingFeedback:
         agent_text = agent_message.content if agent_message else ""
 
+        kb_policy = self._kb_policy_text(knowledge_items)
+        deep_summary = self._deep_summary_text(deep)
+
         if agent_text.strip():
-            llm_result = self._llm_evaluate(customer_message.content, agent_text, intent, humor_mode)
+            llm_result = self._llm_evaluate(customer_message.content, agent_text, intent, humor_mode, kb_policy, escalation_pct, deep_summary)
         else:
             llm_result = None
 
@@ -54,10 +60,15 @@ class CoachingSuggestionAgent:
                 elif isinstance(m, str):
                     suggested_macros.append(m)
         else:
-            suggested_response = self._suggest_response(customer_message.content, intent)
-            communication_tips = self._generate_tips(agent_text, intent)
+            suggested_response = self._suggest_response(customer_message.content, intent, kb_policy, deep)
+            communication_tips = self._generate_tips(agent_text, intent, deep)
             suggested_actions = []
             suggested_macros = []
+
+        if deep and deep.get("preapproved_pr_statement") and communication_tips:
+            pr_tip = f"📣 PR Statement (viral risk {deep.get('viral_risk_pct', 0)}%): {deep['preapproved_pr_statement']}"
+            if pr_tip not in communication_tips:
+                communication_tips.append(pr_tip)
 
         quality_score = round(clarity_score * 0.7 + self._empathy_score(agent_text) * 0.3, 2)
 
@@ -100,7 +111,8 @@ class CoachingSuggestionAgent:
             response_quality_score=quality_score,
         )
 
-    def _llm_evaluate(self, customer_text: str, agent_text: str, intent: IntentAnalysis | None, humor_mode: bool = False) -> dict:
+    def _llm_evaluate(self, customer_text: str, agent_text: str, intent: IntentAnalysis | None, humor_mode: bool = False,
+                      kb_policy: str = "", escalation_pct: int = 0, deep_summary: str = "") -> dict:
         intent_str = intent.intent.value if intent else "general"
         sentiment_str = intent.sentiment.value if intent else "neutral"
         frustration = intent.frustration_level if intent else 0
@@ -111,6 +123,9 @@ class CoachingSuggestionAgent:
             sentiment_str=sentiment_str,
             frustration_pct=int(frustration * 100),
             humor_mode=humor_mode,
+            kb_policy=kb_policy,
+            escalation_pct=escalation_pct,
+            deep_summary=deep_summary,
         )
 
         user = f"Customer said: {customer_text}\nAgent responded: {agent_text}"
@@ -172,7 +187,40 @@ class CoachingSuggestionAgent:
         matches = sum(1 for p in empathy_phrases if p in text.lower())
         return min(matches * 0.2, 1.0)
 
-    def _generate_tips(self, agent_text: str, intent: IntentAnalysis | None) -> list[str]:
+    def _kb_policy_text(self, knowledge_items: list | None) -> str:
+        if not knowledge_items:
+            return ""
+        parts = []
+        for item in knowledge_items[:2]:
+            title = getattr(item, "title", "") or ""
+            content = getattr(item, "content", "") or ""
+            if title and content:
+                parts.append(f"- {title}: {content[:400]}")
+        return "\n".join(parts)
+
+    def _deep_summary_text(self, deep: dict | None) -> str:
+        if not deep:
+            return ""
+        parts = []
+        if deep.get("predicted_csat"):
+            parts.append(f"CSAT {deep['predicted_csat']}/5")
+        if deep.get("churn_risk_pct"):
+            parts.append(f"churn {deep['churn_risk_pct']}%")
+        if deep.get("viral_risk_pct"):
+            parts.append(f"viral {deep['viral_risk_pct']}%")
+        if deep.get("fraud_risk_pct"):
+            parts.append(f"fraud {deep['fraud_risk_pct']}%")
+        if deep.get("internal_monologue"):
+            parts.append(f"customer thinking: {deep['internal_monologue'][:120]}")
+        if deep.get("true_intent"):
+            parts.append(f"true intent: {deep['true_intent'][:120]}")
+        if deep.get("retention_counter_offer"):
+            parts.append(f"retention offer: {deep['retention_counter_offer'][:120]}")
+        if deep.get("preapproved_pr_statement"):
+            parts.append(f"PR statement: {deep['preapproved_pr_statement'][:160]}")
+        return "; ".join(parts)
+
+    def _generate_tips(self, agent_text: str, intent: IntentAnalysis | None, deep: dict | None = None) -> list[str]:
         tips = []
         text_lower = agent_text.lower()
 
@@ -199,6 +247,18 @@ class CoachingSuggestionAgent:
         if intent and intent.frustration_level > 0.5:
             tips.append("Stay calm and avoid being defensive. Focus on solutions, not explanations.")
 
+        if deep:
+            if deep.get("churn_risk_pct", 0) >= 50:
+                tips.append(f"🚨 Churn risk {deep['churn_risk_pct']}% — offer the retention action: {deep.get('retention_counter_offer') or 'loyalty credit'} immediately.")
+            if deep.get("viral_risk_pct", 0) >= 40:
+                tips.append(f"📣 Public blast risk {deep['viral_risk_pct']}% ({deep.get('platform_risk')}) — use the PR statement and apologize with a concrete fix.")
+            if deep.get("fraud_risk_pct", 0) >= 60:
+                tips.append(f"🛡️ Fraud alert ({deep.get('fraud_category')}) — follow protocol: {deep.get('fraud_protocol') or 'verify order ID and payment proof before refunding'}.")
+            if deep.get("defection_risk_pct", 0) >= 40:
+                tips.append(f"🏃 Customer may switch to {deep.get('competitor_mentioned')} — counter with {deep.get('retention_counter_offer') or 'a goodwill offer'}.")
+            if deep.get("true_intent"):
+                tips.append(f"🧠 Mind-reader: {deep['true_intent']}")
+
         if not tips:
             tips.append("Consider adding a closing question to invite further discussion.")
 
@@ -216,7 +276,18 @@ class CoachingSuggestionAgent:
             return "defensive"
         return "low_quality"
 
-    def _suggest_response(self, customer_message: str, intent: IntentAnalysis | None) -> str:
+    def _suggest_response(self, customer_message: str, intent: IntentAnalysis | None,
+                          kb_policy: str = "", deep: dict | None = None) -> str:
+        # Deep signals first — the most specific, non-generic guidance wins.
+        if deep and deep.get("retention_counter_offer"):
+            return (
+                f"I completely understand — this is on us, and I am fixing it right now. "
+                f"{deep['retention_counter_offer']}. "
+                f"{deep.get('true_intent', '') or 'This will reflect in 2-4 hours, and I will personally confirm.'}"
+            )
+        if deep and deep.get("preapproved_pr_statement") and deep.get("viral_risk_pct", 0) >= 40:
+            return f"{deep['preapproved_pr_statement']}"
+
         if intent:
             intent_map = {
                 "technical_issue": ("I understand you're experiencing a technical issue. "
@@ -231,9 +302,8 @@ class CoachingSuggestionAgent:
                 "cancellation": ("I understand you're considering cancellation. "
                     "I'd like to help address your concerns first. "
                     "Could you tell me what prompted this decision?"),
-                "refund": ("I understand you'd like a refund. "
-                    "Let me check your purchase details and see what options are available. "
-                    "Can you provide your order number?"),
+                "refund": ("I sincerely apologize for this. Let me immediately process your refund to the original "
+                    "payment method — it reflects within 2-4 hours. I am also adding a goodwill credit as a token of apology."),
                 "complaint": ("I sincerely apologize for your experience. "
                     "I want to make this right. "
                     "Let me investigate what happened and find the best solution for you."),

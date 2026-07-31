@@ -67,7 +67,7 @@ const railTabs = [
   { id: 'risk', label: 'Risk', icon: ShieldAlert },
 ]
 
-function RailPanel({ tab, signals, kb, suggestedReply, escalation, riskRows, onUseReply }) {
+function RailPanel({ tab, signals, kb, suggestedReply, escalation, riskRows, onUseReply, deep }) {
   const { theme } = useTheme()
   const isLight = theme === 'light'
 
@@ -77,6 +77,15 @@ function RailPanel({ tab, signals, kb, suggestedReply, escalation, riskRows, onU
         <div className="grid grid-cols-2 gap-2">
           {signals.map((s, i) => <SignalChip key={`${s.key}-${i}`} {...s} />)}
         </div>
+        {deep?.true_intent && (
+          <div className={`p-3.5 rounded-2xl border ${isLight ? 'bg-violet-50 border-violet-200' : 'bg-violet-500/10 border-violet-500/20'}`}>
+            <p className={`text-[10px] uppercase tracking-wider mb-1 ${isLight ? 'text-violet-600' : 'text-violet-400'}`}>Mind-reader · true intent</p>
+            <p className={`text-xs leading-relaxed ${isLight ? 'text-navy-600' : 'text-white/60'}`}>{deep.true_intent}</p>
+            {deep.internal_monologue && (
+              <p className={`text-xs mt-2 italic leading-relaxed ${isLight ? 'text-navy-400' : 'text-white/40'}`}>"{deep.internal_monologue}"</p>
+            )}
+          </div>
+        )}
       </div>
     )
   }
@@ -84,13 +93,15 @@ function RailPanel({ tab, signals, kb, suggestedReply, escalation, riskRows, onU
   if (tab === 'kb') {
     return (
       <div>
-        <p className={`text-xs mb-2 ${isLight ? 'text-navy-400' : 'text-white/40'}`}>Best match · 78% overlap</p>
+        <p className={`text-xs mb-2 ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
+          {kb.source ? `Best match · ${kb.source}` : 'Best match · 78% overlap'}
+        </p>
         <div className={`p-4 rounded-2xl border ${isLight ? 'bg-emerald-50 border-emerald-200' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
           <p className={`text-sm font-medium ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>{kb.title}</p>
           <p className={`text-xs mt-1.5 leading-relaxed ${isLight ? 'text-navy-500' : 'text-white/50'}`}>{kb.content}</p>
         </div>
         <div className="flex flex-wrap gap-1.5 mt-3">
-          {kb.keywords.map(kw => (
+          {(kb.keywords || []).map(kw => (
             <span key={kw} className={`text-[10px] px-2 py-0.5 rounded-full ${isLight ? 'bg-navy-100 text-navy-500' : 'bg-white/[0.06] text-white/40'}`}>
               {kw}
             </span>
@@ -134,6 +145,30 @@ function RailPanel({ tab, signals, kb, suggestedReply, escalation, riskRows, onU
           </div>
         ))}
       </div>
+      {deep?.pr_statement && (
+        <div className={`p-3.5 rounded-2xl border ${isLight ? 'bg-red-50 border-red-200' : 'bg-red-500/10 border-red-500/20'}`}>
+          <p className={`text-[10px] uppercase tracking-wider mb-1 ${isLight ? 'text-red-600' : 'text-red-400'}`}>
+            📣 PR Statement · viral {deep.viral_risk_pct ?? 0}%
+          </p>
+          <p className={`text-xs leading-relaxed ${isLight ? 'text-navy-600' : 'text-white/60'}`}>{deep.pr_statement}</p>
+        </div>
+      )}
+      {deep?.retention_counter_offer && (
+        <div className={`p-3.5 rounded-2xl border ${isLight ? 'bg-emerald-50 border-emerald-200' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
+          <p className={`text-[10px] uppercase tracking-wider mb-1 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>
+            🎁 Retention offer
+          </p>
+          <p className={`text-xs leading-relaxed ${isLight ? 'text-navy-600' : 'text-white/60'}`}>{deep.retention_counter_offer}</p>
+        </div>
+      )}
+      {deep?.fraud_protocol && (
+        <div className={`p-3.5 rounded-2xl border ${isLight ? 'bg-orange-50 border-orange-200' : 'bg-orange-500/10 border-orange-500/20'}`}>
+          <p className={`text-[10px] uppercase tracking-wider mb-1 ${isLight ? 'text-orange-600' : 'text-orange-400'}`}>
+            🛡️ Fraud protocol · {deep.fraud_category}
+          </p>
+          <p className={`text-xs leading-relaxed ${isLight ? 'text-navy-600' : 'text-white/60'}`}>{deep.fraud_protocol}</p>
+        </div>
+      )}
     </div>
   )
 }
@@ -156,15 +191,21 @@ export default function Dashboard() {
   const scenario = scenarios[0]
   const kb = kbDocuments[0]
   const suggestedReply = lastTurn?.suggested_response || ''
+  const liveKb = lastTurn?.kb?.title ? lastTurn.kb : null
 
   const lastCoachTurn = [...turns].reverse().find(t => t.role === 'coach')
   const signals = lastTurn
     ? [
-        { key: 'Frustration', value: `${lastTurn.frustration_pct}%`, tone: lastTurn.frustration_pct >= 60 ? 'red' : lastTurn.frustration_pct >= 35 ? 'orange' : 'emerald' },
+        { key: 'Intent', value: (lastTurn.intent || 'general').replace(/_/g, ' '), tone: 'cyan' },
         { key: 'Sentiment', value: lastTurn.sentiment, tone: 'violet' },
+        { key: 'Frustration', value: `${lastTurn.frustration_pct}%`, tone: lastTurn.frustration_pct >= 60 ? 'red' : lastTurn.frustration_pct >= 35 ? 'orange' : 'emerald' },
+        { key: 'Escalation risk', value: `${lastTurn.escalation_risk_pct ?? lastTurn.frustration_pct}%`, tone: (lastTurn.escalation_risk_pct ?? 0) >= 60 ? 'red' : (lastTurn.escalation_risk_pct ?? 0) >= 35 ? 'orange' : 'emerald' },
+        { key: 'Predicted CSAT', value: lastTurn.predicted_csat ? `${lastTurn.predicted_csat}/5` : '—', tone: (lastTurn.predicted_csat ?? 4) >= 3.5 ? 'emerald' : 'orange' },
+        { key: 'Churn risk', value: lastTurn.churn_risk_pct ? `${lastTurn.churn_risk_pct}%` : '—', tone: (lastTurn.churn_risk_pct ?? 0) >= 50 ? 'red' : (lastTurn.churn_risk_pct ?? 0) >= 25 ? 'orange' : 'emerald' },
+        { key: 'Viral threat', value: lastTurn.viral_risk_pct ? `${lastTurn.viral_risk_pct}%` : '—', tone: (lastTurn.viral_risk_pct ?? 0) >= 40 ? 'red' : 'cyan' },
+        { key: 'Fraud signal', value: lastTurn.fraud_risk_pct ? `${lastTurn.fraud_risk_pct}%` : '—', tone: (lastTurn.fraud_risk_pct ?? 0) >= 60 ? 'red' : 'emerald' },
         { key: 'Clarity', value: `${lastTurn.clarity_pct}%`, tone: lastTurn.clarity_pct >= 75 ? 'emerald' : 'orange' },
         { key: 'Response quality', value: `${Math.round((lastTurn.quality_score || 0.8) * 100)}%`, tone: lastTurn.quality_score >= 0.75 ? 'emerald' : 'orange' },
-        { key: 'Tone', value: lastTurn.tone_quality || 'Professional', tone: 'cyan' },
       ]
     : lastCoachTurn
       ? lastCoachTurn.entries.filter(e => !['Suggested reply'].includes(e.key)).slice(0, 6)
@@ -173,7 +214,11 @@ export default function Dashboard() {
     ? [
         { label: 'Frustration', value: `${lastTurn.frustration_pct}%`, cls: lastTurn.frustration_pct >= 60 ? 'text-red-600' : lastTurn.frustration_pct >= 35 ? 'text-orange-600' : 'text-emerald-600' },
         { label: 'Sentiment', value: lastTurn.sentiment, cls: lastTurn.sentiment === 'angry' ? 'text-red-600' : lastTurn.sentiment === 'frustrated' ? 'text-orange-600' : 'text-emerald-600' },
-        { label: 'Clarity score', value: `${lastTurn.clarity_pct}%`, cls: lastTurn.clarity_pct >= 75 ? 'text-emerald-600' : 'text-orange-600' },
+        { label: 'Escalation risk', value: `${lastTurn.escalation_risk_pct ?? '—'}%`, cls: (lastTurn.escalation_risk_pct ?? 0) >= 60 ? 'text-red-600' : (lastTurn.escalation_risk_pct ?? 0) >= 35 ? 'text-orange-600' : 'text-emerald-600' },
+        { label: 'Predicted CSAT', value: lastTurn.predicted_csat ? `${lastTurn.predicted_csat}/5` : '—', cls: (lastTurn.predicted_csat ?? 4) >= 3.5 ? 'text-emerald-600' : 'text-orange-600' },
+        { label: 'Churn risk', value: lastTurn.churn_risk_pct ? `${lastTurn.churn_risk_pct}%` : '—', cls: (lastTurn.churn_risk_pct ?? 0) >= 50 ? 'text-red-600' : 'text-emerald-600' },
+        { label: 'Viral / PR risk', value: lastTurn.viral_risk_pct ? `${lastTurn.viral_risk_pct}%` : '—', cls: (lastTurn.viral_risk_pct ?? 0) >= 40 ? 'text-red-600' : 'text-emerald-600' },
+        { label: 'Fraud risk', value: lastTurn.fraud_risk_pct ? `${lastTurn.fraud_risk_pct}%` : '—', cls: (lastTurn.fraud_risk_pct ?? 0) >= 60 ? 'text-red-600' : 'text-emerald-600' },
         { label: 'Coaching tips', value: `${lastTurn.coaching_tips?.length || 0} ready`, cls: 'text-cyan-600' },
       ]
     : [
@@ -583,10 +628,11 @@ export default function Dashboard() {
               <RailPanel
                 tab={railTab}
                 signals={signals}
-                kb={kb}
+                kb={liveKb || kb}
                 suggestedReply={suggestedReply}
-                escalation={lastCoachTurn ? 78 : 61}
+                escalation={lastTurn?.escalation_risk_pct ?? (lastCoachTurn ? 78 : 61)}
                 riskRows={riskRows}
+                deep={lastTurn}
                 onUseReply={useSuggestedReply}
               />
             </motion.div>

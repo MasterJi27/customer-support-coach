@@ -14,6 +14,7 @@ from src.agents.escalation_monitor import EscalationMonitorAgent
 from src.agents.coach_calibrator import CoachCalibrator
 from src.agents.predictive_csat import predictive_csat_agent
 from src.agents.manager_supervisor import manager_supervisor_agent
+from src.agents.deep_analysis import deep_analysis_agent
 from src.tools.mock_backend import mock_backend
 
 
@@ -61,10 +62,14 @@ class ConversationManager:
         # 2. Retrieve relevant articles using Agentic RAG
         knowledge_items = self.knowledge_agent.recommend(customer_message.content)
         
-        # 3. Generate proactive coaching advice for the agent
-        coaching = self._generate_coaching(session, customer_message, intent_analysis)
+        # 3. Deep-turn signal engine: CSAT/churn forecast, viral PR threat, fraud,
+        #    competitor defection, and customer mind-reader — one efficient LLM call.
+        deep = deep_analysis_agent.analyze(customer_message.content, context)
+
+        # 4. Generate proactive coaching advice for the agent (deep-aware)
+        coaching = self._generate_coaching(session, customer_message, intent_analysis, knowledge_items, deep)
         
-        # 4. Assess if the customer is becoming a flight risk
+        # 5. Assess if the customer is becoming a flight risk
         escalation = self.escalation_agent.assess(session, intent_analysis)
 
         # Package the analysis into a single Turn object
@@ -75,6 +80,7 @@ class ConversationManager:
             knowledge_items=knowledge_items,
             coaching_feedback=coaching,
             escalation_assessment=escalation,
+            deep_analysis=deep,
         )
         session.turn_analyses.append(turn_analysis)
         return turn_analysis
@@ -84,17 +90,26 @@ class ConversationManager:
     ):
         session.add_message(agent_message)
         last_turn_analysis.agent_message = agent_message.content
+        escalation_pct = int((last_turn_analysis.escalation_assessment.risk_score if last_turn_analysis.escalation_assessment else 0) * 100)
         last_turn_analysis.coaching_feedback = self.coaching_agent.analyze_response(
             Message(role="customer", content=last_turn_analysis.customer_message),
             agent_message,
             last_turn_analysis.intent_analysis,
             humor_mode=self.humor_mode,
+            knowledge_items=last_turn_analysis.knowledge_items,
+            escalation_pct=escalation_pct,
+            deep=last_turn_analysis.deep_analysis,
         )
 
     def _generate_coaching(
         self, session: SessionState, customer_message: Message, intent_analysis: IntentAnalysis,
+        knowledge_items: list = None, deep: dict | None = None,
     ) -> CoachingFeedback:
-        return self.coaching_agent.analyze_response(customer_message, None, intent_analysis, humor_mode=self.humor_mode)
+        return self.coaching_agent.analyze_response(
+            customer_message, None, intent_analysis, humor_mode=self.humor_mode,
+            knowledge_items=knowledge_items,
+            deep=deep,
+        )
 
     def should_show_coaching(
         self, agent_name: str, coaching: CoachingFeedback

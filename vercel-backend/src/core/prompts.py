@@ -82,29 +82,75 @@ KNOWLEDGE_RECOMMENDATION_SYSTEM_PROMPT = (
 
 
 # =====================================================================
+# Deep Turn Analysis Agent (src/agents/deep_analysis.py)
+# =====================================================================
+DEEP_ANALYSIS_SYSTEM_PROMPT = (
+    "You are CoachAI's deep signal engine — an expert analyst that reads a customer "
+    "support message and the conversation context, then outputs a rich risk & insight "
+    "profile in ONE call. Be specific and concrete — reference amounts, order IDs, "
+    "platforms, and actual policy numbers where possible. Never output generic filler.\n\n"
+    "Return strictly valid JSON with exact keys:\n"
+    "- 'predicted_csat' (float 1.0 to 5.0: expected end-of-conversation CSAT if the agent keeps up this pace)\n"
+    "- 'churn_risk_pct' (float 0 to 100: likelihood the customer cancels or leaves the platform)\n"
+    "- 'csat_drivers' (list of 2-3 short strings: what is currently pushing the score up or down)\n"
+    "- 'viral_risk_pct' (float 0 to 100: risk the customer publicly blasts the brand on social media / consumer court)\n"
+    "- 'platform_risk' (string: e.g. 'Twitter/X', 'Google Play 1-star review', 'Consumer Court complaint', or 'Low')\n"
+    "- 'preapproved_pr_statement' (string: a ready-to-paste official de-escalation statement that neutralizes the public damage; empty string if viral_risk_pct < 40)\n"
+    "- 'fraud_risk_pct' (float 0 to 100: likelihood this is refund/support fraud)\n"
+    "- 'fraud_category' (string: 'Low Risk', 'Suspicious Abuse Pattern', 'High Refund Exploitation Risk', or 'Critical Fraud Alert')\n"
+    "- 'fraud_protocol' (string: exact anti-fraud steps the agent must follow, or empty if low risk)\n"
+    "- 'defection_risk_pct' (float 0 to 100: likelihood the customer switches to a competitor)\n"
+    "- 'competitor_mentioned' (string: competitor name like 'Swiggy', 'Zepto', 'UberEats', or 'None')\n"
+    "- 'retention_counter_offer' (string: specific offer/action to save the customer, e.g. 'Refund Rs 700 + Rs 150 goodwill credit', or empty)\n"
+    "- 'internal_monologue' (string: 1-2 sentences of what the customer is REALLY thinking vs what they typed)\n"
+    "- 'true_intent' (string: what the customer secretly wants right now, e.g. 'Full Rs 700 refund or will dispute with bank')\n"
+    "- 'escalation_trigger' (string: the single biggest reason this turn could blow up, or 'None')\n"
+    "Be concrete. Where a specific number exists in the message (order ID, amount), use it."
+)
+
+
+# =====================================================================
 # Coaching & Response Suggestion Agent (src/agents/coaching_suggestion.py)
 # =====================================================================
 def build_coaching_suggestion_system_prompt(
-    library_json: str, intent_str: str, sentiment_str: str, frustration_pct: int, humor_mode: bool = False
+    library_json: str,
+    intent_str: str,
+    sentiment_str: str,
+    frustration_pct: int,
+    humor_mode: bool = False,
+    kb_policy: str = "",
+    escalation_pct: int = 0,
+    deep_summary: str = "",
 ) -> str:
     humor_prompt = (
         '- "humor": A contextual, natural roast (if the agent response is poor) or a compliment '
         '(if the response is excellent), based specifically on the agent\'s message.\n'
     ) if humor_mode else ""
+    context_block = ""
+    if kb_policy:
+        context_block += f"\nCompany policy (from Knowledge Base) for this situation:\n{kb_policy}\n"
+    if deep_summary:
+        context_block += f"\nDeep-turn signals: {deep_summary}\n"
     return (
-        "You are a customer support coaching AI. Analyze the agent's response to the customer.\n"
+        "You are a world-class customer support coach. The human agent is mid-conversation with an angry customer. "
+        "Your job: give the agent a SPECIFIC, ACTION-READY draft reply and sharp tips. "
+        "NEVER output generic filler like 'I understand your frustration, let me help you' — every suggestion must "
+        "contain concrete details: the exact refund/voucher amount, the policy clause, the PR statement, or the next step.\n"
+        "If the agent's response already handled the situation (e.g. processed a refund, gave a voucher), "
+        "suggested should CONFIRM that action to the customer with amount + timeline, not ask generic questions.\n"
         "Here is the library of available Macros and Actions you can suggest:\n"
-        f"{library_json}\n\n"
+        f"{library_json}\n"
+        f"{context_block}\n"
         "Return JSON with exactly these keys:\n"
-        '- "suggested": a better version of the agent response (if needed)\n'
-        '- "tips": array of 1-3 short actionable tips\n'
+        '- "suggested": a better version of the agent response (or a stronger version if empty)\n'
+        '- "tips": array of 2-3 short, specific, actionable tips (each tip must be situation-specific, not generic)\n'
         '- "clarity": number 0.0 to 1.0 rating clarity\n'
         '- "actions": array of action objects (from the library) the agent should take (e.g. [{"label": "...", "api_endpoint": "..."}])\n'
         '- "macros": array of macro shortcuts (from the library) the agent could use instead of typing\n'
         f"{humor_prompt}"
-        "Be concise. Customer intent is " + intent_str + ", sentiment is " + sentiment_str +
-        ", frustration is " + str(frustration_pct) + "%. "
-        "Only suggest improvements. Return valid JSON only."
+        "Customer intent is " + intent_str + ", sentiment is " + sentiment_str +
+        ", frustration is " + str(frustration_pct) + "%, escalation risk is " + str(escalation_pct) + "%. "
+        "Return valid JSON only."
     )
 
 

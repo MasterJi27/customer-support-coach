@@ -119,6 +119,7 @@ class TurnAnalysis(BaseModel):
     knowledge_items: list[KnowledgeItem] = []
     coaching_feedback: Optional[CoachingFeedback] = None
     escalation_assessment: Optional[EscalationAssessment] = None
+    deep_analysis: dict = Field(default_factory=dict)
     timestamp: datetime = Field(default_factory=datetime.now)
 
 

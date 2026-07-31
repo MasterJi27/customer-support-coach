@@ -250,16 +250,53 @@ def manager_takeover():
 def _serialize_turn(turn):
     if not turn:
         return None
+    deep = turn.deep_analysis or {}
+    kb_item = None
+    if turn.knowledge_items:
+        for item in turn.knowledge_items:
+            src = item.source or ""
+            if src not in ("ai-synthesis", "kb-gap-alert", "built-in faq"):
+                kb_item = item
+                break
+        if kb_item is None:
+            kb_item = turn.knowledge_items[0]
+    escalation = turn.escalation_assessment
     return {
         "customer_message": turn.customer_message,
         "agent_message": turn.agent_message,
         "sentiment": turn.intent_analysis.sentiment.value if turn.intent_analysis else "neutral",
+        "intent": turn.intent_analysis.intent.value if turn.intent_analysis else "general",
         "frustration_pct": int((turn.intent_analysis.frustration_level if turn.intent_analysis else 0.3) * 100),
+        "satisfaction_trend": turn.intent_analysis.satisfaction_trend if turn.intent_analysis else 0.0,
         "coaching_tips": turn.coaching_feedback.communication_tips if turn.coaching_feedback else [],
         "suggested_response": turn.coaching_feedback.suggested_response if turn.coaching_feedback else "",
+        "suggested_actions": turn.coaching_feedback.suggested_actions if turn.coaching_feedback else [],
         "quality_score": turn.coaching_feedback.response_quality_score if turn.coaching_feedback else 0.8,
         "clarity_pct": int((turn.coaching_feedback.clarity_score if turn.coaching_feedback else 0.85) * 100),
         "tone_quality": turn.coaching_feedback.tone_quality if turn.coaching_feedback else "Professional",
+        "escalation_risk_pct": int((escalation.risk_score if escalation else 0.3) * 100),
+        "escalation_reasoning": (escalation.reasoning if escalation else ""),
+        "escalation_strategies": (escalation.recommended_strategies if escalation else []),
+        "predicted_csat": deep.get("predicted_csat"),
+        "churn_risk_pct": deep.get("churn_risk_pct"),
+        "csat_drivers": deep.get("csat_drivers", []),
+        "viral_risk_pct": deep.get("viral_risk_pct"),
+        "platform_risk": deep.get("platform_risk"),
+        "pr_statement": deep.get("preapproved_pr_statement", ""),
+        "fraud_risk_pct": deep.get("fraud_risk_pct"),
+        "fraud_category": deep.get("fraud_category"),
+        "fraud_protocol": deep.get("fraud_protocol", ""),
+        "defection_risk_pct": deep.get("defection_risk_pct"),
+        "competitor_mentioned": deep.get("competitor_mentioned"),
+        "retention_counter_offer": deep.get("retention_counter_offer", ""),
+        "internal_monologue": deep.get("internal_monologue", ""),
+        "true_intent": deep.get("true_intent", ""),
+        "escalation_trigger": deep.get("escalation_trigger", ""),
+        "kb": {
+            "title": kb_item.title if kb_item else "",
+            "content": kb_item.content if kb_item else "",
+            "source": kb_item.source if kb_item else "",
+        },
     }
 
 if __name__ == "__main__":
