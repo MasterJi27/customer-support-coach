@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     composio_api_key: str = ""
     composio_user_id: str = "default"
     composio_jira_project_key: str = "COACH"
-    composio_refund_email: str = "customer@example.com"
+    composio_refund_email: str = "raghavkathuria63@gmail.com"
     composio_slack_channel: str = "#support-ops"
 
     openrouter_api_key: str = ""

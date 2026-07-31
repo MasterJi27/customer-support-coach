@@ -111,23 +111,22 @@ class ComposioBackendService:
 
     def send_email(self, recipient_email: str, subject: str, body: str, is_html: bool = False) -> ToolCallResult:
         arguments = {
-            "recipient_email": recipient_email,
+            "to": [recipient_email],
             "subject": subject,
             "body": body,
             "is_html": is_html,
         }
         try:
-            resp = self._execute("GMAIL_CREATE_EMAIL_DRAFT", arguments)
+            resp = self._execute("GMAIL_SEND_EMAIL", arguments)
             data = self._payload(resp)
-            draft_id = data.get("draft_id") or data.get("id") or str(data or resp)
             return ToolCallResult(
-                tool_name="gmail_create_email_draft",
+                tool_name="gmail_send_email",
                 arguments=arguments,
                 success=True,
-                result_text=f"[COMPOSIO] Email draft created for {recipient_email} (draft id: {draft_id})",
+                result_text=f"[COMPOSIO] Email sent to {recipient_email}",
             )
         except Exception as e:
-            return self._fail("gmail_create_email_draft", arguments, e)
+            return self._fail("gmail_send_email", arguments, e)
 
     def post_slack_message(self, channel: str, text: str) -> ToolCallResult:
         arguments = {
@@ -153,14 +152,15 @@ class ComposioBackendService:
         try:
             resp = self.client.connected_accounts.list()
             items = list(getattr(resp, "items", None) or [])
-            statuses = {}
+            latest = {}
             for item in items:
                 toolkit = getattr(item, "toolkit", None)
                 slug = getattr(toolkit, "slug", None) or str(item)
                 status = getattr(item, "status", None) or "UNKNOWN"
-                if slug not in statuses or status not in ("INITIALIZING",):
-                    statuses[slug] = status
-            return [f"{slug} ({status})" for slug, status in statuses.items()]
+                updated = getattr(item, "updated_at", None) or ""
+                if slug not in latest or str(updated) > str(latest[slug][1]):
+                    latest[slug] = (status, updated)
+            return [f"{slug} ({status})" for slug, (status, _) in latest.items()]
         except Exception:
             return []
 

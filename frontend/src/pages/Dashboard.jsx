@@ -151,6 +151,7 @@ export default function Dashboard() {
   const [lastTurn, setLastTurn] = useState(null)
   const [apiError, setApiError] = useState('')
   const startTimeRef = useRef(null)
+  const autoStartRef = useRef(false)
 
   const scenario = scenarios[0]
   const kb = kbDocuments[0]
@@ -182,6 +183,16 @@ export default function Dashboard() {
       ]
 
   useEffect(() => {
+    if (autoStartRef.current || session) return
+    const cfg = localStorage.getItem('coachai_session_config')
+    if (cfg) {
+      autoStartRef.current = true
+      startDemo()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
     if (!session) return
     const interval = setInterval(() => setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000)), 1000)
     return () => clearInterval(interval)
@@ -199,6 +210,7 @@ export default function Dashboard() {
         product_context: cfg.product_context || 'Zomato Food Delivery',
         scenario_choice: cfg.scenario_choice || 'delivery_delay',
       })
+      localStorage.removeItem('coachai_session_config')
       startTimeRef.current = Date.now()
       setElapsed(0)
       setSession({ id: res.session_id, product_context: res.product_context })
