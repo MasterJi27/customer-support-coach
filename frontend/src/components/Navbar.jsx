@@ -1,19 +1,28 @@
 import { useState, useEffect, useRef } from 'react'
-import { Bell, Search, User, ChevronDown, LogOut, Settings as SettingsIcon, Sun, Moon, Menu, TrendingUp, ShieldAlert, Trophy } from 'lucide-react'
+import { Bell, Search, User, ChevronDown, LogOut, Settings as SettingsIcon, Sun, Moon, Menu, TrendingUp, ShieldAlert, Trophy, Palette } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './AuthContext'
 import { useTheme } from './ThemeContext'
 import { useNavigate } from 'react-router-dom'
 import { scenarios, kbDocuments, leaderboard } from '../data'
 
+const ACCENTS = [
+  { name: 'emerald', label: 'Emerald', color: '#22c55e' },
+  { name: 'cyan', label: 'Cyan', color: '#06b6d4' },
+  { name: 'violet', label: 'Violet', color: '#8b5cf6' },
+  { name: 'rose', label: 'Rose', color: '#f43f5e' },
+  { name: 'amber', label: 'Amber', color: '#f59e0b' },
+]
+
 export default function Navbar({ onMenuClick }) {
   const [query, setQuery] = useState('')
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
+  const [showAccents, setShowAccents] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const { user, logout } = useAuth()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme, accent, changeAccent } = useTheme()
   const navigate = useNavigate()
   const searchInputRef = useRef(null)
   const searchResultsRef = useRef(null)
@@ -51,6 +60,7 @@ export default function Navbar({ onMenuClick }) {
         setShowSearch(false)
         setShowNotifications(false)
         setShowProfile(false)
+        setShowAccents(false)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -213,6 +223,44 @@ export default function Navbar({ onMenuClick }) {
       </div>
 
       <div className="flex items-center gap-2">
+        <div className="relative">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => { setShowAccents(!showAccents); setShowNotifications(false); setShowProfile(false) }}
+            className={`p-2.5 rounded-2xl transition-all ${theme === 'light' ? 'text-navy-400 hover:text-navy-700 hover:bg-navy-100' : 'text-white/40 hover:text-white hover:bg-white/[0.06]'}`}
+          >
+            <Palette className="w-5 h-5" />
+          </motion.button>
+          <AnimatePresence>
+            {showAccents && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                transition={{ duration: 0.15 }}
+                className={`absolute right-0 mt-2 rounded-3xl p-4 w-56 ${theme === 'light' ? 'bg-white border border-navy-100 shadow-lg' : 'glass-card'}`}
+              >
+                <p className={`text-sm font-semibold mb-3 ${theme === 'light' ? 'text-navy-700' : 'text-white/90'}`}>Accent color</p>
+                <div className="grid grid-cols-5 gap-3">
+                  {ACCENTS.map(a => (
+                    <button
+                      key={a.name}
+                      type="button"
+                      title={a.label}
+                      aria-label={a.label}
+                      onClick={() => changeAccent(a.name)}
+                      className={`w-9 h-9 rounded-full transition-all ${accent === a.name ? 'scale-110 ring-2 ring-offset-2 ring-offset-transparent' : 'hover:scale-105'}`}
+                      style={{ backgroundColor: a.color, boxShadow: accent === a.name ? `0 0 16px ${a.color}80` : 'none' }}
+                    />
+                  ))}
+                </div>
+                <p className={`text-xs mt-3 ${theme === 'light' ? 'text-navy-400' : 'text-white/30'}`}>{ACCENTS.find(a => a.name === accent)?.label || 'Emerald'}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
