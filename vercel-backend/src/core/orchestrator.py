@@ -58,8 +58,9 @@ class Orchestrator:
                 self.active_session.config.scenario
             )
             # Process the generated message through our coaching pipeline
+            # (fast=True: intent + deep signals only; coaching/escalation come with the first agent turn)
             self.conversation_manager.process_customer_message(
-                self.active_session, first_msg
+                self.active_session, first_msg, fast=True
             )
 
         # Persist the session to our database

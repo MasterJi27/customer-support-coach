@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from src.core.models import (
     CoachingFeedback,
     IntentAnalysis,
@@ -45,32 +47,33 @@ class ConversationManager:
         return self.bot_mode
 
     def process_customer_message(
-        self, session: SessionState, customer_message: Message
+        self, session: SessionState, customer_message: Message, fast: bool = False
     ) -> TurnAnalysis:
         """
         Processes an incoming message from the customer.
         Runs the message through our NLP and RAG pipelines to generate coaching tips
-        and escalate if necessary.
+        and escalate if necessary. fast=True skips coaching/escalation (session start).
         """
         session.add_message(customer_message)
         session.current_turn += 1
         context = session.get_conversation_context()
 
-        # 1. Analyze the customer's intent and emotional state
-        intent_analysis = self.intent_agent.analyze(customer_message.content, context)
-        
+        # 1+3. Intent & deep signals run in parallel (independent of each other)
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            intent_future = pool.submit(self.intent_agent.analyze, customer_message.content, context)
+            deep_future = pool.submit(deep_analysis_agent.analyze, customer_message.content, context)
+            intent_analysis = intent_future.result()
+            deep = deep_future.result()
+
         # 2. Retrieve relevant articles using Agentic RAG
         knowledge_items = self.knowledge_agent.recommend(customer_message.content)
-        
-        # 3. Deep-turn signal engine: CSAT/churn forecast, viral PR threat, fraud,
-        #    competitor defection, and customer mind-reader — one efficient LLM call.
-        deep = deep_analysis_agent.analyze(customer_message.content, context)
 
-        # 4. Generate proactive coaching advice for the agent (deep-aware)
-        coaching = self._generate_coaching(session, customer_message, intent_analysis, knowledge_items, deep)
-        
-        # 5. Assess if the customer is becoming a flight risk
-        escalation = self.escalation_agent.assess(session, intent_analysis)
+        # 4+5. Coaching & escalation are deferred to the first agent turn when fast=True
+        coaching = None
+        escalation = None
+        if not fast:
+            coaching = self._generate_coaching(session, customer_message, intent_analysis, knowledge_items, deep)
+            escalation = self.escalation_agent.assess(session, intent_analysis)
 
         # Package the analysis into a single Turn object
         turn_analysis = TurnAnalysis(

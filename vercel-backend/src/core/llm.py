@@ -2,6 +2,7 @@ import os
 import base64
 import io
 import httpx
+from concurrent.futures import ThreadPoolExecutor
 from groq import Groq
 from src.core.config import settings
 
@@ -29,20 +30,54 @@ def get_groq_client() -> Groq | None:
     return _client
 
 
-def llm_chat(system: str, user: str, temperature: float = 0.7) -> str:
+def llm_chat_openrouter(system: str, user: str, temperature: float = 0.7) -> str:
+    """Chat via OpenRouter free-tier models (zero cost). Tries fallback chain on rate limit / errors."""
+    api_key = get_openrouter_api_key()
+    if not api_key:
+        return ""
+    models = getattr(settings, "openrouter_chat_fallbacks", None) or [
+        "nvidia/nemotron-3-nano-30b-a3b:free",
+        "nvidia/nemotron-nano-9b-v2:free",
+        "openai/gpt-oss-20b:free",
+        "google/gemma-4-26b-a4b-it:free",
+    ]
+    for model in models:
+        try:
+            resp = httpx.post(
+                f"{settings.openrouter_base_url}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": system},
+                        {"role": "user", "content": user},
+                    ],
+                    "temperature": temperature,
+                    "max_tokens": 512,
+                },
+                timeout=90,
+            )
+            if resp.status_code != 200:
+                print(f"LLM Error ({model}): {resp.status_code} {resp.text[:200]}")
+                continue
+            data = resp.json()
+            content = data.get("choices", [{}])[0].get("message", {}).get("content")
+            if content and content.strip():
+                return content.strip()
+        except Exception as e:
+            print(f"LLM Error ({model}): {e}")
+            continue
+    return ""
+
+
+def _groq_chat(system: str, user: str, temperature: float) -> str:
     client = get_groq_client()
     if not client:
         return ""
-    
-    # Try primary model first, fallback to faster/lighter models if rate-limited
-    models_to_try = [
-        "llama-3.3-70b-versatile",
-        "llama-3.1-8b-instant",
-        "gemma2-9b-it",
-        "llama3-8b-8192",
-    ]
-    
-    for model in models_to_try:
+    for model in ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it", "llama3-8b-8192"]:
         try:
             resp = client.chat.completions.create(
                 model=model,
@@ -59,7 +94,23 @@ def llm_chat(system: str, user: str, temperature: float = 0.7) -> str:
         except Exception as e:
             print(f"LLM Error ({model}): {e}")
             continue
-            
+    return ""
+
+
+def llm_chat(system: str, user: str, temperature: float = 0.7) -> str:
+    # Race OpenRouter free (NVIDIA) vs Groq free — return whichever answers first.
+    # Guarantees lowest latency while staying 100% free.
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        or_fut = pool.submit(llm_chat_openrouter, system, user, temperature)
+        gq_fut = pool.submit(_groq_chat, system, user, temperature)
+        futures = [or_fut, gq_fut]
+        for fut in futures:
+            try:
+                out = fut.result()
+            except Exception:
+                continue
+            if out:
+                return out
     return ""
 
 

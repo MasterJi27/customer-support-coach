@@ -106,13 +106,14 @@ def get_analytics():
     try:
         sessions = database.get_all_sessions() if hasattr(database, "get_all_sessions") else []
         reports = database.get_all_reports() if hasattr(database, "get_all_reports") else []
+        avg_score = sum(r.overall_score for r in reports) / len(reports) if reports else None
         return {
             "sessions": sessions,
             "summary": {
                 "sessions_today": len(sessions),
-                "avg_score_pct": round(sum(r.overall_score for r in reports) / len(reports) * 100, 1) if reports else None,
+                "avg_score_pct": round(avg_score * 100, 1) if avg_score is not None else None,
                 "escalation_rate_pct": round(sum(1 for r in reports if (r.resolution_quality and r.resolution_quality.score < 0.6)) / len(reports) * 100, 1) if reports else None,
-                "predicted_csat": round(sum(r.predicted_csat for r in reports if r.predicted_csat) / len([r for r in reports if r.predicted_csat]), 1) if any(r.predicted_csat for r in reports) else None,
+                "predicted_csat": round(1 + 4 * avg_score, 1) if avg_score is not None else None,
                 "reports": len(reports),
             },
         }

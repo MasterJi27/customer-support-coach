@@ -75,7 +75,7 @@ export default function Setup() {
   const launchSession = () => {
     localStorage.setItem('coachai_session_config', JSON.stringify({
       mode: mode === 'replay' ? 'replay' : 'simulator',
-      scenario_choice: mode === 'replay' ? (transcripts.find(t => t.id === selectedTranscript)?.title || 'delivery_delay') : selected?.title || 'delivery_delay',
+      scenario_choice: mode === 'replay' ? (transcripts.find(t => t.id === selectedTranscript)?.title || 'delivery_delay') : selectedScenario,
       agent_name: agentName || 'Support Agent',
       product_context: selected?.product_context || 'Zomato Food Delivery',
     }))

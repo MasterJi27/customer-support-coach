@@ -41,6 +41,13 @@ class Settings(BaseSettings):
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     openrouter_embed_model: str = "nvidia/nemotron-3-embed-1b:free"
     openrouter_tts_model: str = "fish-audio/s2.1-pro-free:free"
+    openrouter_chat_fallbacks: list[str] = [
+        "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "nvidia/nemotron-nano-12b-v2-vl:free",
+        "google/gemma-4-26b-a4b-it:free",
+        "nvidia/nemotron-nano-9b-v2:free",
+    ]
 
     class Config:
         env_file = str(Path(__file__).resolve().parent.parent.parent / ".env")

@@ -186,8 +186,11 @@ export default function Dashboard() {
   const [elapsed, setElapsed] = useState(0)
   const [lastTurn, setLastTurn] = useState(null)
   const [apiError, setApiError] = useState('')
+  const [startAttempt, setStartAttempt] = useState(0)
   const startTimeRef = useRef(null)
   const autoStartRef = useRef(false)
+  const sessionRef = useRef(null)
+  useEffect(() => { sessionRef.current = session }, [session])
 
   const scenario = scenarios[0]
   const kb = kbDocuments[0]
@@ -229,14 +232,16 @@ export default function Dashboard() {
       ]
 
   useEffect(() => {
-    if (autoStartRef.current || session) return
+    if (session) return
     const cfg = localStorage.getItem('coachai_session_config')
-    if (cfg) {
+    if (cfg && !autoStartRef.current) {
       autoStartRef.current = true
-      startDemo()
+      startDemo().finally(() => {
+        if (!sessionRef.current) autoStartRef.current = false
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [startAttempt, session])
 
   useEffect(() => {
     if (!session) return
@@ -393,18 +398,32 @@ export default function Dashboard() {
           <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-5 ${isLight ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'}`}>
             <Headphones className="w-7 h-7" />
           </div>
-          <h2 className={`text-xl font-bold ${isLight ? 'text-navy-800' : 'text-white'}`}>No active session</h2>
-          <p className={`text-sm mt-2 leading-relaxed ${isLight ? 'text-navy-400' : 'text-white/50'}`}>
-            The coaching console opens when a session starts. Pick a scenario in
-            Session Setup, or load a demo session to see live coaching in action.
-          </p>
+          <h2 className={`text-xl font-bold ${isLight ? 'text-navy-800' : 'text-white'}`}>
+            {thinking ? 'Starting session…' : 'No active session'}
+          </h2>
+          {thinking ? (
+            <p className={`text-sm mt-2 leading-relaxed ${isLight ? 'text-navy-400' : 'text-white/50'}`}>
+              The AI is preparing the customer, analyzing intent, and generating coaching signals.
+              This can take up to a minute on the free tier — please wait.
+            </p>
+          ) : (
+            <p className={`text-sm mt-2 leading-relaxed ${isLight ? 'text-navy-400' : 'text-white/50'}`}>
+              The coaching console opens when a session starts. Pick a scenario in
+              Session Setup, or load a demo session to see live coaching in action.
+            </p>
+          )}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
             <Link to="/setup" className="btn-primary w-full sm:w-auto !px-6">
               <Play className="w-4 h-4" /> Launch a Session
             </Link>
-            <button onClick={startDemo} disabled={thinking} className={`btn-secondary w-full sm:w-auto ${isLight ? '!bg-white !border-navy-200 !text-navy-600 hover:!bg-navy-50' : ''}`}>
+            <button onClick={() => { setApiError(''); startDemo() }} disabled={thinking} className={`btn-secondary w-full sm:w-auto ${isLight ? '!bg-white !border-navy-200 !text-navy-600 hover:!bg-navy-50' : ''}`}>
               <Sparkles className="w-4 h-4" /> {thinking ? 'Starting…' : 'Load Live Session'}
             </button>
+            {apiError && (
+              <button onClick={() => { setApiError(''); setStartAttempt(n => n + 1) }} className="text-xs font-medium text-amber-500 hover:text-amber-400">
+                ↻ Retry with saved setup
+              </button>
+            )}
           </div>
           {apiError && (
             <div className={`mt-4 px-4 py-3 rounded-2xl text-xs ${isLight ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>

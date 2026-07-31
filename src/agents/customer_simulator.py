@@ -187,7 +187,38 @@ class CustomerSimulatorAgent:
         else:
             user = f"Conversation history:\n{context}\n\nGenerate the customer's next reply based on what the agent just said:"
 
-        return llm_chat(system, user, temperature=0.8)
+        msg = llm_chat(system, user, temperature=0.8)
+
+        # Enforce short, chat-style replies: real customers text one or two lines.
+        MAX_LEN = 140
+        if msg and len(msg) > MAX_LEN:
+            shortened = self._shorten(msg, MAX_LEN)
+            if not shortened:
+                shortened = llm_chat(
+                    system,
+                    user + "\n\nYour previous reply was too long. Reply again in ONE short sentence, max 80 characters, like a WhatsApp text.",
+                    temperature=0.8,
+                )
+                shortened = self._shorten(shortened or "", MAX_LEN)
+            msg = shortened
+        return (msg or "")[:MAX_LEN].strip()
+
+    @staticmethod
+    def _shorten(text: str, max_len: int) -> str:
+        text = (text or "").strip()
+        if len(text) <= max_len:
+            return text
+        # Cut at the first sentence/line boundary under the limit
+        for sep in ("\n", ". ", "! ", "? "):
+            if sep in text:
+                head = text.split(sep, 1)[0]
+                if head and len(head) <= max_len:
+                    return (head + sep.rstrip() + "").strip()[:max_len]
+        # Emoji-safe truncate
+        cut = text[:max_len]
+        if cut and cut[-1].isalpha():
+            cut = cut.rsplit(" ", 1)[0]
+        return cut + "…" if cut else ""
 
     def list_scenarios(self) -> dict:
         real_scenarios = self._load_real_scenarios()
