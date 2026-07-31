@@ -49,3 +49,5 @@ az_login_err.txt
 # Generated runtime reports
 data/reports/
 
+
+.vercel

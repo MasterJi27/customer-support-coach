@@ -56,6 +56,7 @@ def root():
         "health": "/health",
         "endpoints": [
             "GET /health",
+            "GET /api/db/status",
             "GET /api/analytics",
             "GET /api/reports",
             "GET /api/knowledge",
@@ -87,19 +88,32 @@ def root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "online", "engine": "Groq Llama 3.3 70B & Gemini", "rag": "Sub-5ms BM25"}
+    return {"status": "online", "engine": "Groq Llama 3.3 70B & Gemini", "rag": "Sub-5ms BM25", "db": database.is_postgres}
+
+@app.get("/api/db/status")
+def db_status():
+    try:
+        return {
+            "backend": "postgres" if database.is_postgres else "sqlite",
+            "sessions": len(database.get_all_sessions()),
+            "reports": len(database.get_all_reports()),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/analytics")
 def get_analytics():
     try:
-        sessions = database.list_sessions() if hasattr(database, "list_sessions") else []
+        sessions = database.get_all_sessions() if hasattr(database, "get_all_sessions") else []
+        reports = database.get_all_reports() if hasattr(database, "get_all_reports") else []
         return {
             "sessions": sessions,
             "summary": {
                 "sessions_today": len(sessions),
-                "avg_score_pct": 86,
-                "escalation_rate_pct": 11,
-                "predicted_csat": 4.3,
+                "avg_score_pct": round(sum(r.overall_score for r in reports) / len(reports) * 100, 1) if reports else None,
+                "escalation_rate_pct": round(sum(1 for r in reports if (r.resolution_quality and r.resolution_quality.score < 0.6)) / len(reports) * 100, 1) if reports else None,
+                "predicted_csat": round(sum(r.predicted_csat for r in reports if r.predicted_csat) / len([r for r in reports if r.predicted_csat]), 1) if any(r.predicted_csat for r in reports) else None,
+                "reports": len(reports),
             },
         }
     except Exception as e:

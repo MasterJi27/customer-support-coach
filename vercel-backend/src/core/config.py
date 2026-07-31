@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     version: str = "1.0.0"
     debug: bool = True
 
+    database_url: str = ""
+
     data_dir: str = str(Path(__file__).resolve().parent.parent.parent / "data")
     knowledge_base_dir: str = ""
     transcripts_dir: str = ""
