@@ -1,0 +1,36 @@
+{
+  "session_id": "sess_03271e2b",
+  "agent_name": "RealTester",
+  "interaction_mode": "simulator",
+  "total_turns": 2,
+  "sentiment_journey": [
+    {
+      "turn": 1,
+      "sentiment": "negative",
+      "frustration": 0.9,
+      "satisfaction_trend": -1.0
+    },
+    {
+      "turn": 2,
+      "sentiment": "satisfied",
+      "frustration": 0.2,
+      "satisfaction_trend": 0.8
+    }
+  ],
+  "resolution_quality": {
+    "score": 0.0,
+    "issue_resolved": false,
+    "customer_satisfied": false,
+    "escalation_needed": true
+  },
+  "overall_score": 0.29,
+  "coaching_recommendations": [
+    "Review knowledge base responses to identify and fill common knowledge gaps.",
+    "Consider role-playing high-stress scenarios to build confidence with difficult customers."
+  ],
+  "escalation_triggers": [
+    "Turn 1: High frustration level detected (90%); Negative sentiment (negative); Declining satisfaction trend"
+  ],
+  "knowledge_gaps": [],
+  "generated_at": "2026-07-24 13:15:47.806676"
+}

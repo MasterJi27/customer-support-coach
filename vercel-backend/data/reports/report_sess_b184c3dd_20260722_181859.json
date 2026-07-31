@@ -1,0 +1,55 @@
+{
+  "session_id": "sess_b184c3dd",
+  "agent_name": "Agent",
+  "interaction_mode": "simulator",
+  "total_turns": 5,
+  "sentiment_journey": [
+    {
+      "turn": 1,
+      "sentiment": "angry",
+      "frustration": 0.9,
+      "satisfaction_trend": -1.0
+    },
+    {
+      "turn": 2,
+      "sentiment": "negative",
+      "frustration": 0.8,
+      "satisfaction_trend": -0.5
+    },
+    {
+      "turn": 3,
+      "sentiment": "neutral",
+      "frustration": 0.0,
+      "satisfaction_trend": 0.0
+    },
+    {
+      "turn": 4,
+      "sentiment": "neutral",
+      "frustration": 0.0,
+      "satisfaction_trend": 0.0
+    },
+    {
+      "turn": 5,
+      "sentiment": "neutral",
+      "frustration": 0.0,
+      "satisfaction_trend": 0.0
+    }
+  ],
+  "resolution_quality": {
+    "score": 0.8,
+    "issue_resolved": true,
+    "customer_satisfied": true,
+    "escalation_needed": true
+  },
+  "overall_score": 0.82,
+  "coaching_recommendations": [
+    "Consider role-playing high-stress scenarios to build confidence with difficult customers.",
+    "Review knowledge base responses to identify and fill common knowledge gaps.",
+    "Increase empathetic acknowledgments (e.g., 'I understand', 'I'm sorry this happened')."
+  ],
+  "escalation_triggers": [
+    "Turn 1: High frustration level detected (90%); Negative sentiment (angry); Declining satisfaction trend"
+  ],
+  "knowledge_gaps": [],
+  "generated_at": "2026-07-22 18:18:59.176982"
+}

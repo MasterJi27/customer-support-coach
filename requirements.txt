@@ -9,6 +9,13 @@ pydantic-settings>=2.0.0
 # LLM provider (Groq)
 groq>=0.11.0
 
+# Real tool execution (Jira / Gmail / Slack via Composio v3)
+composio>=0.18.1
+
+# ASGI server (Azure App Service / production)
+gunicorn>=21.0.0
+uvicorn>=0.23.0
+
 # Charts & dataframes
 plotly>=5.15.0
 pandas>=2.0.0

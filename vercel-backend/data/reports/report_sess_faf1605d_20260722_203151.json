@@ -1,0 +1,45 @@
+{
+  "session_id": "sess_faf1605d",
+  "agent_name": "Agent",
+  "interaction_mode": "simulator",
+  "total_turns": 3,
+  "sentiment_journey": [
+    {
+      "turn": 1,
+      "sentiment": "negative",
+      "frustration": 0.9,
+      "satisfaction_trend": -1.0
+    },
+    {
+      "turn": 2,
+      "sentiment": "angry",
+      "frustration": 0.9,
+      "satisfaction_trend": -1.0
+    },
+    {
+      "turn": 3,
+      "sentiment": "angry",
+      "frustration": 0.9,
+      "satisfaction_trend": -0.8
+    }
+  ],
+  "resolution_quality": {
+    "score": 0.0,
+    "issue_resolved": false,
+    "customer_satisfied": false,
+    "escalation_needed": true
+  },
+  "overall_score": 0.28,
+  "coaching_recommendations": [
+    "Practice de-escalation techniques earlier in the conversation to reduce frustration buildup.",
+    "Review knowledge base responses to identify and fill common knowledge gaps.",
+    "Consider role-playing high-stress scenarios to build confidence with difficult customers."
+  ],
+  "escalation_triggers": [
+    "Turn 1: High frustration level detected (90%); Negative sentiment (negative); Declining satisfaction trend",
+    "Turn 2: High frustration level detected (90%); Negative sentiment (angry); Declining satisfaction trend",
+    "Turn 3: High frustration level detected (90%); Negative sentiment (angry); Declining satisfaction trend; Escalation keywords detected: supervisor, escalate"
+  ],
+  "knowledge_gaps": [],
+  "generated_at": "2026-07-22 20:31:51.220295"
+}

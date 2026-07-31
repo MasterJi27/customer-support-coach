@@ -35,3 +35,17 @@ Thumbs.db
 *.docx
 *.log
 
+# Vercel / build artifacts
+.vercel/
+node_modules/
+dist/
+dev.log
+
+# Azure CLI helper scripts (contain tokens)
+az_login.cmd
+az_login_out.txt
+az_login_err.txt
+
+# Generated runtime reports
+data/reports/
+
