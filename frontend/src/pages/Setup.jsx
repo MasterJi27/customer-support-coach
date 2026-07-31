@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ChevronRight, Play, Bot, Keyboard, History, Check, Sparkles, SlidersHorizontal } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
@@ -62,6 +62,7 @@ function ModeCard({ mode, selected, onSelect }) {
 export default function Setup() {
   const { theme } = useTheme()
   const isLight = theme === 'light'
+  const navigate = useNavigate()
   const [mode, setMode] = useState('simulator')
   const [selectedScenario, setSelectedScenario] = useState(scenarios[0].id)
   const [selectedTranscript, setSelectedTranscript] = useState(transcripts[0].id)
@@ -70,6 +71,16 @@ export default function Setup() {
   const [agentName, setAgentName] = useState('You')
 
   const selected = scenarios.find(s => s.id === selectedScenario)
+
+  const launchSession = () => {
+    localStorage.setItem('coachai_session_config', JSON.stringify({
+      mode: mode === 'replay' ? 'replay' : 'simulator',
+      scenario_choice: mode === 'replay' ? (transcripts.find(t => t.id === selectedTranscript)?.title || 'delivery_delay') : selected?.title || 'delivery_delay',
+      agent_name: agentName || 'Support Agent',
+      product_context: selected?.product_context || 'Zomato Food Delivery',
+    }))
+    navigate('/dashboard')
+  }
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
@@ -248,9 +259,9 @@ export default function Setup() {
       </motion.div>
 
       <motion.div variants={itemAnim} className="flex flex-wrap items-center gap-3">
-        <Link to="/dashboard" className="btn-primary !px-8 !py-4">
+        <button onClick={launchSession} className="btn-primary !px-8 !py-4">
           <Play className="w-4 h-4" /> Launch Session
-        </Link>
+        </button>
         <Link to="/dashboard" className={`btn-secondary ${isLight ? '!bg-white !border-navy-200 !text-navy-600 hover:!bg-navy-50' : ''}`}>
           Open Live Console <ChevronRight className="w-4 h-4" />
         </Link>

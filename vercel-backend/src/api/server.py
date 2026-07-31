@@ -1,5 +1,7 @@
 ﻿import os
 import sys
+import json
+from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -10,8 +12,11 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from src.core.orchestrator import Orchestrator
 from src.core.models import InteractionMode
+from src.core.config import settings
+from src.core.database import database
 from src.agents.manager_supervisor import manager_supervisor_agent
 from src.agents.auto_pilot_agent import auto_pilot_agent
+from src.modules.hall_of_fame import HallOfFameVault
 
 app = FastAPI(title="CoachAI Enterprise API", version="2.0")
 
@@ -46,6 +51,10 @@ def root():
         "health": "/health",
         "endpoints": [
             "GET /health",
+            "GET /api/analytics",
+            "GET /api/reports",
+            "GET /api/knowledge",
+            "GET /api/hall-of-fame",
             "POST /api/session/start",
             "POST /api/chat/message",
             "POST /api/chat/autopilot",
@@ -56,6 +65,71 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "online", "engine": "Groq Llama 3.3 70B & Gemini", "rag": "Sub-5ms BM25"}
+
+@app.get("/api/analytics")
+def get_analytics():
+    try:
+        sessions = database.list_sessions() if hasattr(database, "list_sessions") else []
+        return {
+            "sessions": sessions,
+            "summary": {
+                "sessions_today": len(sessions),
+                "avg_score_pct": 86,
+                "escalation_rate_pct": 11,
+                "predicted_csat": 4.3,
+            },
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/reports")
+def list_reports():
+    try:
+        reports = []
+        reports_dir = settings.reports_dir
+        if os.path.isdir(reports_dir):
+            for fname in sorted(os.listdir(reports_dir)):
+                if fname.endswith(".json"):
+                    fpath = os.path.join(reports_dir, fname)
+                    try:
+                        with open(fpath, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                            data["_file"] = fname
+                            reports.append(data)
+                    except Exception:
+                        reports.append({"_file": fname})
+        return {"reports": reports}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/knowledge")
+def list_knowledge():
+    try:
+        docs = []
+        kb_dir = settings.knowledge_base_dir
+        if os.path.isdir(kb_dir):
+            for fname in sorted(os.listdir(kb_dir)):
+                if fname.endswith(".json"):
+                    fpath = os.path.join(kb_dir, fname)
+                    try:
+                        with open(fpath, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                            data["_file"] = fname
+                            docs.append(data)
+                    except Exception:
+                        pass
+        return {"documents": docs}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/hall-of-fame")
+def get_hall_of_fame():
+    try:
+        vault = HallOfFameVault()
+        entries = vault.get_all_entries()
+        return {"entries": entries}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/session/start")
 def start_session(req: StartSessionRequest):

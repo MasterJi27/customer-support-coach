@@ -1,8 +1,9 @@
-import { useState } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Search, BookOpen, FilePlus2, Upload, Layers, FileText, Sparkles, ChevronDown } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
 import { kbDocuments } from '../data'
+import api from '../lib/api'
 
 const container = {
   hidden: { opacity: 0 },
@@ -74,14 +75,33 @@ export default function Knowledge() {
   const isLight = theme === 'light'
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
+  const [docs, setDocs] = useState(docs)
 
-  const categories = ['All', ...new Set(kbDocuments.map(d => d.category))]
-  const filtered = kbDocuments.filter(d => {
+  useEffect(() => {
+    let mounted = true
+    api.knowledge().then((res) => {
+      if (!mounted || !res.documents?.length) return
+      const live = res.documents.map((d, i) => ({
+        id: d._file || `KB-${i}`,
+        title: d.title || d.faq || d.question || d._file.replace('.json', '').replace('faq_', '').replace(/_/g, ' '),
+        category: d.category || 'Live',
+        status: d.status || 'Active',
+        content: d.answer || d.content || d.solution || JSON.stringify(d).slice(0, 300),
+        keywords: d.keywords || [d.category || 'support'].filter(Boolean),
+        lastUpdated: d.updated_at || new Date().toISOString().slice(0, 10),
+      }))
+      setDocs(live)
+    }).catch(() => { /* keep sample */ })
+    return () => { mounted = false }
+  }, [])
+
+  const categories = ['All', ...new Set(docs.map(d => d.category))]
+  const filtered = docs.filter(d => {
     const matchesCat = category === 'All' || d.category === category
     const matchesQuery = !query.trim() ||
       d.title.toLowerCase().includes(query.toLowerCase()) ||
       d.content.toLowerCase().includes(query.toLowerCase()) ||
-      d.keywords.some(k => k.toLowerCase().includes(query.toLowerCase()))
+      (d.keywords || []).some(k => k.toLowerCase().includes(query.toLowerCase()))
     return matchesCat && matchesQuery
   })
 
@@ -91,7 +111,7 @@ export default function Knowledge() {
         <div>
           <h1 className={`text-2xl font-bold ${isLight ? 'text-navy-800' : 'text-white'}`}>Knowledge Base</h1>
           <p className={`text-sm mt-0.5 ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-            RAG console — the articles your coaching agents recommend
+            RAG console â€” the articles your coaching agents recommend
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -106,9 +126,9 @@ export default function Knowledge() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Indexed documents', value: `${kbDocuments.length + 12}`, icon: Layers, color: 'emerald' },
-          { label: 'Active articles', value: kbDocuments.filter(d => d.status === 'Active').length.toString(), icon: BookOpen, color: 'cyan' },
-          { label: 'Pending approvals', value: kbDocuments.filter(d => d.status === 'Pending Review').length.toString(), icon: Sparkles, color: 'orange' },
+          { label: 'Indexed documents', value: `${docs.length + 12}`, icon: Layers, color: 'emerald' },
+          { label: 'Active articles', value: docs.filter(d => d.status === 'Active').length.toString(), icon: BookOpen, color: 'cyan' },
+          { label: 'Pending approvals', value: docs.filter(d => d.status === 'Pending Review').length.toString(), icon: Sparkles, color: 'orange' },
           { label: 'Chunks stored', value: '1,208', icon: FileText, color: 'violet' },
         ].map((stat, i) => {
           const colorCls = isLight
@@ -138,7 +158,7 @@ export default function Knowledge() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search articles by title, content, or keyword…"
+              placeholder="Search articles by title, content, or keywordâ€¦"
               className={`glass-input pl-11 ${isLight ? '!bg-white' : ''}`}
             />
           </div>
@@ -167,7 +187,7 @@ export default function Knowledge() {
       {filtered.length === 0 ? (
         <motion.div variants={itemAnim} className={`p-10 text-center rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
           <p className={`text-sm ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-            No articles match "{query}" — try a different keyword, or draft a new FAQ.
+            No articles match "{query}" â€” try a different keyword, or draft a new FAQ.
           </p>
         </motion.div>
       ) : (

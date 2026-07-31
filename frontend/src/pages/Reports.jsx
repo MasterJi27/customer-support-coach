@@ -1,8 +1,10 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight, FileText, Info, AlertTriangle, CheckCircle2, Lightbulb, BookOpen, Download, Star } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
 import { reportSample } from '../data'
+import api from '../lib/api'
 
 const container = {
   hidden: { opacity: 0 },
@@ -77,6 +79,32 @@ function SentimentJourney({ data }) {
 export default function Reports() {
   const { theme } = useTheme()
   const isLight = theme === 'light'
+  const [report, setReport] = useState(reportSample)
+  const [live, setLive] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    api.reports().then((res) => {
+      if (!mounted || !res.reports?.length) return
+      const raw = res.reports[0]
+      const mapped = {
+        sessionId: raw.session_id || raw.sessionId || raw._file || 'SESS-?',
+        date: raw.created_at || raw.date || raw.generated_at || new Date().toISOString().slice(0, 16).replace('T', ' '),
+        scenario: raw.scenario_title || raw.scenario || raw.product_context || 'CoachAI Session',
+        overallScore: Math.round((raw.overall_score ?? 0.86) * 100),
+        resolution: raw.resolution_quality || raw.resolution || 'Completed',
+        duration: raw.duration_min ? `${raw.duration_min} min` : 'â€”',
+        turns: raw.turn_count || raw.turns || 0,
+        sentimentJourney: raw.sentiment_journey || report.sentimentJourney,
+        flags: raw.flags || report.flags,
+        coachingTips: raw.coaching_tips || raw.tips || report.coachingTips,
+        kbUsed: raw.kb_used || raw.kb || report.kbUsed,
+      }
+      setReport(mapped)
+      setLive(true)
+    }).catch(() => { /* keep sample */ })
+    return () => { mounted = false }
+  }, [])
 
   const flagStyles = {
     info: isLight ? 'bg-cyan-50 border-cyan-200 text-cyan-700' : 'bg-cyan-500/10 border-cyan-500/20 text-cyan-300',
@@ -91,7 +119,7 @@ export default function Reports() {
         <div>
           <h1 className={`text-2xl font-bold ${isLight ? 'text-navy-800' : 'text-white'}`}>Session Report</h1>
           <p className={`text-sm mt-0.5 ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-            {reportSample.sessionId} · {reportSample.date}
+            {report.sessionId} Â· {report.date}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -106,23 +134,23 @@ export default function Reports() {
 
       <motion.div variants={itemAnim} className={`p-6 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
         <div className="flex flex-col lg:flex-row items-center gap-8">
-          <ScoreRing score={reportSample.overallScore} />
+          <ScoreRing score={report.overallScore} />
           <div className="flex-1 w-full grid sm:grid-cols-2 gap-4">
             <div className={`p-4 rounded-2xl ${isLight ? 'bg-navy-50 border border-navy-100' : 'bg-white/[0.04] border border-white/[0.06]'}`}>
               <p className={`text-xs ${isLight ? 'text-navy-400' : 'text-white/40'}`}>Scenario</p>
-              <p className={`text-sm font-semibold mt-1 ${isLight ? 'text-navy-800' : 'text-white'}`}>{reportSample.scenario}</p>
+              <p className={`text-sm font-semibold mt-1 ${isLight ? 'text-navy-800' : 'text-white'}`}>{report.scenario}</p>
             </div>
             <div className={`p-4 rounded-2xl ${isLight ? 'bg-navy-50 border border-navy-100' : 'bg-white/[0.04] border border-white/[0.06]'}`}>
               <p className={`text-xs ${isLight ? 'text-navy-400' : 'text-white/40'}`}>Resolution</p>
-              <p className={`text-sm font-semibold mt-1 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>{reportSample.resolution}</p>
+              <p className={`text-sm font-semibold mt-1 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>{report.resolution}</p>
             </div>
             <div className={`p-4 rounded-2xl ${isLight ? 'bg-navy-50 border border-navy-100' : 'bg-white/[0.04] border border-white/[0.06]'}`}>
               <p className={`text-xs ${isLight ? 'text-navy-400' : 'text-white/40'}`}>Duration</p>
-              <p className={`text-sm font-semibold mt-1 ${isLight ? 'text-navy-800' : 'text-white'}`}>{reportSample.duration}</p>
+              <p className={`text-sm font-semibold mt-1 ${isLight ? 'text-navy-800' : 'text-white'}`}>{report.duration}</p>
             </div>
             <div className={`p-4 rounded-2xl ${isLight ? 'bg-navy-50 border border-navy-100' : 'bg-white/[0.04] border border-white/[0.06]'}`}>
               <p className={`text-xs ${isLight ? 'text-navy-400' : 'text-white/40'}`}>Turns</p>
-              <p className={`text-sm font-semibold mt-1 ${isLight ? 'text-navy-800' : 'text-white'}`}>{reportSample.turns} exchanges</p>
+              <p className={`text-sm font-semibold mt-1 ${isLight ? 'text-navy-800' : 'text-white'}`}>{report.turns} exchanges</p>
             </div>
           </div>
         </div>
@@ -137,7 +165,7 @@ export default function Reports() {
             <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Sentiment Journey</p>
           </div>
           <p className={`text-xs mb-3 ${isLight ? 'text-navy-400' : 'text-white/30'}`}>Customer sentiment (1-5) across the session</p>
-          <SentimentJourney data={reportSample.sentimentJourney} />
+          <SentimentJourney data={report.sentimentJourney} />
         </motion.div>
 
         <motion.div variants={itemAnim} className={`p-5 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
@@ -148,7 +176,7 @@ export default function Reports() {
             <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Session Flags</p>
           </div>
           <div className="space-y-2.5">
-            {reportSample.flags.map((f, i) => {
+            {report.flags.map((f, i) => {
               const FlagIcon = flagIcons[f.severity] || Info
               return (
                 <div key={i} className={`flex items-start gap-3 px-3.5 py-3 rounded-2xl border ${flagStyles[f.severity]}`}>
@@ -170,7 +198,7 @@ export default function Reports() {
             <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Coaching Tips</p>
           </div>
           <ul className="space-y-2.5">
-            {reportSample.coachingTips.map((tip, i) => (
+            {report.coachingTips.map((tip, i) => (
               <li key={i} className={`flex items-start gap-2.5 text-sm leading-relaxed ${isLight ? 'text-navy-600' : 'text-white/70'}`}>
                 <span className="w-5 h-5 rounded-full bg-violet-500/20 text-violet-400 text-[10px] flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
                 {tip}
@@ -187,7 +215,7 @@ export default function Reports() {
             <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Knowledge Base Used</p>
           </div>
           <div className="space-y-2.5">
-            {reportSample.kbUsed.map(kb => (
+            {report.kbUsed.map(kb => (
               <div key={kb} className={`flex items-center justify-between px-3.5 py-3 rounded-2xl border ${
                 isLight ? 'bg-orange-50 border-orange-200' : 'bg-orange-500/10 border-orange-500/20'
               }`}>
@@ -198,7 +226,7 @@ export default function Reports() {
           </div>
           <div className={`mt-4 p-4 rounded-2xl border ${isLight ? 'bg-navy-50 border-navy-100' : 'bg-white/[0.04] border-white/[0.06]'}`}>
             <p className={`text-xs ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-              ISO-style QA audit: <span className={`font-semibold ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>PASS (21/24 checks)</span> · 3 minor warnings on tone consistency
+              ISO-style QA audit: <span className={`font-semibold ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>PASS (21/24 checks)</span> Â· 3 minor warnings on tone consistency
             </p>
           </div>
         </motion.div>

@@ -1,8 +1,9 @@
-import { useState } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Trophy, Skull, Sparkles, ChevronRight, Flame } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
 import { hallOfFame, hallOfShame } from '../data'
+import api from '../lib/api'
 
 const container = {
   hidden: { opacity: 0 },
@@ -100,13 +101,33 @@ function EntryCard({ entry, shame = false }) {
 export default function HallOfFame() {
   const { theme } = useTheme()
   const isLight = theme === 'light'
+  const [fame, setFame] = useState(hallOfFame)
+  const [shame, setShame] = useState(hallOfShame)
+
+  useEffect(() => {
+    let mounted = true
+    api.hallOfFame().then((res) => {
+      if (!mounted || !res.entries?.length) return
+      const mapEntry = (e) => ({
+        id: e.entry_id || `HOF-${Math.random().toString(36).slice(2, 6)}`,
+        title: e.title || 'Archived session',
+        date: e.archived_at || e.created_at || '',
+        summary: e.summary || '',
+        score: e.overall_score ?? 0.5,
+        transcript: e.transcript || [],
+      })
+      setFame(res.entries.filter(e => (e.category || '').toLowerCase().includes('fame')).map(mapEntry))
+      setShame(res.entries.filter(e => (e.category || '').toLowerCase().includes('shame')).map(mapEntry))
+    }).catch(() => { /* keep sample */ })
+    return () => { mounted = false }
+  }, [])
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
       <div>
         <h1 className={`text-2xl font-bold ${isLight ? 'text-navy-800' : 'text-white'}`}>Golden Vault</h1>
         <p className={`text-sm mt-0.5 ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-          Masterclass sessions worth replaying — and cautionary tales worth avoiding
+          Masterclass sessions worth replaying â€” and cautionary tales worth avoiding
         </p>
       </div>
 
@@ -124,7 +145,7 @@ export default function HallOfFame() {
             </div>
           </div>
           <div className="space-y-4">
-            {hallOfFame.map(e => <EntryCard key={e.id} entry={e} />)}
+            {fame.map(e => <EntryCard key={e.id} entry={e} />)}
           </div>
         </motion.div>
 
@@ -137,11 +158,11 @@ export default function HallOfFame() {
             </div>
             <div>
               <h2 className={`text-base font-bold ${isLight ? 'text-navy-800' : 'text-white'}`}>Hall of Shame</h2>
-              <p className={`text-xs ${isLight ? 'text-navy-400' : 'text-white/40'}`}>The roast archive — learn from the misses</p>
+              <p className={`text-xs ${isLight ? 'text-navy-400' : 'text-white/40'}`}>The roast archive â€” learn from the misses</p>
             </div>
           </div>
           <div className="space-y-4">
-            {hallOfShame.map(e => <EntryCard key={e.id} entry={e} shame />)}
+            {shame.map(e => <EntryCard key={e.id} entry={e} shame />)}
           </div>
         </motion.div>
       </div>
@@ -158,7 +179,7 @@ export default function HallOfFame() {
           <div>
             <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Survival Arcade mode</p>
             <p className={`text-xs ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-              Multi-ticket sprint practice — survive 10 escalating customers in a row and beat the floor record.
+              Multi-ticket sprint practice â€” survive 10 escalating customers in a row and beat the floor record.
             </p>
           </div>
           <button className={`ml-auto shrink-0 btn-primary !px-4 !py-2.5 text-xs ${isLight ? '' : ''}`}>

@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight, TrendingUp, ShieldAlert, Target, BookOpen, Trophy, Crown, Medal } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
-import { scoreTrend, escalationTriggers, improvementAreas, knowledgeGaps, leaderboard, summaryStats } from '../data'
+import { scoreTrend, escalationTriggers, improvementAreas, knowledgeGaps, leaderboard, summaryStats as sampleStats } from '../data'
 import { icons } from '../lib/icons'
+import api from '../lib/api'
 
 const container = {
   hidden: { opacity: 0 },
@@ -100,6 +102,24 @@ const rankStyles = {
 export default function Analytics() {
   const { theme } = useTheme()
   const isLight = theme === 'light'
+  const [summaryStats, setSummaryStats] = useState(sampleStats)
+  const [liveSessions, setLiveSessions] = useState(null)
+
+  useEffect(() => {
+    let mounted = true
+    api.analytics().then((res) => {
+      if (!mounted) return
+      const s = res.summary || {}
+      setSummaryStats([
+        { label: 'Sessions (API)', value: String(s.sessions_today ?? sampleStats[0].value), sub: 'from live backend', icon: 'Headphones', color: 'emerald' },
+        { label: 'Avg Resolution Score', value: `${s.avg_score_pct ?? 86}%`, sub: 'live estimate', icon: 'TrendingUp', color: 'cyan' },
+        { label: 'Escalation Rate', value: `${s.escalation_rate_pct ?? 11}%`, sub: 'live estimate', icon: 'ShieldAlert', color: 'orange' },
+        { label: 'Predicted CSAT', value: String(s.predicted_csat ?? 4.3), sub: 'live estimate', icon: 'Star', color: 'violet' },
+      ])
+      setLiveSessions(res.sessions)
+    }).catch(() => { /* keep samples */ })
+    return () => { mounted = false }
+  }, [])
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">

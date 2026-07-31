@@ -6,7 +6,8 @@ import {
   Sparkles, Headphones, Gauge, ChevronRight, Clock, Timer, MessageSquare,
 } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
-import { liveTurns, scenarios, kbDocuments } from '../data'
+import { scenarios, kbDocuments } from '../data'
+import api from '../lib/api'
 
 const container = {
   hidden: { opacity: 0 },
@@ -147,20 +148,38 @@ export default function Dashboard() {
   const [thinking, setThinking] = useState(false)
   const [railTab, setRailTab] = useState('signals')
   const [elapsed, setElapsed] = useState(0)
+  const [lastTurn, setLastTurn] = useState(null)
+  const [apiError, setApiError] = useState('')
   const startTimeRef = useRef(null)
 
   const scenario = scenarios[0]
   const kb = kbDocuments[0]
-  const suggestedReply =
-    '"I completely understand, Rahul. I have authorised a full Rs 700 refund to your source right now, plus a Rs 100 goodwill credit for the wait. You should see it within 5-7 days."'
+  const suggestedReply = lastTurn?.suggested_response || ''
 
   const lastCoachTurn = [...turns].reverse().find(t => t.role === 'coach')
-  const signals = lastCoachTurn ? lastCoachTurn.entries.filter(e => !['Suggested reply'].includes(e.key)).slice(0, 6) : []
-  const riskRows = [
-    { label: 'Churn threat', value: '64% · "switching"', cls: isLight ? 'text-orange-600' : 'text-orange-400' },
-    { label: 'Viral threat', value: 'High', cls: isLight ? 'text-red-600' : 'text-red-400' },
-    { label: 'Supervisor', value: 'Whisper ready', cls: isLight ? 'text-emerald-600' : 'text-emerald-400' },
-  ]
+  const signals = lastTurn
+    ? [
+        { key: 'Frustration', value: `${lastTurn.frustration_pct}%`, tone: lastTurn.frustration_pct >= 60 ? 'red' : lastTurn.frustration_pct >= 35 ? 'orange' : 'emerald' },
+        { key: 'Sentiment', value: lastTurn.sentiment, tone: 'violet' },
+        { key: 'Clarity', value: `${lastTurn.clarity_pct}%`, tone: lastTurn.clarity_pct >= 75 ? 'emerald' : 'orange' },
+        { key: 'Response quality', value: `${Math.round((lastTurn.quality_score || 0.8) * 100)}%`, tone: lastTurn.quality_score >= 0.75 ? 'emerald' : 'orange' },
+        { key: 'Tone', value: lastTurn.tone_quality || 'Professional', tone: 'cyan' },
+      ]
+    : lastCoachTurn
+      ? lastCoachTurn.entries.filter(e => !['Suggested reply'].includes(e.key)).slice(0, 6)
+      : []
+  const riskRows = lastTurn
+    ? [
+        { label: 'Frustration', value: `${lastTurn.frustration_pct}%`, cls: lastTurn.frustration_pct >= 60 ? 'text-red-600' : lastTurn.frustration_pct >= 35 ? 'text-orange-600' : 'text-emerald-600' },
+        { label: 'Sentiment', value: lastTurn.sentiment, cls: lastTurn.sentiment === 'angry' ? 'text-red-600' : lastTurn.sentiment === 'frustrated' ? 'text-orange-600' : 'text-emerald-600' },
+        { label: 'Clarity score', value: `${lastTurn.clarity_pct}%`, cls: lastTurn.clarity_pct >= 75 ? 'text-emerald-600' : 'text-orange-600' },
+        { label: 'Coaching tips', value: `${lastTurn.coaching_tips?.length || 0} ready`, cls: 'text-cyan-600' },
+      ]
+    : [
+        { label: 'Sentiment', value: '—', cls: 'text-white/40' },
+        { label: 'Frustration', value: '—', cls: 'text-white/40' },
+        { label: 'Clarity', value: '—', cls: 'text-white/40' },
+      ]
 
   useEffect(() => {
     if (!session) return
@@ -168,79 +187,137 @@ export default function Dashboard() {
     return () => clearInterval(interval)
   }, [session])
 
-  const startDemo = () => {
-    startTimeRef.current = Date.now()
-    setElapsed(0)
-    setSession({ id: 'SESS-88d3f2' })
-    setTurns(liveTurns)
-    setRailTab('signals')
-  }
-
-  const useSuggestedReply = () => {
-    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    setTurns(prev => [...prev, { role: 'agent', name: 'You', text: suggestedReply.replace(/^"|"$/g, ''), time: now }])
+  const startDemo = async () => {
     setThinking(true)
-    setTimeout(() => {
-      setTurns(prev => [
-        ...prev,
-        {
-          role: 'coach',
-          title: 'Coaching Signal',
-          entries: [
-            { key: 'Frustration', value: '38% (falling)', tone: 'emerald' },
-            { key: 'Escalation risk', value: '22%', tone: 'emerald' },
-            { key: 'Predicted CSAT', value: '4.4 / 5', tone: 'emerald' },
-            { key: 'Next move', value: 'Confirm refund ETA + close warmly', tone: 'violet' },
-          ],
-        },
-        {
-          role: 'customer',
-          name: 'Rahul K.',
-          text: 'That works. Thank you for actually solving this — I was about to go to the bank to dispute it.',
-          time: now,
-        },
-      ])
-      setThinking(false)
+    setApiError('')
+    try {
+      let cfg = {}
+      try { cfg = JSON.parse(localStorage.getItem('coachai_session_config') || '{}') } catch { /* ignore */ }
+      const res = await api.startSession({
+        mode: cfg.mode || 'simulator',
+        agent_name: cfg.agent_name || 'Support Agent',
+        product_context: cfg.product_context || 'Zomato Food Delivery',
+        scenario_choice: cfg.scenario_choice || 'delivery_delay',
+      })
+      startTimeRef.current = Date.now()
+      setElapsed(0)
+      setSession({ id: res.session_id, product_context: res.product_context })
+      setTurns(
+        (res.messages || []).map((m, i) => ({
+          role: m.role === 'customer' ? 'customer' : 'agent',
+          name: m.role === 'customer' ? scenario.persona : 'You',
+          text: m.content,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          fromApi: true,
+        }))
+      )
+      setLastTurn(res.last_turn || null)
       setRailTab('signals')
-    }, 900)
+    } catch (e) {
+      setApiError(e.message)
+    } finally {
+      setThinking(false)
+    }
   }
 
-  const sendReply = (e) => {
+  const useSuggestedReply = async () => {
+    if (!suggestedReply) return
+    setThinking(true)
+    try {
+      const res = await api.sendMessage(suggestedReply.replace(/^"|"$/g, ''), 'agent')
+      setTurns(
+        (res.messages || []).map((m, i) => ({
+          role: m.role === 'customer' ? 'customer' : 'agent',
+          name: m.role === 'customer' ? scenario.persona : 'You',
+          text: m.content,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          fromApi: true,
+        }))
+      )
+      setLastTurn(res.last_turn || null)
+      setRailTab('signals')
+    } catch (e) {
+      setApiError(e.message)
+    } finally {
+      setThinking(false)
+    }
+  }
+
+  const sendReply = async (e) => {
     e.preventDefault()
     const text = draft.trim()
     if (!text) return
-    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    setTurns(prev => [...prev, { role: 'agent', name: 'You', text, time: now }])
     setDraft('')
     setThinking(true)
-    setTimeout(() => {
-      setTurns(prev => [
-        ...prev,
-        {
-          role: 'coach',
-          title: 'Coaching Signal',
-          entries: [
-            { key: 'Tone', value: 'Detected ✓', tone: 'emerald' },
-            { key: 'Clarity', value: 'Good', tone: 'emerald' },
-            { key: 'Compliance', value: 'Pass', tone: 'emerald' },
-            { key: 'Escalation risk', value: 'Dropping — 61%', tone: 'orange' },
-            { key: 'Predicted CSAT', value: '3.2 / 5 (rising)', tone: 'emerald' },
-            { key: 'Next move', value: 'Confirm refund amount + ETA', tone: 'violet' },
-          ],
-        },
-        {
-          role: 'customer',
-          name: 'Rahul K.',
-          text: 'Okay, if you can refund Rs 700 right now, that works. How long will it take to show up?',
-          time: now,
-        },
-      ])
-      setThinking(false)
+    try {
+      const res = await api.sendMessage(text, 'agent')
+      setTurns(
+        (res.messages || []).map((m, i) => ({
+          role: m.role === 'customer' ? 'customer' : 'agent',
+          name: m.role === 'customer' ? scenario.persona : 'You',
+          text: m.content,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          fromApi: true,
+        }))
+      )
+      setLastTurn(res.last_turn || null)
       setRailTab('signals')
-    }, 900)
+    } catch (err) {
+      setApiError(err.message)
+    } finally {
+      setThinking(false)
+    }
   }
 
   const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+
+  const runAutopilot = async () => {
+    if (!session || thinking) return
+    setThinking(true)
+    setApiError('')
+    try {
+      const res = await api.autopilot()
+      setTurns(
+        (res.messages || []).map((m, i) => ({
+          role: m.role === 'customer' ? 'customer' : 'agent',
+          name: m.role === 'customer' ? scenario.persona : 'You',
+          text: m.content,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          fromApi: true,
+        }))
+      )
+      setLastTurn(res.last_turn || null)
+      setRailTab('signals')
+    } catch (err) {
+      setApiError(err.message)
+    } finally {
+      setThinking(false)
+    }
+  }
+
+  const runManagerTakeover = async () => {
+    if (!session || thinking) return
+    setThinking(true)
+    setApiError('')
+    try {
+      const res = await api.managerTakeover()
+      setTurns(
+        (res.messages || []).map((m, i) => ({
+          role: m.role === 'customer' ? 'customer' : 'agent',
+          name: m.role === 'customer' ? scenario.persona : 'You',
+          text: m.content,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          fromApi: true,
+        }))
+      )
+      setLastTurn(res.last_turn || null)
+      setRailTab('signals')
+    } catch (err) {
+      setApiError(err.message)
+    } finally {
+      setThinking(false)
+    }
+  }
 
   if (!session) {
     return (
@@ -260,10 +337,15 @@ export default function Dashboard() {
             <Link to="/setup" className="btn-primary w-full sm:w-auto !px-6">
               <Play className="w-4 h-4" /> Launch a Session
             </Link>
-            <button onClick={startDemo} className={`btn-secondary w-full sm:w-auto ${isLight ? '!bg-white !border-navy-200 !text-navy-600 hover:!bg-navy-50' : ''}`}>
-              <Sparkles className="w-4 h-4" /> Load Demo Session
+            <button onClick={startDemo} disabled={thinking} className={`btn-secondary w-full sm:w-auto ${isLight ? '!bg-white !border-navy-200 !text-navy-600 hover:!bg-navy-50' : ''}`}>
+              <Sparkles className="w-4 h-4" /> {thinking ? 'Starting…' : 'Load Live Session'}
             </button>
           </div>
+          {apiError && (
+            <div className={`mt-4 px-4 py-3 rounded-2xl text-xs ${isLight ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+              {apiError}
+            </div>
+          )}
           <div className={`mt-6 pt-5 border-t ${isLight ? 'border-navy-100' : 'border-white/[0.06]'}`}>
             <p className={`text-xs ${isLight ? 'text-navy-400' : 'text-white/30'}`}>
               Quick links: <Link to="/setup" className="text-emerald-500 hover:text-emerald-400 font-medium">Setup</Link>
@@ -306,6 +388,24 @@ export default function Dashboard() {
               <Clock className="w-3.5 h-3.5" /> {turns.length} turns
             </span>
             <button
+              onClick={runAutopilot}
+              disabled={thinking}
+              className={`inline-flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-full transition-colors ${
+                isLight ? 'bg-violet-50 text-violet-600 border border-violet-200 hover:bg-violet-100' : 'bg-violet-500/10 text-violet-400 border border-violet-500/20 hover:bg-violet-500/20'
+              }`}
+            >
+              <Zap className="w-3 h-3" /> Autopilot
+            </button>
+            <button
+              onClick={runManagerTakeover}
+              disabled={thinking}
+              className={`inline-flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-full transition-colors ${
+                isLight ? 'bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20'
+              }`}
+            >
+              <Bot className="w-3 h-3" /> Manager
+            </button>
+            <button
               onClick={() => navigate('/reports')}
               className={`inline-flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-full transition-colors ${
                 isLight ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20'
@@ -316,6 +416,12 @@ export default function Dashboard() {
           </div>
         </div>
       </motion.div>
+
+      {apiError && (
+        <motion.div variants={itemAnim} className={`px-4 py-3 rounded-2xl text-xs ${isLight ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+          {apiError}
+        </motion.div>
+      )}
 
       <div className="grid lg:grid-cols-3 gap-5 items-start">
         <motion.div variants={itemAnim} className={`lg:col-span-2 p-5 rounded-3xl ${
