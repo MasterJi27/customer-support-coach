@@ -6,6 +6,7 @@ import {
   Sparkles, Headphones, Gauge, ChevronRight, Clock, Timer, MessageSquare,
 } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
+import FeatureLab from '../components/FeatureLab'
 import { scenarios, kbDocuments } from '../data'
 import api from '../lib/api'
 
@@ -300,14 +301,13 @@ export default function Dashboard() {
     }
   }
 
-  const sendReply = async (e) => {
-    e.preventDefault()
-    const text = draft.trim()
-    if (!text) return
+  const sendText = async (text) => {
+    const trimmed = (text || '').trim()
+    if (!trimmed) return
     setDraft('')
     setThinking(true)
     try {
-      const res = await api.sendMessage(text, 'agent')
+      const res = await api.sendMessage(trimmed, 'agent')
       setTurns(
         (res.messages || []).map((m, i) => ({
           role: m.role === 'customer' ? 'customer' : 'agent',
@@ -324,6 +324,14 @@ export default function Dashboard() {
     } finally {
       setThinking(false)
     }
+  }
+
+  const sendReply = async (e) => {
+    e.preventDefault()
+    const text = draft.trim()
+    if (!text) return
+    setDraft('')
+    await sendText(text)
   }
 
   const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -639,6 +647,8 @@ export default function Dashboard() {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      <FeatureLab isLight={isLight} lastTurn={lastTurn} onSendReply={sendText} onRefresh={startDemo} />
     </motion.div>
   )
 }

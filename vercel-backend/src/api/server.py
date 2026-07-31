@@ -17,6 +17,7 @@ from src.core.database import database
 from src.agents.manager_supervisor import manager_supervisor_agent
 from src.agents.auto_pilot_agent import auto_pilot_agent
 from src.modules.hall_of_fame import HallOfFameVault
+from src.api.features import router as features_router, bind_orchestrator
 
 app = FastAPI(title="CoachAI Enterprise API", version="2.0")
 
@@ -31,6 +32,10 @@ app.add_middleware(
 
 # Global orchestrator instance
 orchestrator = Orchestrator()
+
+# Feature Lab router (all analysis agents, bot, survival game, jira, whisper)
+bind_orchestrator(orchestrator)
+app.include_router(features_router)
 
 class StartSessionRequest(BaseModel):
     mode: str = "simulator"
@@ -59,6 +64,24 @@ def root():
             "POST /api/chat/message",
             "POST /api/chat/autopilot",
             "POST /api/chat/manager-takeover",
+            "POST /api/chat/end",
+            "POST /api/analysis/viral",
+            "POST /api/analysis/fraud",
+            "POST /api/analysis/defection",
+            "POST /api/analysis/mind-reader",
+            "POST /api/analysis/multiverse",
+            "POST /api/analysis/patience",
+            "POST /api/analysis/cognitive-load",
+            "POST /api/analysis/compliance",
+            "POST /api/analysis/tone",
+            "POST /api/analysis/scenario",
+            "POST /api/analysis/qa-audit",
+            "POST /api/analysis/auto-kb",
+            "POST /api/bot/reply",
+            "POST /api/jira/ticket",
+            "POST /api/survival/start",
+            "POST /api/survival/turn",
+            "POST /api/manager/whisper",
         ],
     }
 
