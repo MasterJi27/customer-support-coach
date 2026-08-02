@@ -20,6 +20,8 @@ class PostInteractionSummaryAgent:
         sentiment_journey = []
         escalation_triggers = []
         knowledge_gaps = set()
+        kb_articles_used = []
+        synthetic_kb_sources = ("ai-synthesis", "kb-gap-alert", "built-in faq")
 
         for ta in analyses:
             if ta.intent_analysis:
@@ -36,6 +38,10 @@ class PostInteractionSummaryAgent:
                     )
             if not ta.knowledge_items:
                 knowledge_gaps.add(f"Turn {ta.turn_number}: No relevant knowledge found")
+            for item in ta.knowledge_items:
+                if item.title and (item.source or "") not in synthetic_kb_sources:
+                    if item.title not in kb_articles_used:
+                        kb_articles_used.append(item.title)
 
         resolution = self._calculate_resolution_quality(session, analyses)
 
@@ -54,6 +60,7 @@ class PostInteractionSummaryAgent:
             coaching_recommendations=coaching_recommendations,
             escalation_triggers=escalation_triggers,
             knowledge_gaps=list(knowledge_gaps),
+            kb_articles_used=kb_articles_used,
         )
 
         self._save_report(report)

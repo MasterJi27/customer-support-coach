@@ -30,6 +30,10 @@ class Orchestrator:
         
         # Keeps track of the currently running session
         self.active_session: SessionState | None = None
+        # In-process cache of sessions by id. On serverless (Vercel), each request can
+        # land on a different, possibly-cold instance whose cache is empty — get_session()
+        # falls back to Postgres in that case so the conversation is never silently lost.
+        self._sessions: dict[str, SessionState] = {}
 
     def start_session(
         self,
@@ -65,7 +69,37 @@ class Orchestrator:
 
         # Persist the session to our database
         database.save_session(self.active_session)
+        self._sessions[self.active_session.session_id] = self.active_session
         return self.active_session
+
+    def get_session(self, session_id: str | None) -> SessionState | None:
+        """Look up a session by id: in-process cache first, then Postgres.
+
+        Does NOT create anything and does NOT touch self.active_session — callers
+        that want the resolved session to become "current" should use
+        bind_session() instead.
+        """
+        if not session_id:
+            return None
+        session = self._sessions.get(session_id)
+        if session is not None:
+            return session
+        session = database.get_session(session_id)
+        if session is not None:
+            self._sessions[session_id] = session
+        return session
+
+    def bind_session(self, session_id: str | None) -> SessionState | None:
+        """Resolve a session by id and make it the active session for this call.
+
+        This lets the existing active_session-based methods below (process_agent_input,
+        advance_simulator, etc.) keep working unchanged, while the API layer stays
+        correct regardless of which serverless instance happens to answer a request.
+        """
+        session = self.get_session(session_id)
+        if session is not None:
+            self.active_session = session
+        return session
 
     def process_customer_input(self, customer_text: str) -> TurnAnalysis | None:
         if not self.active_session or not self.active_session.is_active:

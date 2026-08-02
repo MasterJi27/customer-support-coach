@@ -31,15 +31,15 @@ export const api = {
       },
     }),
 
-  sendMessage: (message, role = 'agent') =>
-    request('/api/chat/message', { method: 'POST', body: { message, role } }),
+  sendMessage: (message, role = 'agent', sessionId) =>
+    request('/api/chat/message', { method: 'POST', body: { message, role, session_id: sessionId } }),
 
-  autopilot: () => request('/api/chat/autopilot', { method: 'POST', body: {} }),
+  autopilot: (sessionId) => request('/api/chat/autopilot', { method: 'POST', body: { session_id: sessionId } }),
 
-  managerTakeover: (message = '') =>
-    request('/api/chat/manager-takeover', { method: 'POST', body: { message } }),
+  managerTakeover: (message = '', sessionId) =>
+    request('/api/chat/manager-takeover', { method: 'POST', body: { message, session_id: sessionId } }),
 
-  endSession: () => request('/api/chat/end', { method: 'POST', body: {} }),
+  endSession: (sessionId) => request('/api/chat/end', { method: 'POST', body: { session_id: sessionId } }),
 
   viralAnalysis: (message, context = '') =>
     request('/api/analysis/viral', { method: 'POST', body: { message, context } }),
@@ -56,13 +56,13 @@ export const api = {
   multiverse: (message, turnNumber = 2) =>
     request('/api/analysis/multiverse', { method: 'POST', body: { message, turn_number: turnNumber } }),
 
-  patience: (message, currentTurn = 1) =>
-    request('/api/analysis/patience', { method: 'POST', body: { message, current_turn: currentTurn } }),
+  patience: (message, currentTurn = 1, sessionId) =>
+    request('/api/analysis/patience', { method: 'POST', body: { message, current_turn: currentTurn, session_id: sessionId } }),
 
-  cognitiveLoad: (message, context = '') =>
-    request('/api/analysis/cognitive-load', { method: 'POST', body: { message, context } }),
+  cognitiveLoad: (message, context = '', sessionId) =>
+    request('/api/analysis/cognitive-load', { method: 'POST', body: { message, context, session_id: sessionId } }),
 
-  compliance: () => request('/api/analysis/compliance', { method: 'POST', body: {} }),
+  compliance: (sessionId) => request('/api/analysis/compliance', { method: 'POST', body: { session_id: sessionId } }),
 
   tonePolish: (draft, customerMessage = '') =>
     request('/api/analysis/tone', { method: 'POST', body: { draft, customer_message: customerMessage } }),
@@ -70,14 +70,14 @@ export const api = {
   scenario: (productContext = 'Zomato - Food Delivery App', difficulty = 'challenging') =>
     request('/api/analysis/scenario', { method: 'POST', body: { product_context: productContext, difficulty } }),
 
-  qaAudit: () => request('/api/analysis/qa-audit', { method: 'POST', body: {} }),
+  qaAudit: (sessionId) => request('/api/analysis/qa-audit', { method: 'POST', body: { session_id: sessionId } }),
 
-  autoKb: () => request('/api/analysis/auto-kb', { method: 'POST', body: {} }),
+  autoKb: (sessionId) => request('/api/analysis/auto-kb', { method: 'POST', body: { session_id: sessionId } }),
 
-  botReply: (message) => request('/api/bot/reply', { method: 'POST', body: { message } }),
+  botReply: (message, sessionId) => request('/api/bot/reply', { method: 'POST', body: { message, session_id: sessionId } }),
 
-  jiraTicket: (productContext = 'Zomato - Food Delivery App') =>
-    request('/api/jira/ticket', { method: 'POST', body: { product_context: productContext } }),
+  jiraTicket: (productContext = 'Zomato - Food Delivery App', sessionId) =>
+    request('/api/jira/ticket', { method: 'POST', body: { product_context: productContext, session_id: sessionId } }),
 
   survivalStart: () => request('/api/survival/start', { method: 'POST', body: {} }),
 
@@ -87,8 +87,8 @@ export const api = {
       body: { ticket_index: ticketIndex, reply_text: replyText, turn_time_seconds: turnTimeSeconds },
     }),
 
-  managerWhisper: (text, senderId = 'Manager') =>
-    request('/api/manager/whisper', { method: 'POST', body: { text, sender_id: senderId } }),
+  managerWhisper: (text, senderId = 'Manager', sessionId) =>
+    request('/api/manager/whisper', { method: 'POST', body: { text, sender_id: senderId, session_id: sessionId } }),
 }
 
 export default api

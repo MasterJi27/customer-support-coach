@@ -3,6 +3,7 @@ import os
 import sqlite3
 from datetime import datetime
 
+from pydantic import BaseModel
 from sqlalchemy import create_engine, text
 import sqlalchemy.exc
 
@@ -47,6 +48,10 @@ class Database:
                         is_active INTEGER
                     )
                 """))
+                # full_state holds the complete serialized SessionState (incl. turn_analyses)
+                # so ANY serverless instance can rehydrate a session by id, not just the
+                # instance that happened to create it.
+                conn.execute(text("ALTER TABLE sessions ADD COLUMN IF NOT EXISTS full_state TEXT"))
                 conn.execute(text("""
                     CREATE TABLE IF NOT EXISTS reports (
                         session_id TEXT PRIMARY KEY,
@@ -89,6 +94,10 @@ class Database:
                 is_active INTEGER
             )
         """)
+        try:
+            conn.execute("ALTER TABLE sessions ADD COLUMN full_state TEXT")
+        except sqlite3.OperationalError:
+            pass
         conn.execute("""
             CREATE TABLE IF NOT EXISTS reports (
                 session_id TEXT PRIMARY KEY,
@@ -158,9 +167,13 @@ class Database:
             conn.close()
 
     def save_session(self, session: SessionState):
+        # Bypass SessionState's trimmed-down model_dump() override (used elsewhere for
+        # lightweight summaries) to capture the FULL state, turn_analyses included, so
+        # get_session() can fully reconstruct it on any instance later.
+        full_state = BaseModel.model_dump(session, mode="json")
         self._upsert(
             "sessions",
-            ["session_id", "config", "messages", "created_at", "is_active"],
+            ["session_id", "config", "messages", "created_at", "is_active", "full_state"],
             (
                 session.session_id,
                 json.dumps({
@@ -171,8 +184,27 @@ class Database:
                 json.dumps([m.model_dump() for m in session.messages], default=str),
                 session.created_at.isoformat(),
                 1 if session.is_active else 0,
+                json.dumps(full_state, default=str),
             ),
         )
+
+    def get_session(self, session_id: str) -> SessionState | None:
+        """Rehydrate a full SessionState (messages + turn_analyses + config) by id.
+
+        This is what lets a request landing on a fresh/cold serverless instance
+        recover the exact same conversation another instance started, instead of
+        silently starting a brand new one.
+        """
+        rows = self._exec(
+            "SELECT full_state FROM sessions WHERE session_id = ?", (session_id,)
+        )
+        if not rows or not rows[0][0]:
+            return None
+        try:
+            data = json.loads(rows[0][0])
+            return SessionState.model_validate(data)
+        except Exception:
+            return None
 
     def get_all_sessions(self) -> list[dict]:
         rows = self._exec(

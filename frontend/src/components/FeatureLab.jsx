@@ -61,7 +61,7 @@ function Chip({ isLight, children, tone = 'neutral' }) {
   )
 }
 
-export default function FeatureLab({ isLight, lastTurn, onSendReply, onRefresh }) {
+export default function FeatureLab({ isLight, lastTurn, onSendReply, onRefresh, sessionId }) {
   const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
   const [multiverse, setMultiverse] = useState(null)
@@ -100,17 +100,17 @@ export default function FeatureLab({ isLight, lastTurn, onSendReply, onRefresh }
   }
 
   const runCompliance = async () => {
-    const r = await run('comp', () => api.compliance())
+    const r = await run('comp', () => api.compliance(sessionId))
     if (r) setCompliance(r)
   }
 
   const previewBot = async () => {
-    const r = await run('bot', () => api.botReply(custMsg))
+    const r = await run('bot', () => api.botReply(custMsg, sessionId))
     if (r) setBot(r)
   }
 
   const createJira = async () => {
-    const r = await run('jira', () => api.jiraTicket())
+    const r = await run('jira', () => api.jiraTicket(undefined, sessionId))
     if (r) setJira(r)
   }
 

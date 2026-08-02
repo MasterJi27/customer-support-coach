@@ -46,6 +46,28 @@ class StartSessionRequest(BaseModel):
 class SendMessageRequest(BaseModel):
     message: str
     role: str = "agent"  # 'agent' or 'customer'
+    session_id: Optional[str] = None
+
+class SessionScopedRequest(BaseModel):
+    session_id: Optional[str] = None
+
+class ManagerTakeoverRequest(BaseModel):
+    message: str = ""
+    session_id: Optional[str] = None
+
+def _resolve_session(session_id: Optional[str]):
+    """Bind the given session_id as current, falling back to whatever this
+    instance already has active (legacy clients that don't send session_id yet).
+    Raises a clear 400 instead of silently starting an unrelated new session —
+    the old behavior masked the "wrong session" bug by always looking "successful".
+    """
+    session = orchestrator.bind_session(session_id) if session_id else orchestrator.active_session
+    if not session:
+        raise HTTPException(
+            status_code=400,
+            detail="No session found for this session_id. Please start a new session.",
+        )
+    return session
 
 @app.get("/")
 def root():
@@ -123,20 +145,13 @@ def get_analytics():
 @app.get("/api/reports")
 def list_reports():
     try:
-        reports = []
-        reports_dir = settings.reports_dir
-        if os.path.isdir(reports_dir):
-            for fname in sorted(os.listdir(reports_dir)):
-                if fname.endswith(".json"):
-                    fpath = os.path.join(reports_dir, fname)
-                    try:
-                        with open(fpath, "r", encoding="utf-8") as f:
-                            data = json.load(f)
-                            data["_file"] = fname
-                            reports.append(data)
-                    except Exception:
-                        reports.append({"_file": fname})
-        return {"reports": reports}
+        # Reports are durably stored in Postgres (database.save_report(), called from
+        # orchestrator.end_session()). settings.reports_dir is NOT a reliable source on
+        # Vercel: it resolves to an ephemeral /tmp directory per serverless instance
+        # (data_dir isn't writable there), so a local JSON scan here would silently
+        # return [] on almost every request even though reports really exist.
+        reports = database.get_all_reports()
+        return {"reports": [r.model_dump(mode="json") for r in reports]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -208,12 +223,8 @@ def start_session(req: StartSessionRequest):
 @app.post("/api/chat/message")
 def send_message(req: SendMessageRequest):
     try:
-        session = orchestrator.active_session
-        if not session:
-            # Auto-start if no active session
-            start_session(StartSessionRequest())
-            session = orchestrator.active_session
-            
+        session = _resolve_session(req.session_id)
+
         if req.role == "agent":
             orchestrator.process_agent_input(req.message)
             # Advance customer simulator if simulator mode
@@ -221,67 +232,73 @@ def send_message(req: SendMessageRequest):
                 orchestrator.advance_simulator()
         else:
             orchestrator.process_customer_input(req.message)
-            
+
         last_turn = session.turn_analyses[-1] if session.turn_analyses else None
         return {
             "status": "success",
+            "session_id": session.session_id,
             "messages": [{"role": m.role, "content": m.content} for m in session.messages],
             "last_turn": _serialize_turn(last_turn)
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/chat/autopilot")
-def trigger_autopilot():
+def trigger_autopilot(req: SessionScopedRequest = SessionScopedRequest()):
     try:
-        session = orchestrator.active_session
-        if not session or not session.turn_analyses:
+        session = _resolve_session(req.session_id)
+        if not session.turn_analyses:
             raise HTTPException(status_code=400, detail="No active turn to analyze.")
-            
+
         last_turn = session.turn_analyses[-1]
         cust_msg = last_turn.customer_message or "Help needed."
         ap_res = auto_pilot_agent.generate_autopilot_response(cust_msg, session.get_conversation_context())
-        
+
         orchestrator.process_agent_input(ap_res.suggested_reply)
         if session.config.mode == InteractionMode.SIMULATOR:
             orchestrator.advance_simulator()
-            
+
         new_turn = session.turn_analyses[-1] if session.turn_analyses else None
         return {
             "status": "success",
+            "session_id": session.session_id,
             "suggested_reply": ap_res.suggested_reply,
             "tool_action": ap_res.tool_action_executed,
             "messages": [{"role": m.role, "content": m.content} for m in session.messages],
             "last_turn": _serialize_turn(new_turn)
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/chat/manager-takeover")
-def manager_takeover():
+def manager_takeover(req: ManagerTakeoverRequest = ManagerTakeoverRequest()):
     try:
-        session = orchestrator.active_session
-        if not session:
-            start_session(StartSessionRequest())
-            session = orchestrator.active_session
-            
+        session = _resolve_session(req.session_id)
+
         statement = manager_supervisor_agent.generate_manager_takeover_response(
             order_id="ORD-8142K",
             customer_name="Customer",
             issue="Order Delay & Refund Claim"
         )
-        
+
         orchestrator.process_agent_input(statement)
         if session.config.mode == InteractionMode.SIMULATOR:
             orchestrator.advance_simulator()
-            
+
         new_turn = session.turn_analyses[-1] if session.turn_analyses else None
         return {
             "status": "success",
+            "session_id": session.session_id,
             "statement": statement,
             "messages": [{"role": m.role, "content": m.content} for m in session.messages],
             "last_turn": _serialize_turn(new_turn)
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

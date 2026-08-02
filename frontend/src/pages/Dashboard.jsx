@@ -193,6 +193,10 @@ export default function Dashboard() {
   useEffect(() => { sessionRef.current = session }, [session])
 
   const scenario = scenarios[0]
+  // Which scenario is actually live in this session — defaults to the demo
+  // scenario, then gets overwritten in startDemo() with whatever Setup.jsx
+  // actually launched (title/persona), so the header stops always saying "Zomato".
+  const [scenarioMeta, setScenarioMeta] = useState({ title: scenario.title, persona: scenario.persona })
   const kb = kbDocuments[0]
   const suggestedReply = lastTurn?.suggested_response || ''
   const liveKb = lastTurn?.kb?.title ? lastTurn.kb : null
@@ -255,6 +259,10 @@ export default function Dashboard() {
     try {
       let cfg = {}
       try { cfg = JSON.parse(localStorage.getItem('coachai_session_config') || '{}') } catch { /* ignore */ }
+      const resolvedMeta = {
+        title: cfg.scenario_title || scenario.title,
+        persona: cfg.scenario_persona || scenario.persona,
+      }
       const res = await api.startSession({
         mode: cfg.mode || 'simulator',
         agent_name: cfg.agent_name || 'Support Agent',
@@ -265,10 +273,11 @@ export default function Dashboard() {
       startTimeRef.current = Date.now()
       setElapsed(0)
       setSession({ id: res.session_id, product_context: res.product_context })
+      setScenarioMeta(resolvedMeta)
       setTurns(
         (res.messages || []).map((m, i) => ({
           role: m.role === 'customer' ? 'customer' : 'agent',
-          name: m.role === 'customer' ? scenario.persona : 'You',
+          name: m.role === 'customer' ? resolvedMeta.persona : 'You',
           text: m.content,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           fromApi: true,
@@ -287,11 +296,11 @@ export default function Dashboard() {
     if (!suggestedReply) return
     setThinking(true)
     try {
-      const res = await api.sendMessage(suggestedReply.replace(/^"|"$/g, ''), 'agent')
+      const res = await api.sendMessage(suggestedReply.replace(/^"|"$/g, ''), 'agent', session?.id)
       setTurns(
         (res.messages || []).map((m, i) => ({
           role: m.role === 'customer' ? 'customer' : 'agent',
-          name: m.role === 'customer' ? scenario.persona : 'You',
+          name: m.role === 'customer' ? scenarioMeta.persona : 'You',
           text: m.content,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           fromApi: true,
@@ -312,11 +321,11 @@ export default function Dashboard() {
     setDraft('')
     setThinking(true)
     try {
-      const res = await api.sendMessage(trimmed, 'agent')
+      const res = await api.sendMessage(trimmed, 'agent', session?.id)
       setTurns(
         (res.messages || []).map((m, i) => ({
           role: m.role === 'customer' ? 'customer' : 'agent',
-          name: m.role === 'customer' ? scenario.persona : 'You',
+          name: m.role === 'customer' ? scenarioMeta.persona : 'You',
           text: m.content,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           fromApi: true,
@@ -346,11 +355,11 @@ export default function Dashboard() {
     setThinking(true)
     setApiError('')
     try {
-      const res = await api.autopilot()
+      const res = await api.autopilot(session?.id)
       setTurns(
         (res.messages || []).map((m, i) => ({
           role: m.role === 'customer' ? 'customer' : 'agent',
-          name: m.role === 'customer' ? scenario.persona : 'You',
+          name: m.role === 'customer' ? scenarioMeta.persona : 'You',
           text: m.content,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           fromApi: true,
@@ -370,11 +379,11 @@ export default function Dashboard() {
     setThinking(true)
     setApiError('')
     try {
-      const res = await api.managerTakeover()
+      const res = await api.managerTakeover('', session?.id)
       setTurns(
         (res.messages || []).map((m, i) => ({
           role: m.role === 'customer' ? 'customer' : 'agent',
-          name: m.role === 'customer' ? scenario.persona : 'You',
+          name: m.role === 'customer' ? scenarioMeta.persona : 'You',
           text: m.content,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           fromApi: true,
@@ -386,6 +395,22 @@ export default function Dashboard() {
       setApiError(err.message)
     } finally {
       setThinking(false)
+    }
+  }
+
+  const endCurrentSession = async () => {
+    if (!session) {
+      navigate('/reports')
+      return
+    }
+    setThinking(true)
+    try {
+      await api.endSession(session.id)
+    } catch (err) {
+      setApiError(err.message)
+    } finally {
+      setThinking(false)
+      navigate('/reports')
     }
   }
 
@@ -455,8 +480,8 @@ export default function Dashboard() {
               <User className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <p className={`text-sm font-semibold truncate ${isLight ? 'text-navy-800' : 'text-white'}`}>Rahul K. — {scenario.title}</p>
-              <p className={`text-xs truncate ${isLight ? 'text-navy-400' : 'text-white/30'}`}>{scenario.persona}</p>
+              <p className={`text-sm font-semibold truncate ${isLight ? 'text-navy-800' : 'text-white'}`}>{scenarioMeta.title}</p>
+              <p className={`text-xs truncate ${isLight ? 'text-navy-400' : 'text-white/30'}`}>{scenarioMeta.persona}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -490,7 +515,8 @@ export default function Dashboard() {
               <Bot className="w-3 h-3" /> Manager
             </button>
             <button
-              onClick={() => navigate('/reports')}
+              onClick={endCurrentSession}
+              disabled={thinking}
               className={`inline-flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-full transition-colors ${
                 isLight ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20'
               }`}
@@ -519,7 +545,7 @@ export default function Dashboard() {
               <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Live Conversation</p>
             </div>
             <span className={`text-[10px] px-2 py-1 rounded-full ${isLight ? 'bg-navy-50 text-navy-400 border border-navy-100' : 'bg-white/[0.04] text-white/30 border border-white/[0.06]'}`}>
-              Zomato · Missing items
+              {session?.product_context || 'Live session'}
             </span>
           </div>
 
@@ -667,7 +693,7 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
-      <FeatureLab isLight={isLight} lastTurn={lastTurn} onSendReply={sendText} onRefresh={startDemo} />
+      <FeatureLab isLight={isLight} lastTurn={lastTurn} onSendReply={sendText} onRefresh={startDemo} sessionId={session?.id} />
     </motion.div>
   )
 }

@@ -32,15 +32,22 @@ def bind_orchestrator(orch: Orchestrator):
     global orchestrator
     orchestrator = orch
 
-def _session():
-    if orchestrator is None or not orchestrator.active_session:
+def _session(session_id: Optional[str] = None):
+    if orchestrator is None:
         raise HTTPException(status_code=400, detail="No active session. Start a session first.")
-    return orchestrator.active_session
+    session = orchestrator.bind_session(session_id) if session_id else orchestrator.active_session
+    if not session:
+        raise HTTPException(
+            status_code=400,
+            detail="No session found for this session_id. Please start a new session.",
+        )
+    return session
 
 
 class AnalysisRequest(BaseModel):
     message: str
     context: str = ""
+    session_id: Optional[str] = None
 
 
 class ToneRequest(BaseModel):
@@ -62,6 +69,11 @@ class MultiverseRequest(BaseModel):
 class PatienceRequest(BaseModel):
     message: str
     current_turn: int = 1
+    session_id: Optional[str] = None
+
+
+class SessionScopedRequest(BaseModel):
+    session_id: Optional[str] = None
 
 
 class SurvivalTurnRequest(BaseModel):
@@ -73,10 +85,12 @@ class SurvivalTurnRequest(BaseModel):
 class WhisperRequest(BaseModel):
     text: str
     sender_id: str = "Manager"
+    session_id: Optional[str] = None
 
 
 class JiraRequest(BaseModel):
     product_context: str = "Zomato - Food Delivery App"
+    session_id: Optional[str] = None
 
 
 def _wrap(fn):
@@ -116,7 +130,7 @@ def multiverse_analysis(req: MultiverseRequest):
 @router.post("/analysis/patience")
 def patience_analysis(req: PatienceRequest):
     def run():
-        session = _session()
+        session = _session(req.session_id)
         intent = session.turn_analyses[-1].intent_analysis if session.turn_analyses else None
         return patience_clock_agent.evaluate_patience(req.message, req.current_turn, intent)
     return _wrap(run)
@@ -125,16 +139,16 @@ def patience_analysis(req: PatienceRequest):
 @router.post("/analysis/cognitive-load")
 def cognitive_load_analysis(req: AnalysisRequest):
     def run():
-        session = _session()
+        session = _session(req.session_id)
         intent = session.turn_analyses[-1].intent_analysis if session.turn_analyses else None
         return cognitive_load_agent.evaluate_cognitive_load(req.message, intent)
     return _wrap(run)
 
 
 @router.post("/analysis/compliance")
-def compliance_analysis():
+def compliance_analysis(req: SessionScopedRequest = SessionScopedRequest()):
     def run():
-        session = _session()
+        session = _session(req.session_id)
         agent_msg = next((m for m in reversed(session.messages) if m.role == "agent"), None)
         if agent_msg is None:
             raise HTTPException(status_code=400, detail="No agent message to audit yet.")
@@ -156,9 +170,9 @@ def scenario_generation(req: ScenarioRequest):
 
 
 @router.post("/analysis/qa-audit")
-def qa_audit():
+def qa_audit(req: SessionScopedRequest = SessionScopedRequest()):
     def run():
-        session = _session()
+        session = _session(req.session_id)
         report = orchestrator.end_session()
         return {
             "audit": qa_audit_agent.audit_session(report),
@@ -169,9 +183,9 @@ def qa_audit():
 
 
 @router.post("/analysis/auto-kb")
-def auto_kb():
+def auto_kb(req: SessionScopedRequest = SessionScopedRequest()):
     def run():
-        session = _session()
+        session = _session(req.session_id)
         file_path = AutoKBAgent().trigger_auto_kb(session, session.turn_analyses)
         return {"drafted": file_path is not None, "file": file_path}
     return _wrap(run)
@@ -180,7 +194,7 @@ def auto_kb():
 @router.post("/bot/reply")
 def bot_reply(req: AnalysisRequest):
     def run():
-        session = _session()
+        session = _session(req.session_id)
         intent = session.turn_analyses[-1].intent_analysis if session.turn_analyses else None
         return {
             "reply": bot_agent.generate_bot_reply(req.message, intent),
@@ -193,7 +207,7 @@ def bot_reply(req: AnalysisRequest):
 @router.post("/jira/ticket")
 def jira_ticket(req: JiraRequest):
     def run():
-        session = _session()
+        session = _session(req.session_id)
         ticket = jira_bug_generator_agent.generate_jira_ticket(
             session.messages, session.turn_analyses, req.product_context
         )
@@ -225,16 +239,16 @@ def survival_turn(req: SurvivalTurnRequest):
 @router.post("/manager/whisper")
 def manager_whisper(req: WhisperRequest):
     def run():
-        session = _session()
+        session = _session(req.session_id)
         orchestrator.process_whisper(req.text, req.sender_id)
         return {"status": "success", "sender_id": req.sender_id, "text": req.text}
     return _wrap(run)
 
 
 @router.post("/chat/end")
-def end_session():
+def end_session(req: SessionScopedRequest = SessionScopedRequest()):
     def run():
-        session = _session()
+        session = _session(req.session_id)
         report = orchestrator.end_session()
         return {
             "status": "success",

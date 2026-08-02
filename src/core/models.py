@@ -141,6 +141,7 @@ class PerformanceReport(BaseModel):
     coaching_recommendations: list[str] = []
     escalation_triggers: list[str] = []
     knowledge_gaps: list[str] = []
+    kb_articles_used: list[str] = []
     generated_at: datetime = Field(default_factory=datetime.now)
 
 

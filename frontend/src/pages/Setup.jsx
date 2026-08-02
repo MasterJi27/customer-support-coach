@@ -73,11 +73,17 @@ export default function Setup() {
   const selected = scenarios.find(s => s.id === selectedScenario)
 
   const launchSession = () => {
+    const isReplay = mode === 'replay'
+    const transcript = transcripts.find(t => t.id === selectedTranscript)
     localStorage.setItem('coachai_session_config', JSON.stringify({
-      mode: mode === 'replay' ? 'replay' : 'simulator',
-      scenario_choice: mode === 'replay' ? (transcripts.find(t => t.id === selectedTranscript)?.title || 'delivery_delay') : selectedScenario,
+      mode: isReplay ? 'replay' : 'simulator',
+      scenario_choice: isReplay ? (transcript?.title || 'delivery_delay') : selectedScenario,
       agent_name: agentName || 'Support Agent',
-      product_context: selected?.product_context || 'Zomato Food Delivery',
+      // NB: scenario objects use `product`, not `product_context` — this used to
+      // silently fall back to the Zomato default for every scenario.
+      product_context: (isReplay ? transcript?.label : selected?.product) || 'Zomato Food Delivery',
+      scenario_title: isReplay ? transcript?.label : selected?.title,
+      scenario_persona: isReplay ? '' : selected?.persona,
     }))
     navigate('/dashboard')
   }

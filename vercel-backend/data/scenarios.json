@@ -128,6 +128,22 @@
     "resolution_path": "Check discount conditions (e.g. minimum cart value, collection specific) + guide merchant to fix the setting + provide link to Shopify status page"
   },
   {
+    "id": "cancel_retention",
+    "title": "Spotify: Premium Cancel + Retention Offer",
+    "customer_persona": "Long-time subscriber who hit a billing dispute and now wants to cancel the family plan.",
+    "problem_description": "cancellation",
+    "product_context": "Spotify - Music Streaming",
+    "emotional_start": "neutral",
+    "context": "Customer has been on Spotify Premium for 4 years on a family plan. A duplicate charge on their credit card triggered a billing dispute, and now they want to cancel the entire family plan. They are calm, not angry, and respond well to empathy and a fair retention offer.",
+    "key_issues": [
+      "duplicate charge",
+      "wants to cancel family plan",
+      "long-tenure loyal customer",
+      "open to retention offer"
+    ],
+    "resolution_path": "Acknowledge the billing error + refund the duplicate charge + offer 3 months at 50% off + keep the family plan intact"
+  },
+  {
     "id": "tree_6010",
     "title": "\ud83d\uddfa\ufe0f Tree: VIP Subscription Cancellation Request",
     "customer_persona": "VIP Gold Customer requesting membership cancellation",

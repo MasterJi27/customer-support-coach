@@ -87,18 +87,35 @@ export default function Reports() {
     api.reports().then((res) => {
       if (!mounted || !res.reports?.length) return
       const raw = res.reports[0]
+      const rq = raw.resolution_quality || null
+      const resolutionLabel = rq
+        ? rq.issue_resolved
+          ? 'Resolved'
+          : rq.escalation_needed
+            ? 'Escalated'
+            : 'In progress'
+        : 'Completed'
+      const journey = (raw.sentiment_journey || []).map((p) => ({
+        label: `Turn ${p.turn ?? ''}`.trim(),
+        // frustration is 0-1 (higher = worse); flip it onto the 1-5 scale the chart expects
+        value: Math.max(1, Math.min(5, 5 - (p.frustration ?? 0) * 4)),
+      }))
+      const flags = [
+        ...(raw.escalation_triggers || []).map((t) => ({ severity: 'warning', text: t })),
+        ...(raw.knowledge_gaps || []).map((t) => ({ severity: 'info', text: `Knowledge gap — ${t}` })),
+      ]
       const mapped = {
-        sessionId: raw.session_id || raw.sessionId || raw._file || 'SESS-?',
-        date: raw.created_at || raw.date || raw.generated_at || new Date().toISOString().slice(0, 16).replace('T', ' '),
-        scenario: raw.scenario_title || raw.scenario || raw.product_context || 'CoachAI Session',
+        sessionId: raw.session_id || 'SESS-?',
+        date: raw.generated_at || new Date().toISOString().slice(0, 16).replace('T', ' '),
+        scenario: raw.agent_name ? `${raw.agent_name} · ${raw.interaction_mode || 'session'}` : 'CoachAI Session',
         overallScore: Math.round((raw.overall_score ?? 0.86) * 100),
-        resolution: raw.resolution_quality || raw.resolution || 'Completed',
-        duration: raw.duration_min ? `${raw.duration_min} min` : 'â€”',
-        turns: raw.turn_count || raw.turns || 0,
-        sentimentJourney: raw.sentiment_journey || report.sentimentJourney,
-        flags: raw.flags || report.flags,
-        coachingTips: raw.coaching_tips || raw.tips || report.coachingTips,
-        kbUsed: raw.kb_used || raw.kb || report.kbUsed,
+        resolution: resolutionLabel,
+        duration: 'â€”',
+        turns: raw.total_turns || 0,
+        sentimentJourney: journey.length ? journey : report.sentimentJourney,
+        flags: flags.length ? flags : report.flags,
+        coachingTips: raw.coaching_recommendations?.length ? raw.coaching_recommendations : report.coachingTips,
+        kbUsed: raw.kb_articles_used?.length ? raw.kb_articles_used : report.kbUsed,
       }
       setReport(mapped)
       setLive(true)

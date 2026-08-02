@@ -121,7 +121,7 @@ export const scenarios = [
     resolution: 'Verify failed intent in logs + confirm it is an authorization hold (reverses in 3-5 days) + provide official ARN for end-user',
   },
   {
-    id: 'production_404',
+    id: 'late_delivery_angry',
     title: 'Vercel: Production Deployment Failing (404)',
     product: 'Vercel — Frontend Cloud Platform',
     persona: 'Stressed frontend developer who pushed a critical hotfix to Vercel, but the production build is returning 404 for all users.',
