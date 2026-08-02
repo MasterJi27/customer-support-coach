@@ -1,0 +1,14 @@
+{
+  "title": "Why Discount Codes Fail at Checkout During High-Traffic Sales",
+  "category": "discounts",
+  "content": "Most discount codes that fail during a sale aren't actually broken — they're being correctly rejected against a cart or customer that doesn't meet every condition attached to the code. Before assuming a bug, check the following in order: (1) Status and window — confirm the discount is Active and that the current time falls inside its start/end dates in the store's timezone. (2) Eligibility — check for a minimum purchase amount, restriction to specific products/collections, or a customer segment/login requirement; any unmet condition will cause a valid-looking code to be rejected. (3) Usage limits — a code can carry a total redemption cap and/or a one-use-per-customer limit; once either is hit, the code stops working even though it still displays as Active, which is the most common cause during high-traffic flash sales where a capped code gets exhausted within minutes. (4) Combination settings — a code only stacks with another discount if combination is explicitly enabled on both sides; otherwise the platform silently applies whichever single discount is more valuable rather than throwing an error. (5) Front-end/traffic issues — during traffic spikes, browser caching or slow page loads can make an applied discount appear missing, and on mobile the code field is often collapsed inside the order summary, leading customers to assume it's broken when it's simply hidden. If the customer's cart genuinely qualified and the code failed to apply for a reason on the merchant's side, the standard remedy is a manual order edit or partial refund for the discount difference rather than asking the customer to re-checkout.",
+  "keywords": [
+    "discount code not working",
+    "checkout",
+    "usage limit reached",
+    "combine discounts",
+    "flash sale",
+    "promo code rejected",
+    "minimum purchase requirement"
+  ]
+}

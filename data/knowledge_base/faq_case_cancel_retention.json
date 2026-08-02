@@ -1,0 +1,13 @@
+{
+  "title": "Handling Cancellation Requests Following a Billing Dispute",
+  "category": "retention",
+  "content": "Subscribers who contact support convinced they already cancelled, only to be charged again, usually fall into one of a few patterns: the cancellation was started but never reached a confirmed state, the renewal fired in the narrow window before the cancellation was submitted, or the member is logged into a different account than the one they think they cancelled. Before touching the billing question, check the account's plan status and cancellation history, and confirm who owns the billing relationship — the service directly, or a storefront partner such as an app store or mobile carrier. Direct-billed charges that are genuinely erroneous can be refunded at agent discretion, especially when caught soon after the charge posts; charges routed through a partner platform cannot be refunded directly and the member must be redirected to that partner instead. Premium access is typically not prorated, so a standard cancellation simply runs through the end of the already-paid period rather than ending immediately — set that expectation clearly so the member isn't surprised a second time. Once the billing question is settled, complete the cancellation and get it to a confirmed state (confirmation screen or email, not just an intent to cancel). A single, low-pressure retention offer can be surfaced once, particularly for long-tenured accounts, but must not be repeated after a clear decline — members who arrived via a billing dispute are especially sensitive to feeling upsold, and pushing further damages trust rather than saving the account.",
+  "keywords": [
+    "cancel premium",
+    "billing dispute",
+    "refund policy",
+    "non-prorated",
+    "retention offer",
+    "third-party billing"
+  ]
+}

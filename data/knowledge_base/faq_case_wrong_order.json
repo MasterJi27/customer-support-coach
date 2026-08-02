@@ -1,0 +1,14 @@
+{
+  "title": "Investigating and Resolving Duplicate EC2 Charges on a Customer Invoice",
+  "category": "billing",
+  "content": "When a customer reports being billed twice for what looks like the same EC2 usage, first verify whether this is a true duplication or two distinct, correctly-billed charges that merely appear similar. Ask for the account ID, the exact billing period, and exported line-item detail from the Bills page. Cross-reference the disputed charges against Cost Explorer and, if available, the Cost and Usage Report (CUR), matching each charge to a specific resource ID and usage window rather than relying on the line-item label alone.\n\nMost apparent 'double charges' trace back to a handful of known patterns: a Reserved Instance or Savings Plan that started applying mid-cycle, leaving a short window billed at both On-Demand and RI rates; a second instance briefly launched by an Auto Scaling group or automation script the customer didn't notice; a stopped-but-not-terminated instance still accruing EBS or Elastic IP charges alongside a newer replacement instance; or a delayed true-up adjustment posted under a differently-named line item for a prior period.\n\nIf the resource IDs and usage data confirm a genuine internal billing error, escalate to the billing/finance service team, since front-line support agents typically cannot post account credits directly. Once confirmed, request a corrected invoice or service credit for the duplicated amount, and document the technical evidence before approving any adjustment. Advise the customer to enable Cost Explorer and billing alerts going forward to catch similar anomalies earlier.",
+  "keywords": [
+    "duplicate charge",
+    "EC2 billing",
+    "Cost Explorer",
+    "Cost and Usage Report",
+    "billing credit",
+    "Reserved Instance overlap",
+    "invoice correction"
+  ]
+}

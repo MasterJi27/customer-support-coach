@@ -6,14 +6,15 @@
     "problem_description": "missing food",
     "product_context": "Zomato - Food Delivery App",
     "emotional_start": "angry",
-    "context": "Customer ordered a family meal from a premium restaurant via Zomato for Rs 1200. The delivery arrived after 45 minutes, but the main course items (worth Rs 700) are missing from the sealed bag. Customer wants an immediate redelivery or full refund, not just a partial refund coupon.",
+    "context": "Customer placed a multi-item order on Zomato from a local restaurant. The invoice shows full payment captured for every item, but when the bag was opened at home, the main course was missing. They reported it through the app's Help flow within a couple of hours, attaching a photo of what actually arrived, and want to know whether they'll get the missing item redelivered or refunded, and how much comes back and in what form. They're anxious because the reporting window closes fast and Zomato mediates with the restaurant before approving anything, which feels like a delay for a problem that wasn't their fault.",
     "key_issues": [
-      "missing items",
-      "sealed bag tampered",
-      "refuses partial coupon",
-      "wants full refund"
+      "One or more paid-for items missing from an otherwise-delivered order",
+      "Short post-delivery reporting window to file the complaint (photo evidence strengthens the claim)",
+      "Redelivery isn't realistic once the order has already been delivered — resolution is item-level refund, not resend",
+      "Resolution requires restaurant-side confirmation before refund is finalized",
+      "Uncertainty over refund amount (item-level vs full order) and refund mode/timeline (wallet credit vs original payment method)"
     ],
-    "resolution_path": "Apologize + issue instant refund to source for missing items + add Rs 100 goodwill credit"
+    "resolution_path": "Cross-check the invoice and photo evidence, log it as a missing-item case against the restaurant, and issue a partial item-level refund to the original payment method or wallet credit rather than arranging redelivery."
   },
   {
     "id": "wrong_order",
@@ -22,14 +23,15 @@
     "problem_description": "billing",
     "product_context": "Amazon Web Services (AWS) - Cloud Infrastructure",
     "emotional_start": "frustrated",
-    "context": "Customer upgraded their AWS account's EC2 instances. Their corporate credit card was charged twice (totaling $3,000 instead of $1,500). Their billing dashboard still shows pending. They have screenshots of the bank SMS. Needs excess charge refunded immediately to avoid accounting issues.",
+    "context": "Customer opened a billing support case after noticing their latest AWS invoice listed two separate EC2-Instances line items covering the exact same billing period and dollar amount, even though the EC2 console shows only one running instance. The extra amount has already been drafted from their linked payment card, so they're frustrated about the cash-flow hit and confused because they never launched a second instance. They want AWS to explain the discrepancy and get a corrected invoice or credit before the next billing cycle closes.",
     "key_issues": [
-      "double charged",
-      "corporate card",
-      "dashboard out of sync",
-      "needs quick refund"
+      "Duplicate line item for identical EC2 usage/amount in the same billing period",
+      "Mismatch between EC2 console (1 running instance) and the invoice (2 charged instances)",
+      "Payment already collected against the inflated invoice, creating urgency",
+      "Unclear root cause: billing pipeline glitch vs. Reserved Instance/On-Demand overlap vs. an untracked resource",
+      "Customer wants a corrected invoice or account credit, not just an explanation"
     ],
-    "resolution_path": "Apologize + manually sync billing dashboard + initiate $1,500 refund trace + escalate to billing team"
+    "resolution_path": "Cross-reference the disputed line items against Cost Explorer / Cost and Usage Report data and the actual instance IDs and usage windows, and if a genuine billing-system error is confirmed, escalate to the billing team to issue a corrected invoice or service credit."
   },
   {
     "id": "payment_failed_deducted",
@@ -38,14 +40,15 @@
     "problem_description": "payment",
     "product_context": "Stripe - Payment Gateway",
     "emotional_start": "frustrated",
-    "context": "Store owner reports that their Stripe API integration showed a 'Payment Failed' (HTTP 402) error for a $500 transaction. However, the end-user's bank account was debited. Total $500 deducted but no successful charge on Stripe dashboard. The end-user is threatening the store owner with legal action.",
+    "context": "Customer tried to check out on a merchant's Stripe-powered store and got a card-declined error at the payment step — the API returned a failed PaymentIntent and no order was created. A few minutes later they check their banking app and see the full order amount sitting as a pending transaction or authorization hold, and conclude they were charged for something that never went through. They're anxious that money is missing from their available balance and want to know exactly when they'll get it back.",
     "key_issues": [
-      "payment failed API",
-      "money deducted",
-      "no charge on dashboard",
-      "angry end-user"
+      "Bank-side pending hold/authorization visible even though the payment API shows the charge as failed",
+      "Customer conflates a temporary authorization hold with an actual debit — no funds were actually captured",
+      "Hold typically caused by the issuer approving initial authorization before the gateway's own risk check declines it downstream",
+      "Release timeline is controlled entirely by the customer's card-issuing bank, not by the merchant or gateway",
+      "Customer worry about reduced available balance and fear of being double-charged if they retry the payment"
     ],
-    "resolution_path": "Verify failed intent in logs + confirm it's an authorization hold (will reverse in 3-5 days) + provide official ARN for end-user"
+    "resolution_path": "Confirm via the dashboard/API that no successful charge exists, explain that this is a temporary issuer-side authorization hold rather than an actual charge, and advise the customer to wait for the standard 3-5 business day auto-release window before contacting their card issuer directly."
   },
   {
     "id": "late_delivery_angry",
@@ -54,14 +57,15 @@
     "problem_description": "deployment",
     "product_context": "Vercel - Frontend Cloud Platform",
     "emotional_start": "angry",
-    "context": "Customer deployed a Next.js app to Vercel. The build logs show success, but the production URL returns a 404 error. The site is currently down for 10,000 active users. They are on the Pro plan and demand immediate assistance to rollback or fix the edge caching issue.",
+    "context": "Customer's team merged a small config change to main this morning and the Vercel deployment shows Ready — the build log is clean, no errors — but the production domain now returns a 404 on every route except the homepage, right as their checkout flow is getting live traffic. They already tried the dashboard Redeploy button twice with no change and are convinced the platform itself is broken. They're on a paid plan, losing orders every minute the site is down, and are demanding either an immediate explanation or an immediate rollback, whichever is faster.",
     "key_issues": [
-      "404 in production",
-      "build succeeded but site down",
-      "edge caching issue",
-      "demands immediate fix"
+      "Deployment status is Ready (build succeeded) but production routes 404",
+      "Likely mismatch between build-time routing metadata and actual output — commonly a wrong Output Directory, Framework Preset, or Root Directory in a monorepo",
+      "Customer redeployed twice without diagnosing the config, so the same broken settings keep reproducing the 404",
+      "Revenue-impacting outage on checkout pages during business hours is driving urgency for immediate rollback over root-cause diagnosis",
+      "Customer is unaware of Instant Rollback eligibility rules and how a rollback affects env vars and future auto-deploys"
     ],
-    "resolution_path": "Investigate edge network cache + trigger manual rollback + clear CDN cache + explain Next.js routing conflict"
+    "resolution_path": "Compare the raw deployment URL against the custom domain to rule out DNS, check the Output tab and Runtime Logs filtered to 404s to pinpoint the misconfiguration, perform an Instant Rollback to the last known-good production deployment to restore service immediately, then walk the customer through fixing the setting before re-promoting."
   },
   {
     "id": "food_quality_rotten",
@@ -70,14 +74,15 @@
     "problem_description": "quality",
     "product_context": "Swiggy Instamart - Quick Commerce",
     "emotional_start": "angry",
-    "context": "Customer ordered apples and avocados via Swiggy Instamart for a party. The items delivered are completely rotten, squished, and smell bad. Customer has photos. They are angry about the lack of quality check before packing and want replacement immediately.",
+    "context": "Customer ordered milk and fresh vegetables through Swiggy Instamart and, on opening the delivery, found the milk curdled/sour and part of the produce visibly rotten well before the printed expiry date. The customer had already discarded the spoiled milk before thinking to photograph it, and is worried support will use the lack of photo evidence to deny the claim, especially since a similar complaint a few weeks ago was only met with an apology and no refund. They want a full refund, not a same-day replacement, since a fresh item from the same source can't be trusted either.",
     "key_issues": [
-      "rotten produce",
-      "poor quality check",
-      "has photo evidence",
-      "wants immediate replacement"
+      "Perishable item (milk/dairy, vegetables) delivered spoiled or rotten ahead of its printed expiry date",
+      "Item already discarded before the customer thought to take photo evidence",
+      "Prior similar spoiled-item complaint was denied or only met with an apology, eroding trust",
+      "Customer skeptical of a same-day replacement given an apparent cold-chain/storage failure at the source",
+      "Underlying food-safety concern beyond just a refund (recurring issue, near-expiry stock)"
     ],
-    "resolution_path": "Acknowledge poor quality + issue full refund + process free replacement order + log complaint against dark store"
+    "resolution_path": "Validate the order and delivery timestamp, accept the customer's clear description of visible spoilage as sufficient even without a photo since the item was discarded for food-safety reasons, process a full refund rather than a replacement, and log a quality/cold-chain escalation against the fulfilling dark store."
   },
   {
     "id": "ran_out_of_stock",
@@ -86,14 +91,15 @@
     "problem_description": "domain",
     "product_context": "Cloudflare - Web Performance & Security",
     "emotional_start": "angry",
-    "context": "Customer added their custom domain to Cloudflare. The dashboard has been showing 'Provisioning SSL' for 24 hours. Now when users visit, browsers show a 'Your connection is not private' (ERR_CERT_COMMON_NAME_INVALID) warning. This is their third attempt. Extremely frustrated by the delay.",
+    "context": "Customer added a custom domain to their Cloudflare zone two days ago ahead of a product launch, and the edge SSL certificate for it has been stuck in Pending Validation (TXT) ever since, so the hostname is proxied through Cloudflare but serves an untrusted certificate, throwing browser security warnings on the checkout page. The customer insists they created the DNS validation record exactly as shown in the dashboard, but the status hasn't changed in over 24 hours. They're on a lower-tier plan without an SLA-backed support queue, so they're anxious this will keep blocking their launch.",
     "key_issues": [
-      "SSL provisioning stuck",
-      "security warning",
-      "custom domain setup fail",
-      "delayed launch"
+      "Edge SSL certificate stuck in Pending Validation (TXT) well past the normal issuance window",
+      "Domain may be on a partial (CNAME) setup rather than full nameserver delegation, so validation requires a manually-placed TXT record",
+      "Possible restrictive CAA record blocking the issuing certificate authorities",
+      "TXT record possibly placed on the wrong label, or a conflicting CNAME on the same _acme-challenge label",
+      "Site shows browser SSL warnings during a time-sensitive launch, with no fast SLA-backed support response"
     ],
-    "resolution_path": "Acknowledge SSL delay + manually re-trigger Let's Encrypt validation + instruct to purge local DNS cache"
+    "resolution_path": "Confirm the zone's setup type and expected validation token, have the customer verify the TXT record's name/value and check for CA-blocking CAA records, correct any misplaced record, and manually re-trigger validation or reissue the certificate rather than waiting on the automatic retry cycle."
   },
   {
     "id": "delivery_partner_rude",
@@ -102,14 +108,15 @@
     "problem_description": "driver",
     "product_context": "Uber - Ride Hailing",
     "emotional_start": "frustrated",
-    "context": "Customer booked an Uber at night. The driver arrived, asked for the drop location, and then demanded extra cash. When the customer refused, the driver cancelled the trip, shouted abusive words, and drove away aggressively. Customer felt unsafe and was charged a cancellation fee.",
+    "context": "A rider took an evening Uber trip home and, partway through the ride, the driver became verbally aggressive after a disagreement over the route — raising his voice, making the rider feel intimidated, and continuing to drive erratically even after being asked to calm down. The rider ended the trip early once it felt safe to do so, got out, and submitted an in-app safety report immediately afterward. They're upset, want confirmation the report is actually being reviewed by a real person, and want assurance they will never be paired with this driver again.",
     "key_issues": [
-      "driver demanded cash",
-      "verbal abuse",
-      "safety concern",
-      "wrongful cancellation fee"
+      "Driver verbal aggression/hostility during an active trip",
+      "Unsafe or erratic driving reported alongside the verbal incident",
+      "Rider uncertain whether the in-app report reaches a human safety reviewer",
+      "Rider wants guaranteed non-matching with the same driver going forward",
+      "Possible fare adjustment for a trip cut short due to safety concerns"
     ],
-    "resolution_path": "Refund cancellation fee + escalate to trust & safety team + suspend driver pending investigation + apologize sincerely"
+    "resolution_path": "A trust & safety agent reviews the trip's GPS/timestamp data, follows up with the rider directly, logs the incident against the driver's record for pattern review, confirms the rider will not be re-matched with that driver, and separately processes a fare adjustment for the shortened trip."
   },
   {
     "id": "promo_code_not_working",
@@ -118,14 +125,15 @@
     "problem_description": "discount",
     "product_context": "Shopify - E-commerce Platform",
     "emotional_start": "frustrated",
-    "context": "Store owner set up a 'BFCM50' discount code for 50% off during Black Friday. Customers are complaining that entering the code at checkout shows 'Discount not applicable'. The store owner is losing hundreds of sales by the minute. Needs urgent fix.",
+    "context": "A customer tried to use the sale code during a merchant's one-day flash sale, but checkout rejected it or the price never dropped right as sale traffic peaked. They're frustrated because the promo banner advertised the discount and they'd already spent time filling their cart, and they're worried the deal will expire before support replies. Some customers complete the purchase anyway at full price and want the difference credited; others abandon the cart and demand the code be fixed immediately.",
     "key_issues": [
-      "promo code failing",
-      "Black Friday sale",
-      "losing sales rapidly",
-      "needs urgent fix"
+      "Discount's storewide or per-customer redemption limit was reached mid-sale, so it still shows Active in admin but is correctly rejecting new uses",
+      "Cart didn't satisfy conditions attached to the code (minimum spend, eligible collection, or customer segment requirement)",
+      "Code isn't configured to combine with an automatic sale discount or another code already in the cart",
+      "High checkout traffic caused caching/latency glitches, or the discount field was hidden inside a collapsed mobile order-summary toggle",
+      "Customer already checked out at full price and is requesting a manual price adjustment or partial refund"
     ],
-    "resolution_path": "Check discount conditions (e.g. minimum cart value, collection specific) + guide merchant to fix the setting + provide link to Shopify status page"
+    "resolution_path": "Look up the specific discount in admin to confirm its active window, eligibility rules, redemption count, and combination settings against the customer's actual cart, and if the code should have applied, manually issue a partial refund or order edit for the discount difference."
   },
   {
     "id": "cancel_retention",
@@ -134,23 +142,24 @@
     "problem_description": "cancellation",
     "product_context": "Spotify - Music Streaming",
     "emotional_start": "neutral",
-    "context": "Customer has been on Spotify Premium for 4 years on a family plan. A duplicate charge on their credit card triggered a billing dispute, and now they want to cancel the entire family plan. They are calm, not angry, and respond well to empathy and a fair retention offer.",
+    "context": "A Premium subscriber of just over four years contacts support after spotting a renewal charge on their card that they swear shouldn't have happened — they're certain they cancelled last month, but logging in shows Premium is still active and was billed again. They already tried disputing it informally and got what felt like a form-letter response, so now they want the charge refunded and the account cancelled outright, and they're explicit that they don't want to hear about any special offer to stay. Underneath the billing complaint is real fatigue: four years of on-time payments and this is how it's handled.",
     "key_issues": [
-      "duplicate charge",
-      "wants to cancel family plan",
-      "long-tenure loyal customer",
-      "open to retention offer"
+      "Customer believes a prior cancellation was submitted but the subscription renewed and charged again anyway",
+      "Wants a refund for what they consider an erroneous charge",
+      "Demands confirmed, final cancellation rather than just a scheduled end-of-period downgrade",
+      "Long tenure raises expectation of goodwill/special handling",
+      "Preemptively refuses retention/discount offers and wants no upsell during the interaction"
     ],
-    "resolution_path": "Acknowledge the billing error + refund the duplicate charge + offer 3 months at 50% off + keep the family plan intact"
+    "resolution_path": "Verify whether the prior cancellation actually completed and confirm the billing owner (direct vs. app-store/carrier billing), issue a one-time goodwill refund if the charge was genuinely erroneous and direct-billed, explain that access is non-prorated so cancellation runs through the end of the paid period, then process the cancellation to a confirmed state and drop any retention offer entirely once declined."
   },
   {
     "id": "tree_6010",
-    "title": "\ud83d\uddfa\ufe0f Tree: VIP Subscription Cancellation Request",
+    "title": "🗺️ Tree: VIP Subscription Cancellation Request",
     "customer_persona": "VIP Gold Customer requesting membership cancellation",
     "problem_description": "Customer says: 'I want to cancel my Gold Membership and get a refund.'",
     "product_context": "Zomato Gold VIP",
     "emotional_start": "frustrated",
-    "context": "Branch A: Customer Outcome: Accepts coupon, stays subscribed. (CSAT 4.8 \u2b50) | Branch B: Customer Outcome: Escalates to supervisor, threatens Twitter. (CSAT 1.5 \u2b50)",
+    "context": "Branch A: Customer Outcome: Accepts coupon, stays subscribed. (CSAT 4.8 ⭐) | Branch B: Customer Outcome: Escalates to supervisor, threatens Twitter. (CSAT 1.5 ⭐)",
     "key_issues": [
       "cancellation",
       "vip_membership",

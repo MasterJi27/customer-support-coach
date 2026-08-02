@@ -17,6 +17,7 @@ from src.core.database import database
 from src.agents.manager_supervisor import manager_supervisor_agent
 from src.agents.auto_pilot_agent import auto_pilot_agent
 from src.modules.hall_of_fame import HallOfFameVault
+from src.rag.knowledge_base import knowledge_base
 from src.api.features import router as features_router, bind_orchestrator
 
 app = FastAPI(title="CoachAI Enterprise API", version="2.0")
@@ -32,6 +33,14 @@ app.add_middleware(
 
 # Global orchestrator instance
 orchestrator = Orchestrator()
+
+# Load the knowledge base into memory. The Streamlit UI did this on its own
+# startup path, but the API server never did — every RAG search here was
+# silently hitting an empty document store and falling straight to the
+# built-in 3-item fallback / AI-synthesis, regardless of how good the real
+# FAQ content was.
+if knowledge_base.count() == 0:
+    knowledge_base.ingest_directory()
 
 # Feature Lab router (all analysis agents, bot, survival game, jira, whisper)
 bind_orchestrator(orchestrator)

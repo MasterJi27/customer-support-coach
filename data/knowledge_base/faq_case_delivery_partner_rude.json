@@ -1,0 +1,13 @@
+{
+  "title": "Handling Rider Reports of Driver Verbal Abuse or Unsafe Driving",
+  "category": "safety",
+  "content": "When a rider reports that a driver was verbally abusive, threatening, or drove unsafely, treat this as a safety-tier ticket, not a routine quality complaint — a fare adjustment alone does not resolve it. First confirm the rider is safe right now; if there's any sign of ongoing danger, direct them to contact local emergency services before anything else. Next, check whether the rider already filed a report via the app; if not, log one yourself so it routes to the trained safety-agent queue rather than general support, and pull the trip record (route, GPS trace, timestamps) to attach to the case. Explain that reports of verbal aggression or unsafe driving are weighed against the driver's history: a single well-substantiated serious report can result in an immediate hold or deactivation pending review, while lower-severity or inconclusive reports are documented and tracked for patterns. Reassure the rider they will not be matched with that driver again while the case is open. Avoid promising a specific disciplinary outcome — deactivation decisions go through a separate review process, and drivers retain a right to appeal. Offer any fare adjustment as a separate, secondary step from the safety investigation itself.",
+  "keywords": [
+    "verbal abuse",
+    "unsafe driving",
+    "safety incident report",
+    "trust and safety",
+    "driver deactivation",
+    "rider safety"
+  ]
+}
