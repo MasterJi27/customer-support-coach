@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Send, ShieldAlert, BookOpen, Lightbulb, Bot, User, Zap, Play,
-  Sparkles, Headphones, Gauge, ChevronRight, Clock, Timer, MessageSquare,
+  Sparkles, Headphones, Gauge, ChevronRight, Clock, Timer, MessageSquare, Mail, X,
 } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
 import FeatureLab from '../components/FeatureLab'
@@ -187,6 +187,9 @@ export default function Dashboard() {
   const [lastTurn, setLastTurn] = useState(null)
   const [apiError, setApiError] = useState('')
   const [startAttempt, setStartAttempt] = useState(0)
+  const [showEndModal, setShowEndModal] = useState(false)
+  const [reportEmail, setReportEmail] = useState('raghavkathuria69@outlook.com')
+  const [endingSession, setEndingSession] = useState(false)
   const startTimeRef = useRef(null)
   const autoStartRef = useRef(false)
   const sessionRef = useRef(null)
@@ -398,18 +401,23 @@ export default function Dashboard() {
     }
   }
 
-  const endCurrentSession = async () => {
+  const openEndModal = () => {
     if (!session) {
       navigate('/reports')
       return
     }
-    setThinking(true)
+    setShowEndModal(true)
+  }
+
+  const confirmEndSession = async (emailToUse) => {
+    setEndingSession(true)
     try {
-      await api.endSession(session.id)
+      await api.endSession(session.id, emailToUse || undefined)
     } catch (err) {
       setApiError(err.message)
     } finally {
-      setThinking(false)
+      setEndingSession(false)
+      setShowEndModal(false)
       navigate('/reports')
     }
   }
@@ -515,7 +523,7 @@ export default function Dashboard() {
               <Bot className="w-3 h-3" /> Manager
             </button>
             <button
-              onClick={endCurrentSession}
+              onClick={openEndModal}
               disabled={thinking}
               className={`inline-flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-full transition-colors ${
                 isLight ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20'
@@ -694,6 +702,62 @@ export default function Dashboard() {
       </div>
 
       <FeatureLab isLight={isLight} lastTurn={lastTurn} onSendReply={sendText} onRefresh={startDemo} sessionId={session?.id} />
+
+      <AnimatePresence>
+        {showEndModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            onClick={() => !endingSession && setShowEndModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.98 }}
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full max-w-md p-6 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-xl' : 'glass-card'}`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${isLight ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                  <Mail className="w-5 h-5" />
+                </div>
+                <button onClick={() => setShowEndModal(false)} className={isLight ? 'text-navy-400 hover:text-navy-600' : 'text-white/40 hover:text-white'}>
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <h3 className={`text-lg font-bold mt-3 ${isLight ? 'text-navy-800' : 'text-white'}`}>End session & email the report</h3>
+              <p className={`text-xs mt-1.5 leading-relaxed ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
+                We'll generate the coaching report and email a full summary — what was discussed, issues found, and coaching tips — to the address below.
+              </p>
+              <input
+                type="email"
+                value={reportEmail}
+                onChange={(e) => setReportEmail(e.target.value)}
+                placeholder="you@example.com"
+                className={`glass-input mt-4 !py-2.5 w-full ${isLight ? '!bg-white' : ''}`}
+              />
+              <div className="flex flex-col sm:flex-row gap-2.5 mt-5">
+                <button
+                  onClick={() => confirmEndSession(reportEmail.trim())}
+                  disabled={endingSession || !reportEmail.trim()}
+                  className={`btn-primary flex-1 !py-3 text-sm ${(endingSession || !reportEmail.trim()) ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                  <Mail className="w-4 h-4" /> {endingSession ? 'Sending…' : 'Send Report & End'}
+                </button>
+                <button
+                  onClick={() => confirmEndSession('')}
+                  disabled={endingSession}
+                  className={`btn-secondary flex-1 !py-3 text-sm ${isLight ? '!bg-white !border-navy-200 !text-navy-600 hover:!bg-navy-50' : ''} ${endingSession ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                  Skip email, just end
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

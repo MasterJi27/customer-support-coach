@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion'
 import { Search, BookOpen, FilePlus2, Upload, Layers, FileText, Sparkles, ChevronDown } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
-import { kbDocuments } from '../data'
+import { kbDocuments as sampleKbDocuments } from '../data'
 import api from '../lib/api'
 
 const container = {
@@ -75,7 +75,7 @@ export default function Knowledge() {
   const isLight = theme === 'light'
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
-  const [docs, setDocs] = useState(docs)
+  const [docs, setDocs] = useState(sampleKbDocuments)
 
   useEffect(() => {
     let mounted = true

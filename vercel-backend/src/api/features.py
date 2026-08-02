@@ -23,6 +23,7 @@ from src.agents.bot_agent import bot_agent
 from src.agents.auto_kb_agent import AutoKBAgent
 from src.agents.jira_bug_generator import jira_bug_generator_agent
 from src.modules.survival_game import survival_game_engine
+from src.tools.composio_backend import composio_backend
 
 router = APIRouter(prefix="/api", tags=["features"])
 
@@ -74,6 +75,68 @@ class PatienceRequest(BaseModel):
 
 class SessionScopedRequest(BaseModel):
     session_id: Optional[str] = None
+
+
+class EndSessionRequest(BaseModel):
+    session_id: Optional[str] = None
+    recipient_email: Optional[str] = None
+
+
+def _resolution_label(rq) -> str:
+    if not rq:
+        return "Completed"
+    if rq.issue_resolved:
+        return "Resolved"
+    if rq.escalation_needed:
+        return "Escalated"
+    return "In progress"
+
+
+def _build_report_email(session, report) -> tuple[str, str]:
+    """Builds (subject, plain-text body) summarizing a finished coaching session."""
+    rq = report.resolution_quality
+    lines = [
+        f"CoachAI Session Report — {session.session_id}",
+        "",
+        f"Agent: {session.config.agent_name}",
+        f"Product / scenario: {session.config.product_context or '(not set)'}",
+        f"Mode: {session.config.mode.value}",
+        f"Turns: {report.total_turns}",
+        f"Overall score: {round(report.overall_score * 100)}%",
+        f"Resolution: {_resolution_label(rq)}",
+        "",
+        "--- What was discussed ---",
+    ]
+    for m in session.messages:
+        speaker = "Customer" if m.role == "customer" else ("Agent" if m.role == "agent" else "System")
+        lines.append(f"{speaker}: {m.content}")
+
+    lines.append("")
+    lines.append("--- Issues / escalation triggers ---")
+    if report.escalation_triggers:
+        lines.extend(f"- {t}" for t in report.escalation_triggers)
+    else:
+        lines.append("None")
+
+    lines.append("")
+    lines.append("--- Knowledge gaps found ---")
+    if report.knowledge_gaps:
+        lines.extend(f"- {g}" for g in report.knowledge_gaps)
+    else:
+        lines.append("None")
+
+    lines.append("")
+    lines.append("--- Coaching tips for next time ---")
+    if report.coaching_recommendations:
+        lines.extend(f"- {t}" for t in report.coaching_recommendations)
+    else:
+        lines.append("None")
+
+    lines.append("")
+    lines.append(f"Generated at: {report.generated_at}")
+
+    subject = f"CoachAI Session Report — {session.session_id} ({round(report.overall_score * 100)}%)"
+    return subject, "\n".join(lines)
 
 
 class SurvivalTurnRequest(BaseModel):
@@ -246,13 +309,25 @@ def manager_whisper(req: WhisperRequest):
 
 
 @router.post("/chat/end")
-def end_session(req: SessionScopedRequest = SessionScopedRequest()):
+def end_session(req: EndSessionRequest = EndSessionRequest()):
     def run():
         session = _session(req.session_id)
         report = orchestrator.end_session()
+
+        email_sent = False
+        email_error = None
+        if req.recipient_email and report:
+            subject, body = _build_report_email(session, report)
+            result = composio_backend.send_email(req.recipient_email, subject, body)
+            email_sent = result.success
+            if not result.success:
+                email_error = result.result_text
+
         return {
             "status": "success",
             "session_id": session.session_id,
             "report": report.model_dump() if report else None,
+            "email_sent": email_sent,
+            "email_error": email_error,
         }
     return _wrap(run)

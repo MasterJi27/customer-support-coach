@@ -39,7 +39,8 @@ export const api = {
   managerTakeover: (message = '', sessionId) =>
     request('/api/chat/manager-takeover', { method: 'POST', body: { message, session_id: sessionId } }),
 
-  endSession: (sessionId) => request('/api/chat/end', { method: 'POST', body: { session_id: sessionId } }),
+  endSession: (sessionId, recipientEmail) =>
+    request('/api/chat/end', { method: 'POST', body: { session_id: sessionId, recipient_email: recipientEmail } }),
 
   viralAnalysis: (message, context = '') =>
     request('/api/analysis/viral', { method: 'POST', body: { message, context } }),
