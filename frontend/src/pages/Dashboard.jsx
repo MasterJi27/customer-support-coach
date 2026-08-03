@@ -188,7 +188,7 @@ export default function Dashboard() {
   const [apiError, setApiError] = useState('')
   const [startAttempt, setStartAttempt] = useState(0)
   const [showEndModal, setShowEndModal] = useState(false)
-  const [reportEmail, setReportEmail] = useState('raghavkathuria69@outlook.com')
+  const [reportEmail, setReportEmail] = useState('raghavkathuria63@gmail.com')
   const [endingSession, setEndingSession] = useState(false)
   const startTimeRef = useRef(null)
   const autoStartRef = useRef(false)
