@@ -678,26 +678,23 @@ export default function Dashboard() {
             })}
           </div>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={railTab}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18 }}
-            >
-              <RailPanel
-                tab={railTab}
-                signals={signals}
-                kb={liveKb || kb}
-                suggestedReply={suggestedReply}
-                escalation={lastTurn?.escalation_risk_pct ?? (lastCoachTurn ? 78 : 61)}
-                riskRows={riskRows}
-                deep={lastTurn}
-                onUseReply={useSuggestedReply}
-              />
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            key={railTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18 }}
+          >
+            <RailPanel
+              tab={railTab}
+              signals={signals}
+              kb={liveKb || kb}
+              suggestedReply={suggestedReply}
+              escalation={lastTurn?.escalation_risk_pct ?? (lastCoachTurn ? 78 : 61)}
+              riskRows={riskRows}
+              deep={lastTurn}
+              onUseReply={useSuggestedReply}
+            />
+          </motion.div>
         </motion.div>
       </div>
 
