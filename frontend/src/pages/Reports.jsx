@@ -99,7 +99,7 @@ export default function Reports() {
   }
   const flagIcons = { info: Info, warning: AlertTriangle, success: CheckCircle2 }
 
-  const handleExport = (format) => {
+  const handleExport = async (format) => {
     const stamp = report.sessionId.replace(/[^A-Za-z0-9]/g, '_')
     if (format === 'csv') {
       downloadCsv(`${stamp}-report.csv`, [
@@ -123,7 +123,7 @@ export default function Reports() {
       ])
       toast.success('Report exported as CSV')
     } else {
-      downloadPdf(`${stamp}-report.pdf`, {
+      await downloadPdf(`${stamp}-report.pdf`, {
         title: `CoachAI Session Report — ${report.sessionId}`,
         subtitle: `${report.date} · ${report.scenario}`,
         sections: [

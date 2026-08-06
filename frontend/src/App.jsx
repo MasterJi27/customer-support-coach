@@ -1,21 +1,25 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, Suspense, lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './components/AuthContext'
 import { useTheme } from './components/ThemeContext'
 import Sidebar from './components/Sidebar'
 import Navbar from './components/Navbar'
-import Landing from './pages/Landing'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Dashboard from './pages/Dashboard'
-import Setup from './pages/Setup'
-import Analytics from './pages/Analytics'
-import Reports from './pages/Reports'
-import Knowledge from './pages/Knowledge'
-import HallOfFame from './pages/HallOfFame'
-import Leaderboard from './pages/Leaderboard'
-import JiraBoard from './pages/JiraBoard'
-import SettingsPage from './pages/Settings'
+
+// Every route is its own chunk — a session only ever needs a handful of these
+// pages, not all 12 plus their dependencies (jspdf/html2canvas, charts, etc.)
+// up front. This is what actually shrank the ~950KB single bundle.
+const Landing = lazy(() => import('./pages/Landing'))
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Setup = lazy(() => import('./pages/Setup'))
+const Analytics = lazy(() => import('./pages/Analytics'))
+const Reports = lazy(() => import('./pages/Reports'))
+const Knowledge = lazy(() => import('./pages/Knowledge'))
+const HallOfFame = lazy(() => import('./pages/HallOfFame'))
+const Leaderboard = lazy(() => import('./pages/Leaderboard'))
+const JiraBoard = lazy(() => import('./pages/JiraBoard'))
+const SettingsPage = lazy(() => import('./pages/Settings'))
 
 function BackgroundBlobs() {
   const { theme } = useTheme()
@@ -59,18 +63,20 @@ function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0 md:ml-20 lg:ml-64 transition-all duration-300">
         <Navbar onMenuClick={() => setMobileOpen(true)} />
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8">
-          <Routes>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/setup" element={<Setup />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/knowledge" element={<Knowledge />} />
-            <Route path="/hall-of-fame" element={<HallOfFame />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/jira" element={<JiraBoard />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
+          <Suspense fallback={<BootSplash />}>
+            <Routes>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/setup" element={<Setup />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/knowledge" element={<Knowledge />} />
+              <Route path="/hall-of-fame" element={<HallOfFame />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/jira" element={<JiraBoard />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </Suspense>
         </main>
       </div>
     </div>
@@ -87,12 +93,14 @@ function PublicRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-        <Route path="/*" element={<AppLayout />} />
-      </Routes>
+      <Suspense fallback={<BootSplash />}>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/*" element={<AppLayout />} />
+        </Routes>
+      </Suspense>
     </AuthProvider>
   )
 }

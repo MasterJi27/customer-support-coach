@@ -1,6 +1,3 @@
-import { jsPDF } from 'jspdf'
-import autoTable from 'jspdf-autotable'
-
 export function downloadCsv(filename, rows) {
   const csv = rows
     .map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(','))
@@ -14,7 +11,13 @@ export function downloadCsv(filename, rows) {
   URL.revokeObjectURL(url)
 }
 
-export function downloadPdf(filename, { title, subtitle = '', sections = [] }) {
+export async function downloadPdf(filename, { title, subtitle = '', sections = [] }) {
+  // jspdf + jspdf-autotable (+ their html2canvas dependency) are ~250KB — only
+  // pull them in when a PDF export is actually requested, not on initial load.
+  const [{ jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ])
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
   let y = 16
 

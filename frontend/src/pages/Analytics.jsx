@@ -121,7 +121,7 @@ export default function Analytics() {
     setLiveSessions(analyticsRes.sessions)
   }, [analyticsRes])
 
-  const handleExport = (format) => {
+  const handleExport = async (format) => {
     if (format === 'csv') {
       downloadCsv(`analytics-${new Date().toISOString().slice(0, 10)}.csv`, [
         ['Metric', 'Value'],
@@ -135,7 +135,7 @@ export default function Analytics() {
       ])
       toast.success('Analytics exported as CSV')
     } else {
-      downloadPdf(`analytics-${new Date().toISOString().slice(0, 10)}.pdf`, {
+      await downloadPdf(`analytics-${new Date().toISOString().slice(0, 10)}.pdf`, {
         title: 'CoachAI Analytics Summary',
         subtitle: `Generated ${new Date().toLocaleString()}`,
         sections: [
