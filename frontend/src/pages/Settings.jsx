@@ -70,7 +70,7 @@ export default function Settings() {
         </p>
       </div>
 
-      <motion.form variants={itemAnim} onSubmit={save} className={`p-6 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
+      <motion.form variants={itemAnim} onSubmit={save} className="glass-card p-6">
         <div className="flex items-center gap-2 mb-6">
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isLight ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-400'}`}>
             <User className="w-4 h-4" />
@@ -113,7 +113,7 @@ export default function Settings() {
         </div>
       </motion.form>
 
-      <motion.div variants={itemAnim} className={`p-6 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
+      <motion.div variants={itemAnim} className="glass-card p-6">
         <div className="flex items-center gap-2 mb-2">
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isLight ? 'bg-cyan-100 text-cyan-600' : 'bg-cyan-500/20 text-cyan-400'}`}>
             <Bell className="w-4 h-4" />
@@ -128,7 +128,7 @@ export default function Settings() {
         </div>
       </motion.div>
 
-      <motion.div variants={itemAnim} className={`p-6 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
+      <motion.div variants={itemAnim} className="glass-card p-6">
         <div className="flex items-center gap-2 mb-4">
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isLight ? 'bg-violet-100 text-violet-600' : 'bg-violet-500/20 text-violet-400'}`}>
             <Palette className="w-4 h-4" />

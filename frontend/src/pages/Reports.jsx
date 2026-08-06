@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight, FileText, Info, AlertTriangle, CheckCircle2, Lightbulb, BookOpen, Download, Star } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
+import { useToast } from '../components/ToastContext'
 import { reportSample } from '../data'
-import api from '../lib/api'
+import { useReportsQuery, mapReport } from '../lib/queries'
+import { downloadCsv, downloadPdf } from '../lib/export'
 
 const container = {
   hidden: { opacity: 0 },
@@ -36,8 +38,8 @@ function ScoreRing({ score }) {
         />
         <defs>
           <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#34d399" />
-            <stop offset="100%" stopColor="#22d3ee" />
+            <stop offset="0%" stopColor="#6366F1" />
+            <stop offset="100%" stopColor="#8B5CF6" />
           </linearGradient>
         </defs>
       </svg>
@@ -79,49 +81,16 @@ function SentimentJourney({ data }) {
 export default function Reports() {
   const { theme } = useTheme()
   const isLight = theme === 'light'
+  const toast = useToast()
+  const { data: reportsRes, isLoading, isError } = useReportsQuery()
   const [report, setReport] = useState(reportSample)
   const [live, setLive] = useState(false)
 
   useEffect(() => {
-    let mounted = true
-    api.reports().then((res) => {
-      if (!mounted || !res.reports?.length) return
-      const raw = res.reports[0]
-      const rq = raw.resolution_quality || null
-      const resolutionLabel = rq
-        ? rq.issue_resolved
-          ? 'Resolved'
-          : rq.escalation_needed
-            ? 'Escalated'
-            : 'In progress'
-        : 'Completed'
-      const journey = (raw.sentiment_journey || []).map((p) => ({
-        label: `Turn ${p.turn ?? ''}`.trim(),
-        // frustration is 0-1 (higher = worse); flip it onto the 1-5 scale the chart expects
-        value: Math.max(1, Math.min(5, 5 - (p.frustration ?? 0) * 4)),
-      }))
-      const flags = [
-        ...(raw.escalation_triggers || []).map((t) => ({ severity: 'warning', text: t })),
-        ...(raw.knowledge_gaps || []).map((t) => ({ severity: 'info', text: `Knowledge gap — ${t}` })),
-      ]
-      const mapped = {
-        sessionId: raw.session_id || 'SESS-?',
-        date: raw.generated_at || new Date().toISOString().slice(0, 16).replace('T', ' '),
-        scenario: raw.agent_name ? `${raw.agent_name} · ${raw.interaction_mode || 'session'}` : 'CoachAI Session',
-        overallScore: Math.round((raw.overall_score ?? 0.86) * 100),
-        resolution: resolutionLabel,
-        duration: 'â€”',
-        turns: raw.total_turns || 0,
-        sentimentJourney: journey.length ? journey : report.sentimentJourney,
-        flags: flags.length ? flags : report.flags,
-        coachingTips: raw.coaching_recommendations?.length ? raw.coaching_recommendations : report.coachingTips,
-        kbUsed: raw.kb_articles_used?.length ? raw.kb_articles_used : report.kbUsed,
-      }
-      setReport(mapped)
-      setLive(true)
-    }).catch(() => { /* keep sample */ })
-    return () => { mounted = false }
-  }, [])
+    if (!reportsRes?.reports?.length) return
+    setReport(mapReport(reportsRes.reports[0]))
+    setLive(true)
+  }, [reportsRes])
 
   const flagStyles = {
     info: isLight ? 'bg-cyan-50 border-cyan-200 text-cyan-700' : 'bg-cyan-500/10 border-cyan-500/20 text-cyan-300',
@@ -130,18 +99,86 @@ export default function Reports() {
   }
   const flagIcons = { info: Info, warning: AlertTriangle, success: CheckCircle2 }
 
+  const handleExport = (format) => {
+    const stamp = report.sessionId.replace(/[^A-Za-z0-9]/g, '_')
+    if (format === 'csv') {
+      downloadCsv(`${stamp}-report.csv`, [
+        ['Field', 'Value'],
+        ['Session ID', report.sessionId],
+        ['Date', report.date],
+        ['Scenario', report.scenario],
+        ['Overall Score', `${report.overallScore}%`],
+        ['Resolution', report.resolution],
+        ['Duration', report.duration],
+        ['Turns', report.turns],
+        ['', ''],
+        ['Sentiment Journey', ''],
+        ...report.sentimentJourney.map(p => [p.label, p.value]),
+        ['', ''],
+        ['Coaching Tips', ''],
+        ...report.coachingTips.map((t, i) => [`Tip ${i + 1}`, t]),
+        ['', ''],
+        ['Knowledge Base Used', ''],
+        ...report.kbUsed.map(kb => [kb, 'Applied']),
+      ])
+      toast.success('Report exported as CSV')
+    } else {
+      downloadPdf(`${stamp}-report.pdf`, {
+        title: `CoachAI Session Report — ${report.sessionId}`,
+        subtitle: `${report.date} · ${report.scenario}`,
+        sections: [
+          {
+            heading: 'Overview',
+            table: {
+              columns: ['Metric', 'Value'],
+              rows: [
+                ['Overall Score', `${report.overallScore}%`],
+                ['Resolution', report.resolution],
+                ['Duration', report.duration],
+                ['Turns', `${report.turns} exchanges`],
+              ],
+            },
+          },
+          {
+            heading: 'Sentiment Journey',
+            table: {
+              columns: ['Phase', 'Sentiment (1-5)'],
+              rows: report.sentimentJourney.map(p => [p.label, p.value]),
+            },
+          },
+          {
+            heading: 'Session Flags',
+            text: report.flags.map(f => `[${f.severity.toUpperCase()}] ${f.text}`).join('\n'),
+          },
+          {
+            heading: 'Coaching Tips',
+            text: report.coachingTips.map((t, i) => `${i + 1}. ${t}`).join('\n'),
+          },
+          {
+            heading: 'Knowledge Base Used',
+            text: report.kbUsed.join(', '),
+          },
+        ],
+      })
+      toast.success('Report exported as PDF')
+    }
+  }
+
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className={`text-2xl font-bold ${isLight ? 'text-navy-800' : 'text-white'}`}>Session Report</h1>
           <p className={`text-sm mt-0.5 ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-            {report.sessionId} Â· {report.date}
+            {report.sessionId} · {report.date}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="btn-secondary !px-4 !py-2.5 text-xs">
-            <Download className="w-3.5 h-3.5" /> Export
+          <button className="btn-secondary !px-4 !py-2.5 text-xs" onClick={() => handleExport('csv')}>
+            <Download className="w-3.5 h-3.5" /> CSV
+          </button>
+          <button className="btn-secondary !px-4 !py-2.5 text-xs" onClick={() => handleExport('pdf')}>
+            <Download className="w-3.5 h-3.5" /> PDF
           </button>
           <Link to="/analytics" className="btn-primary !px-4 !py-2.5 text-xs">
             View Trends <ChevronRight className="w-3.5 h-3.5" />
@@ -243,7 +280,7 @@ export default function Reports() {
           </div>
           <div className={`mt-4 p-4 rounded-2xl border ${isLight ? 'bg-navy-50 border-navy-100' : 'bg-white/[0.04] border-white/[0.06]'}`}>
             <p className={`text-xs ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-              ISO-style QA audit: <span className={`font-semibold ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>PASS (21/24 checks)</span> Â· 3 minor warnings on tone consistency
+              ISO-style QA audit: <span className={`font-semibold ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>PASS (21/24 checks)</span> · 3 minor warnings on tone consistency
             </p>
           </div>
         </motion.div>

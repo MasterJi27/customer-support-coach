@@ -1,4 +1,4 @@
-# CoachAI — Real-Time Customer Support Coaching Assistant
+# CoachAI — Development of AI-Powered Customer Support Assistant with Live Response Guidance
 
 A Streamlit app that sits next to a support agent during a live chat and, after
 every customer message, tells the agent what the customer is feeling, which

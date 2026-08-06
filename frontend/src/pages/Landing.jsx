@@ -51,10 +51,10 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center shadow-glow-emerald">
-                <Headphones className="w-5 h-5 text-navy-900" />
+              <div className="w-9 h-9 rounded-2xl bg-emerald-600 flex items-center justify-center">
+                <Headphones className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-gradient">CoachAI</span>
+              <span className={`text-lg font-bold ${theme === 'light' ? 'text-navy-800' : 'text-white'}`}>CoachAI</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-8">
@@ -108,7 +108,7 @@ export default function Landing() {
                 article, the best reply, and escalation risk — before you hit send.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
-                <Link to="/register" className="btn-primary px-8 py-4 text-base w-full sm:w-auto shadow-glow-emerald">
+                <Link to="/register" className="btn-primary px-8 py-4 text-base w-full sm:w-auto">
                   Get Started Free <ArrowRight className="w-4 h-4" />
                 </Link>
                 <button onClick={handleGuestLogin} className={`btn-secondary px-8 py-4 text-base w-full sm:w-auto ${theme === 'light' ? '!bg-white !border-navy-200 !text-navy-600 hover:!bg-navy-50' : ''}`}>
@@ -150,12 +150,11 @@ export default function Landing() {
               className="hidden lg:flex justify-center relative"
             >
               <div className="relative w-full max-w-lg">
-                <div className="absolute -inset-8 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 blur-3xl rounded-full" />
                 <div className="relative glass-card p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center shadow-glow-emerald">
-                        <Headphones className="w-5 h-5 text-navy-900" />
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center">
+                        <Headphones className="w-5 h-5 text-white" />
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-white">Live Session — Rahul K.</p>
@@ -167,7 +166,7 @@ export default function Landing() {
 
                   <div className="space-y-2">
                     <div className="flex justify-end">
-                      <div className="max-w-[80%] px-4 py-3 rounded-2xl rounded-tr-md bg-gradient-to-br from-emerald-500 to-emerald-600 text-white text-sm">
+                      <div className="max-w-[80%] px-4 py-3 rounded-2xl rounded-tr-md bg-emerald-600 text-white text-sm">
                         I ordered a family meal worth Rs 1200 and the main course is missing!
                       </div>
                     </div>
@@ -209,7 +208,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp} className="text-center max-w-2xl mx-auto mb-14">
             <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${theme === 'light' ? 'text-navy-800' : 'text-white'}`}>
-              Everything an <span className="text-gradient">agent whisperer</span> needs
+              Everything an <span className={theme === 'light' ? 'text-emerald-600' : 'text-emerald-400'}>agent whisperer</span> needs
             </h2>
             <p className={`mt-4 text-base leading-relaxed ${theme === 'light' ? 'text-navy-400' : 'text-white/50'}`}>
               Live coaching signals, practice modes, and post-session reports — designed for contact center teams.
@@ -256,7 +255,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp} className="text-center max-w-2xl mx-auto mb-14">
             <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${theme === 'light' ? 'text-navy-800' : 'text-white'}`}>
-              How it <span className="text-gradient-violet">works</span>
+              How it <span className={theme === 'light' ? 'text-emerald-600' : 'text-emerald-400'}>works</span>
             </h2>
           </motion.div>
 
@@ -276,7 +275,7 @@ export default function Landing() {
                     ? 'bg-white border border-navy-100 shadow-sm'
                     : 'glass-card'
                 }`}>
-                  <span className="text-gradient text-4xl font-extrabold">{step.step}</span>
+                  <span className={`text-4xl font-extrabold ${theme === 'light' ? 'text-emerald-600' : 'text-emerald-400'}`}>{step.step}</span>
                   <h3 className={`mt-3 text-base font-semibold ${theme === 'light' ? 'text-navy-800' : 'text-white'}`}>{step.title}</h3>
                   <p className={`mt-2 text-sm leading-relaxed ${theme === 'light' ? 'text-navy-400' : 'text-white/50'}`}>{step.description}</p>
                 </div>
@@ -288,7 +287,7 @@ export default function Landing() {
           </div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mt-14 text-center">
-            <Link to="/register" className="btn-primary px-8 py-4 text-base shadow-glow-emerald">
+            <Link to="/register" className="btn-primary px-8 py-4 text-base">
               Start coaching for free <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
@@ -298,13 +297,13 @@ export default function Landing() {
       <footer className={`border-t ${theme === 'light' ? 'border-navy-100' : 'border-white/[0.06]'} py-8 px-4`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center">
-              <Headphones className="w-4 h-4 text-navy-900" />
+            <div className="w-7 h-7 rounded-xl bg-emerald-600 flex items-center justify-center">
+              <Headphones className="w-4 h-4 text-white" />
             </div>
             <span className={`text-sm font-bold ${theme === 'light' ? 'text-navy-700' : 'text-white'}`}>CoachAI</span>
           </div>
           <p className={`text-xs ${theme === 'light' ? 'text-navy-400' : 'text-white/30'}`}>
-            Real-Time Customer Support Coaching Assistant
+            Development of AI-Powered Customer Support Assistant with Live Response Guidance
           </p>
         </div>
       </footer>

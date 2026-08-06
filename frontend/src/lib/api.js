@@ -1,14 +1,23 @@
-const BASE_URL = 'https://coachai-backend-swart.vercel.app'
+const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '' : 'https://coachai-backend-swart.vercel.app')
 
 async function request(path, options = {}) {
+  const token = localStorage.getItem('coachai_token')
+  const headers = { 'Content-Type': 'application/json' }
+  if (token) headers.Authorization = `Bearer ${token}`
   const res = await fetch(`${BASE_URL}${path}`, {
     method: options.method || 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
   })
   if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`API ${res.status}: ${text || res.statusText}`)
+    let message = `API ${res.status}: ${res.statusText}`
+    try {
+      const data = await res.json()
+      if (data?.error) message = data.error
+    } catch { /* keep fallback */ }
+    const err = new Error(message)
+    err.status = res.status
+    throw err
   }
   return res.json()
 }
@@ -19,6 +28,21 @@ export const api = {
   reports: () => request('/api/reports'),
   knowledge: () => request('/api/knowledge'),
   hallOfFame: () => request('/api/hall-of-fame'),
+  activity: () => request('/api/activity'),
+
+  register: (name, email, password) =>
+    request('/api/auth/register', { method: 'POST', body: { name, email, password } }),
+
+  login: (email, password) =>
+    request('/api/auth/login', { method: 'POST', body: { email, password } }),
+
+  guestLogin: () =>
+    request('/api/auth/guest', { method: 'POST', body: {} }),
+
+  logout: () =>
+    request('/api/auth/logout', { method: 'POST', body: {} }),
+
+  me: () => request('/api/auth/me'),
 
   startSession: (opts = {}) =>
     request('/api/session/start', {

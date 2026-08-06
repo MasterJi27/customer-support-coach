@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { api } from '../lib/api'
 
 const AuthContext = createContext(null)
-
-const DEMO_USER = { id: 'demo-agent', name: 'Demo Agent', email: 'demo@coachai.app', role: 'Agent' }
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -12,35 +11,58 @@ export function AuthProvider({ children }) {
     }
     return null
   })
-  const [bootstrapping, setBootstrapping] = useState(false)
+  const [bootstrapping, setBootstrapping] = useState(true)
 
   useEffect(() => {
-    const t = setTimeout(() => setBootstrapping(false), 400)
-    return () => clearTimeout(t)
+    const token = localStorage.getItem('coachai_token')
+    if (!token || !user) {
+      setBootstrapping(false)
+      return
+    }
+    api.me()
+      .then(({ user: fresh }) => {
+        setUser(fresh)
+        localStorage.setItem('coachai_user', JSON.stringify(fresh))
+      })
+      .catch(() => {
+        localStorage.removeItem('coachai_token')
+        localStorage.removeItem('coachai_user')
+        setUser(null)
+      })
+      .finally(() => setBootstrapping(false))
   }, [])
 
-  const login = useCallback(async (email, _password) => {
-    const name = email ? email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : DEMO_USER.name
-    const next = { ...DEMO_USER, name, email: email || DEMO_USER.email }
-    setUser(next)
-    localStorage.setItem('coachai_user', JSON.stringify(next))
-    return next
+  const applyAuth = useCallback(({ user: u, token }) => {
+    localStorage.setItem('coachai_token', token)
+    localStorage.setItem('coachai_user', JSON.stringify(u))
+    setUser(u)
+    return u
   }, [])
+
+  const login = useCallback(async (email, password) => {
+    const data = await api.login(email, password)
+    return applyAuth(data)
+  }, [applyAuth])
+
+  const register = useCallback(async (name, email, password) => {
+    const data = await api.register(name, email, password)
+    return applyAuth(data)
+  }, [applyAuth])
 
   const guestLogin = useCallback(async () => {
-    const next = { ...DEMO_USER, name: `${DEMO_USER.name} (Guest)` }
-    setUser(next)
-    localStorage.setItem('coachai_user', JSON.stringify(next))
-    return next
-  }, [])
+    const data = await api.guestLogin()
+    return applyAuth(data)
+  }, [applyAuth])
 
   const logout = useCallback(async () => {
-    setUser(null)
+    try { await api.logout() } catch { /* offline ok */ }
+    localStorage.removeItem('coachai_token')
     localStorage.removeItem('coachai_user')
+    setUser(null)
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, bootstrapping, isAuthenticated: !!user, login, guestLogin, logout }}>
+    <AuthContext.Provider value={{ user, bootstrapping, isAuthenticated: !!user, login, register, guestLogin, logout }}>
       {children}
     </AuthContext.Provider>
   )

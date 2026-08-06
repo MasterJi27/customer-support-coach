@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRight, TrendingUp, ShieldAlert, Target, BookOpen, Trophy, Crown, Medal } from 'lucide-react'
+import { ChevronRight, TrendingUp, ShieldAlert, Target, BookOpen, Trophy, Crown, Medal, Download } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
+import { useToast } from '../components/ToastContext'
 import { scoreTrend, escalationTriggers, improvementAreas, knowledgeGaps, leaderboard, summaryStats as sampleStats } from '../data'
 import { icons } from '../lib/icons'
-import api from '../lib/api'
+import { useAnalyticsQuery } from '../lib/queries'
+import { downloadCsv, downloadPdf } from '../lib/export'
 
 const container = {
   hidden: { opacity: 0 },
@@ -56,7 +58,7 @@ function ScoreTrendChart({ values, labels }) {
         const height = Math.max(val, 5)
         const isHigh = val >= 90
         const isMid = val >= 75
-        const gradient = isHigh ? 'from-emerald-400 to-emerald-500' : isMid ? 'from-orange-400 to-orange-500' : 'from-red-400 to-red-500'
+        const fill = isHigh ? 'bg-emerald-500' : isMid ? 'bg-orange-500' : 'bg-red-500'
         return (
           <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
             <span className={`text-[10px] font-medium ${isLight ? 'text-navy-400' : 'text-white/50'}`}>{val}%</span>
@@ -64,7 +66,7 @@ function ScoreTrendChart({ values, labels }) {
               initial={{ height: 0 }}
               animate={{ height: `${height}%` }}
               transition={{ duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className={`w-full rounded-lg bg-gradient-to-t ${gradient} ${isHigh && !isLight ? 'shadow-glow-emerald' : ''}`}
+              className={`w-full rounded-lg ${fill}`}
               style={{ maxHeight: '160px', minHeight: '20px' }}
             />
             <span className={`text-[10px] ${isLight ? 'text-navy-400' : 'text-white/30'}`}>{labels?.[i] || ''}</span>
@@ -94,32 +96,75 @@ function SectionCard({ icon: Icon, iconCls, title, children }) {
 }
 
 const rankStyles = {
-  1: 'from-amber-400 to-yellow-500',
-  2: 'from-slate-300 to-slate-400',
-  3: 'from-orange-400 to-amber-500',
+  1: 'bg-gradient-to-br from-amber-400 to-yellow-500',
+  2: 'bg-slate-400',
+  3: 'bg-orange-400',
 }
 
 export default function Analytics() {
   const { theme } = useTheme()
   const isLight = theme === 'light'
+  const toast = useToast()
   const [summaryStats, setSummaryStats] = useState(sampleStats)
   const [liveSessions, setLiveSessions] = useState(null)
+  const { data: analyticsRes, isLoading } = useAnalyticsQuery()
 
   useEffect(() => {
-    let mounted = true
-    api.analytics().then((res) => {
-      if (!mounted) return
-      const s = res.summary || {}
-      setSummaryStats([
-        { label: 'Sessions (API)', value: String(s.sessions_today ?? sampleStats[0].value), sub: 'from live backend', icon: 'Headphones', color: 'emerald' },
-        { label: 'Avg Resolution Score', value: `${s.avg_score_pct ?? 86}%`, sub: 'live estimate', icon: 'TrendingUp', color: 'cyan' },
-        { label: 'Escalation Rate', value: `${s.escalation_rate_pct ?? 11}%`, sub: 'live estimate', icon: 'ShieldAlert', color: 'orange' },
-        { label: 'Predicted CSAT', value: String(s.predicted_csat ?? 4.3), sub: 'live estimate', icon: 'Star', color: 'violet' },
+    if (!analyticsRes) return
+    const s = analyticsRes.summary || {}
+    setSummaryStats([
+      { label: 'Sessions (API)', value: String(s.sessions_today ?? sampleStats[0].value), sub: 'from live backend', icon: 'Headphones', color: 'emerald' },
+      { label: 'Avg Resolution Score', value: `${s.avg_score_pct ?? 86}%`, sub: 'live estimate', icon: 'TrendingUp', color: 'cyan' },
+      { label: 'Escalation Rate', value: `${s.escalation_rate_pct ?? 11}%`, sub: 'live estimate', icon: 'ShieldAlert', color: 'orange' },
+      { label: 'Predicted CSAT', value: String(s.predicted_csat ?? 4.3), sub: 'live estimate', icon: 'Star', color: 'violet' },
+    ])
+    setLiveSessions(analyticsRes.sessions)
+  }, [analyticsRes])
+
+  const handleExport = (format) => {
+    if (format === 'csv') {
+      downloadCsv(`analytics-${new Date().toISOString().slice(0, 10)}.csv`, [
+        ['Metric', 'Value'],
+        ...summaryStats.map(s => [s.label, s.value]),
+        ['', ''],
+        ['Rank', 'Agent', 'Team', 'Sessions', 'Avg Score', 'Trend'],
+        ...leaderboard.map(a => [a.rank, a.name, a.team, a.sessions, `${a.avgScore}%`, a.trend]),
+        ['', ''],
+        ['Escalation Trigger', 'Count'],
+        ...escalationTriggers.map(t => [t.label, t.count]),
       ])
-      setLiveSessions(res.sessions)
-    }).catch(() => { /* keep samples */ })
-    return () => { mounted = false }
-  }, [])
+      toast.success('Analytics exported as CSV')
+    } else {
+      downloadPdf(`analytics-${new Date().toISOString().slice(0, 10)}.pdf`, {
+        title: 'CoachAI Analytics Summary',
+        subtitle: `Generated ${new Date().toLocaleString()}`,
+        sections: [
+          {
+            heading: 'Key Metrics',
+            table: {
+              columns: ['Metric', 'Value'],
+              rows: summaryStats.map(s => [s.label, s.value]),
+            },
+          },
+          {
+            heading: 'Agent Floor Leaderboard',
+            table: {
+              columns: ['Rank', 'Agent', 'Team', 'Sessions', 'Avg Score', 'Trend'],
+              rows: leaderboard.map(a => [a.rank, a.name, a.team, a.sessions, `${a.avgScore}%`, a.trend]),
+            },
+          },
+          {
+            heading: 'Escalation Triggers',
+            table: {
+              columns: ['Trigger', 'Count'],
+              rows: escalationTriggers.map(t => [t.label, t.count]),
+            },
+          },
+        ],
+      })
+      toast.success('Analytics exported as PDF')
+    }
+  }
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
@@ -130,9 +175,17 @@ export default function Analytics() {
             Cross-session trends, agent floor leaderboard, and gap analysis
           </p>
         </div>
-        <Link to="/hall-of-fame" className="btn-secondary !px-4 !py-2.5 text-xs">
-          <Trophy className="w-3.5 h-3.5" /> Hall of Fame <ChevronRight className="w-3.5 h-3.5" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <button onClick={() => handleExport('csv')} className="btn-secondary !px-4 !py-2.5 text-xs">
+            <Download className="w-3.5 h-3.5" /> CSV
+          </button>
+          <button onClick={() => handleExport('pdf')} className="btn-secondary !px-4 !py-2.5 text-xs">
+            <Download className="w-3.5 h-3.5" /> PDF
+          </button>
+          <Link to="/hall-of-fame" className="btn-secondary !px-4 !py-2.5 text-xs">
+            <Trophy className="w-3.5 h-3.5" /> Hall of Fame <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -162,7 +215,7 @@ export default function Analytics() {
                       initial={{ width: 0 }}
                       animate={{ width: `${(t.count / 14) * 100}%` }}
                       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                      className="h-full rounded-full bg-gradient-to-r from-orange-400 to-red-500"
+                      className="h-full rounded-full bg-orange-500"
                     />
                   </div>
                 </div>
@@ -235,18 +288,18 @@ export default function Analytics() {
                 className={`flex items-center gap-4 p-3.5 rounded-2xl transition-colors ${
                   agent.rank === 1
                     ? isLight
-                      ? 'bg-gradient-to-r from-amber-50 to-white border border-amber-200'
-                      : 'bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/20'
+                      ? 'bg-amber-50 border border-amber-200'
+                      : 'bg-amber-500/10 border border-amber-500/20'
                     : isLight
                       ? 'hover:bg-navy-50'
                       : 'hover:bg-white/[0.04]'
                 }`}
               >
-                <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${rankStyles[agent.rank] || 'from-navy-500 to-navy-600'} flex items-center justify-center text-navy-900 font-bold text-xs shrink-0`}>
+                <div className={`w-8 h-8 rounded-xl ${rankStyles[agent.rank] || 'bg-navy-500'} flex items-center justify-center text-navy-900 font-bold text-xs shrink-0`}>
                   {agent.rank === 1 ? <Crown className="w-4 h-4" /> : agent.rank}
                 </div>
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center shrink-0">
-                  <span className="text-navy-900 text-xs font-bold">{agent.name.split(' ').map(w => w[0]).join('')}</span>
+                <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0">
+                  <span className="text-white text-xs font-bold">{agent.name.split(' ').map(w => w[0]).join('')}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm font-medium ${isLight ? 'text-navy-800' : 'text-white'}`}>{agent.name}</p>
@@ -255,7 +308,7 @@ export default function Analytics() {
                 <div className="hidden sm:block">
                   <div className={`h-1.5 w-24 rounded-full overflow-hidden ${isLight ? 'bg-navy-100' : 'bg-white/[0.06]'}`}>
                     <div
-                      className={`h-full rounded-full ${agent.avgScore >= 90 ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' : agent.avgScore >= 85 ? 'bg-gradient-to-r from-cyan-400 to-cyan-500' : 'bg-gradient-to-r from-orange-400 to-orange-500'}`}
+                      className={`h-full rounded-full ${agent.avgScore >= 90 ? 'bg-emerald-500' : agent.avgScore >= 85 ? 'bg-cyan-500' : 'bg-orange-500'}`}
                       style={{ width: `${agent.avgScore}%` }}
                     />
                   </div>

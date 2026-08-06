@@ -111,7 +111,7 @@ export default function Knowledge() {
         <div>
           <h1 className={`text-2xl font-bold ${isLight ? 'text-navy-800' : 'text-white'}`}>Knowledge Base</h1>
           <p className={`text-sm mt-0.5 ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-            RAG console â€” the articles your coaching agents recommend
+            RAG console — the articles your coaching agents recommend
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -158,7 +158,7 @@ export default function Knowledge() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search articles by title, content, or keywordâ€¦"
+              placeholder="Search articles by title, content, or keyword…"
               className={`glass-input pl-11 ${isLight ? '!bg-white' : ''}`}
             />
           </div>
@@ -185,9 +185,9 @@ export default function Knowledge() {
       </motion.div>
 
       {filtered.length === 0 ? (
-        <motion.div variants={itemAnim} className={`p-10 text-center rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
+        <motion.div variants={itemAnim} className="p-10 text-center rounded-3xl glass-card">
           <p className={`text-sm ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-            No articles match "{query}" â€” try a different keyword, or draft a new FAQ.
+            No articles match "{query}" — try a different keyword, or draft a new FAQ.
           </p>
         </motion.div>
       ) : (

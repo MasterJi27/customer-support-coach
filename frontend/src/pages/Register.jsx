@@ -7,7 +7,7 @@ import { useTheme } from '../components/ThemeContext'
 
 export default function Register() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { register } = useAuth()
   const { theme } = useTheme()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -28,11 +28,10 @@ export default function Register() {
     }
     setLoading(true)
     try {
-      const user = await login(email, password)
-      localStorage.setItem('coachai_user', JSON.stringify({ ...user, name: name.trim() }))
+      await register(name.trim(), email.trim(), password)
       navigate('/dashboard')
-    } catch {
-      setError('Something went wrong. Try again.')
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Try again.')
       setLoading(false)
     }
   }
@@ -51,8 +50,8 @@ export default function Register() {
         className="w-full max-w-md relative"
       >
         <Link to="/" className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center shadow-glow-emerald">
-            <Headphones className="w-5 h-5 text-navy-900" />
+          <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center">
+            <Headphones className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-bold text-gradient">CoachAI</span>
         </Link>
@@ -89,7 +88,7 @@ export default function Register() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Full name"
-                  className={`glass-input pl-11 ${theme === 'light' ? '!bg-white' : ''}`}
+                  className="glass-input pl-11"
                 />
               </div>
               <div className="relative">
@@ -99,7 +98,7 @@ export default function Register() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
-                  className={`glass-input pl-11 ${theme === 'light' ? '!bg-white' : ''}`}
+                  className="glass-input pl-11"
                 />
               </div>
               <div className="relative">
@@ -109,7 +108,7 @@ export default function Register() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password (min 6 characters)"
-                  className={`glass-input pl-11 ${theme === 'light' ? '!bg-white' : ''}`}
+                  className="glass-input pl-11"
                 />
               </div>
               <button type="submit" disabled={loading} className="btn-primary w-full !py-4">

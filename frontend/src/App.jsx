@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './components/AuthContext'
-import { ThemeProvider, useTheme } from './components/ThemeContext'
+import { useTheme } from './components/ThemeContext'
 import Sidebar from './components/Sidebar'
 import Navbar from './components/Navbar'
 import Landing from './pages/Landing'
@@ -13,6 +13,8 @@ import Analytics from './pages/Analytics'
 import Reports from './pages/Reports'
 import Knowledge from './pages/Knowledge'
 import HallOfFame from './pages/HallOfFame'
+import Leaderboard from './pages/Leaderboard'
+import JiraBoard from './pages/JiraBoard'
 import SettingsPage from './pages/Settings'
 
 function BackgroundBlobs() {
@@ -64,6 +66,8 @@ function AppLayout() {
             <Route path="/reports" element={<Reports />} />
             <Route path="/knowledge" element={<Knowledge />} />
             <Route path="/hall-of-fame" element={<HallOfFame />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/jira" element={<JiraBoard />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
@@ -83,14 +87,12 @@ function PublicRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <ThemeProvider>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-          <Route path="/*" element={<AppLayout />} />
-        </Routes>
-      </ThemeProvider>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+        <Route path="/*" element={<AppLayout />} />
+      </Routes>
     </AuthProvider>
   )
 }

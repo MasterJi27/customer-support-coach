@@ -24,6 +24,7 @@ const sectionGradients = {
   blue: 'from-blue-500/15 to-blue-500/5 border-blue-500/20',
   pink: 'from-pink-500/15 to-pink-500/5 border-pink-500/20',
   slate: 'from-slate-500/15 to-slate-500/5 border-slate-500/20',
+  amber: 'from-amber-500/15 to-amber-500/5 border-amber-500/20',
 }
 
 const dotColors = {
@@ -34,6 +35,7 @@ const dotColors = {
   blue: 'bg-blue-400 shadow-glow-cyan',
   pink: 'bg-pink-400 shadow-glow-pink',
   slate: 'bg-slate-400 shadow-glow-pink',
+  amber: 'bg-amber-400 shadow-glow-orange',
 }
 
 export default function Sidebar({ mobileOpen = false, onClose }) {
@@ -52,8 +54,8 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
     collapsed ? 'w-20' : 'w-64'
   } z-50 flex flex-col ${
     theme === 'light'
-      ? 'bg-white/95 backdrop-blur-2xl border-r border-navy-100'
-      : 'border-r border-white/[0.06] bg-navy-900/95 backdrop-blur-2xl'
+      ? 'bg-white border-r border-navy-200'
+      : 'border-r border-white/[0.06] bg-navy-900'
   } transition-transform duration-300 md:translate-x-0 ${
     mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
   }`
@@ -75,8 +77,8 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div className={`h-16 flex items-center gap-3 px-4 border-b ${
           theme === 'light' ? 'border-navy-100' : 'border-white/[0.06]'
         }`}>
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center shrink-0 shadow-glow-emerald">
-            <Headphones className="w-5 h-5 text-navy-900" />
+          <div className="w-9 h-9 rounded-2xl bg-emerald-600 flex items-center justify-center shrink-0">
+            <Headphones className="w-5 h-5 text-white" />
           </div>
           <AnimatePresence>
             {!collapsed && (

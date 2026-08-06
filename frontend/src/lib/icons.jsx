@@ -2,6 +2,7 @@ import {
   LayoutDashboard, SlidersHorizontal, BarChart3, FileText, BookOpen,
   Trophy, Settings as SettingsIcon, Play, Headphones, Star, TrendingUp,
   ShieldAlert, Bot, Keyboard, History, Brain, MessageSquare,
+  Medal, Ticket, Crown,
 } from 'lucide-react'
 
 export const icons = {
@@ -22,4 +23,7 @@ export const icons = {
   History,
   Brain,
   MessageSquare,
+  Medal,
+  Ticket,
+  Crown,
 }

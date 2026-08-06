@@ -54,7 +54,7 @@ function RiskMeter({ value = 78 }) {
           initial={{ width: 0 }}
           animate={{ width: `${clamped}%` }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className={`h-full rounded-full ${color} ${clamped >= 75 && !isLight ? 'shadow-glow-orange' : ''}`}
+          className={`h-full rounded-full ${color}`}
         />
       </div>
     </div>
@@ -569,8 +569,8 @@ export default function Dashboard() {
                       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                       className={`p-4 rounded-2xl ${
                         isLight
-                          ? 'bg-gradient-to-br from-violet-50 to-cyan-50 border border-violet-200/60'
-                          : 'bg-gradient-to-br from-violet-500/10 to-cyan-500/5 border border-violet-500/20'
+                          ? 'bg-violet-50 border border-violet-200'
+                          : 'bg-violet-500/[0.08] border border-violet-500/20'
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-3">
@@ -605,7 +605,7 @@ export default function Dashboard() {
                           ? isLight
                             ? 'bg-navy-50 border border-navy-100 text-navy-700 rounded-tl-md'
                             : 'bg-white/[0.06] border border-white/[0.08] text-white/80 rounded-tl-md'
-                          : 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-tr-md shadow-glow-emerald'
+                          : 'bg-emerald-600 text-white rounded-tr-md'
                       }`}>
                         {turn.text}
                       </div>

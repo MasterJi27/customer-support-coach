@@ -35,7 +35,7 @@ function ModeCard({ mode, selected, onSelect }) {
         active
           ? isLight
             ? 'bg-white border-2 border-emerald-400 shadow-md'
-            : 'glass-card border-emerald-500/40 shadow-glow-emerald'
+            : 'glass-card border-emerald-500/50'
           : isLight
             ? 'bg-white border border-navy-100 shadow-sm hover:shadow-md'
             : 'glass-card-hover'
@@ -131,7 +131,7 @@ export default function Setup() {
                   selectedTranscript === t.id
                     ? isLight
                       ? 'bg-white border-2 border-emerald-400 shadow-md'
-                      : 'glass-card border-emerald-500/40 shadow-glow-emerald'
+                      : 'glass-card border-emerald-500/50'
                     : isLight
                       ? 'bg-white border border-navy-100 shadow-sm hover:shadow-md'
                       : 'glass-card-hover'
@@ -158,7 +158,7 @@ export default function Setup() {
                     active
                       ? isLight
                         ? 'bg-white border-2 border-emerald-400 shadow-md'
-                        : 'glass-card border-emerald-500/40 shadow-glow-emerald'
+                        : 'glass-card border-emerald-500/50'
                       : isLight
                         ? 'bg-white border border-navy-100 shadow-sm hover:shadow-md'
                         : 'glass-card-hover'

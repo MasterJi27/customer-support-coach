@@ -25,8 +25,8 @@ export default function Login() {
     try {
       await login(email, password)
       navigate('/dashboard')
-    } catch {
-      setError('Something went wrong. Try again.')
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Try again.')
       setLoading(false)
     }
   }
@@ -50,8 +50,8 @@ export default function Login() {
         className="w-full max-w-md relative"
       >
         <Link to="/" className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center shadow-glow-emerald">
-            <Headphones className="w-5 h-5 text-navy-900" />
+          <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center">
+            <Headphones className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-bold text-gradient">CoachAI</span>
         </Link>
@@ -88,7 +88,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
-                  className={`glass-input pl-11 ${theme === 'light' ? '!bg-white' : ''}`}
+                  className="glass-input pl-11"
                 />
               </div>
               <div className="relative">
@@ -98,7 +98,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
-                  className={`glass-input pl-11 ${theme === 'light' ? '!bg-white' : ''}`}
+                  className="glass-input pl-11"
                 />
               </div>
               <div className="flex items-center justify-between text-sm">
@@ -118,7 +118,7 @@ export default function Login() {
               <div className={`flex-1 h-px ${theme === 'light' ? 'bg-navy-100' : 'bg-white/[0.08]'}`} />
             </div>
 
-            <button onClick={handleGuest} className={`btn-secondary w-full ${theme === 'light' ? '!bg-white !border-navy-200 !text-navy-600 hover:!bg-navy-50' : ''}`}>
+            <button onClick={handleGuest} className="btn-secondary w-full">
               Continue as Guest Demo
             </button>
           </div>

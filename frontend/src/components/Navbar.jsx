@@ -7,8 +7,8 @@ import { useNavigate } from 'react-router-dom'
 import { scenarios, kbDocuments, leaderboard } from '../data'
 
 const ACCENTS = [
-  { name: 'emerald', label: 'Emerald', color: '#22c55e' },
-  { name: 'cyan', label: 'Cyan', color: '#06b6d4' },
+  { name: 'emerald', label: 'Indigo', color: '#6366f1' },
+  { name: 'cyan', label: 'Sky', color: '#0ea5e9' },
   { name: 'violet', label: 'Violet', color: '#8b5cf6' },
   { name: 'rose', label: 'Rose', color: '#f43f5e' },
   { name: 'amber', label: 'Amber', color: '#f59e0b' },
@@ -111,8 +111,8 @@ export default function Navbar({ onMenuClick }) {
   return (
     <header className={`h-16 ${
       theme === 'light'
-        ? 'bg-white/80 backdrop-blur-2xl border-b border-navy-100'
-        : 'bg-navy-900/60 backdrop-blur-2xl border-b border-white/[0.06]'
+        ? 'bg-white border-b border-navy-200'
+        : 'bg-navy-900 border-b border-white/[0.06]'
     } flex items-center justify-between px-4 md:px-6 sticky top-0 z-30`}>
       <div className="flex items-center gap-3 w-full max-w-md">
         {onMenuClick && (
@@ -296,30 +296,42 @@ export default function Navbar({ onMenuClick }) {
                 exit={{ opacity: 0, y: 8, scale: 0.96 }}
                 transition={{ duration: 0.15 }}
                 className={`absolute right-0 mt-2 w-80 rounded-3xl overflow-hidden ${
-                  theme === 'light' ? 'bg-white border border-navy-100 shadow-lg' : 'glass-card'
+                  theme === 'light' ? 'bg-white border border-navy-200 shadow-lg' : 'glass-card'
                 }`}
               >
-                <div className={`p-4 border-b ${theme === 'light' ? 'border-navy-100' : 'border-white/[0.06]'}`}>
-                  <p className={`text-sm font-semibold ${theme === 'light' ? 'text-navy-700' : 'text-white/90'}`}>Notifications</p>
+                <div className={`flex items-center justify-between px-4 py-3.5 border-b ${theme === 'light' ? 'border-navy-100' : 'border-white/[0.06]'}`}>
+                  <p className={`text-sm font-semibold ${theme === 'light' ? 'text-navy-800' : 'text-white/90'}`}>Notifications</p>
+                  {notifications.length > 0 && (
+                    <span className={`text-[11px] font-medium ${theme === 'light' ? 'text-emerald-600' : 'text-emerald-400'}`}>
+                      {notifications.length} new
+                    </span>
+                  )}
                 </div>
-                <div className="p-2">
-                  {notifications.map((n, i) => {
-                    const Glyph = notifGlyphs[n.type] || Bell
-                    return (
-                      <div key={i} className={`flex items-start gap-3 p-3 rounded-2xl cursor-pointer ${
-                        theme === 'light' ? 'hover:bg-navy-50' : 'hover:bg-white/[0.04]'
-                      } transition-colors`}>
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${notifIcons[n.type]}`}>
-                          <Glyph className="w-4 h-4" />
+                {notifications.length === 0 ? (
+                  <div className={`px-4 py-8 text-center text-sm ${theme === 'light' ? 'text-navy-400' : 'text-white/30'}`}>
+                    You're all caught up.
+                  </div>
+                ) : (
+                  <div className="p-2 max-h-80 overflow-y-auto scrollbar-hide">
+                    {notifications.map((n, i) => {
+                      const Glyph = notifGlyphs[n.type] || Bell
+                      return (
+                        <div key={i} className={`flex items-start gap-3 px-3 py-2.5 rounded-2xl cursor-pointer transition-colors ${
+                          theme === 'light' ? 'hover:bg-navy-50' : 'hover:bg-white/[0.04]'
+                        }`}>
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${notifIcons[n.type]}`}>
+                            <Glyph className="w-4 h-4" />
+                          </div>
+                          <div className="flex-1 min-w-0 pt-0.5">
+                            <p className={`text-sm leading-snug ${theme === 'light' ? 'text-navy-700' : 'text-white/80'}`}>{n.text}</p>
+                            <p className={`text-xs ${theme === 'light' ? 'text-navy-400' : 'text-white/30'} mt-1`}>{n.time}</p>
+                          </div>
+                          <span className={`w-2 h-2 rounded-full shrink-0 mt-2 ${theme === 'light' ? 'bg-emerald-500' : 'bg-emerald-400'}`} />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-sm ${theme === 'light' ? 'text-navy-600' : 'text-white/80'}`}>{n.text}</p>
-                          <p className={`text-xs ${theme === 'light' ? 'text-navy-400' : 'text-white/30'} mt-0.5`}>{n.time}</p>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                      )
+                    })}
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -332,8 +344,8 @@ export default function Navbar({ onMenuClick }) {
               theme === 'light' ? 'hover:bg-navy-50' : 'hover:bg-white/[0.04]'
             }`}
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center">
-              <User className="w-4 h-4 text-navy-900" />
+            <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
             </div>
             <div className="text-left hidden sm:block">
               <p className={`text-sm font-medium leading-tight ${theme === 'light' ? 'text-navy-700' : 'text-white/90'}`}>{user?.name || 'User'}</p>
