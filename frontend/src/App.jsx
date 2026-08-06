@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, Suspense, lazy } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './components/AuthContext'
 import { useTheme } from './components/ThemeContext'
 import Sidebar from './components/Sidebar'
 import Navbar from './components/Navbar'
+import ErrorBoundary from './components/ErrorBoundary'
 
 // Every route is its own chunk — a session only ever needs a handful of these
 // pages, not all 12 plus their dependencies (jspdf/html2canvas, charts, etc.)
@@ -45,6 +46,7 @@ function BootSplash() {
 function AppLayout() {
   const { isAuthenticated, bootstrapping } = useAuth()
   const { theme } = useTheme()
+  const location = useLocation()
   const setupRan = useRef(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -63,20 +65,24 @@ function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0 md:ml-20 lg:ml-64 transition-all duration-300">
         <Navbar onMenuClick={() => setMobileOpen(true)} />
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8">
-          <Suspense fallback={<BootSplash />}>
-            <Routes>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/setup" element={<Setup />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/knowledge" element={<Knowledge />} />
-              <Route path="/hall-of-fame" element={<HallOfFame />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/jira" element={<JiraBoard />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
-          </Suspense>
+          {/* Keyed by path so a crash on one page doesn't strand the user —
+              navigating to a different page remounts a fresh boundary. */}
+          <ErrorBoundary key={location.pathname}>
+            <Suspense fallback={<BootSplash />}>
+              <Routes>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/setup" element={<Setup />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/knowledge" element={<Knowledge />} />
+                <Route path="/hall-of-fame" element={<HallOfFame />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/jira" element={<JiraBoard />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
     </div>

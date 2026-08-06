@@ -7,6 +7,7 @@ import { useToast } from '../components/ToastContext'
 import { reportSample } from '../data'
 import { useReportsQuery, mapReport } from '../lib/queries'
 import { downloadCsv, downloadPdf } from '../lib/export'
+import SectionCard from '../components/ui/SectionCard'
 
 const container = {
   hidden: { opacity: 0 },
@@ -211,24 +212,12 @@ export default function Reports() {
       </motion.div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <motion.div variants={itemAnim} className={`p-5 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
-          <div className="flex items-center gap-2 mb-2">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isLight ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-400'}`}>
-              <Star className="w-4 h-4" />
-            </div>
-            <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Sentiment Journey</p>
-          </div>
+        <SectionCard icon={Star} color="emerald" title="Sentiment Journey">
           <p className={`text-xs mb-3 ${isLight ? 'text-navy-400' : 'text-white/30'}`}>Customer sentiment (1-5) across the session</p>
           <SentimentJourney data={report.sentimentJourney} />
-        </motion.div>
+        </SectionCard>
 
-        <motion.div variants={itemAnim} className={`p-5 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
-          <div className="flex items-center gap-2 mb-4">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isLight ? 'bg-cyan-100 text-cyan-600' : 'bg-cyan-500/20 text-cyan-400'}`}>
-              <FileText className="w-4 h-4" />
-            </div>
-            <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Session Flags</p>
-          </div>
+        <SectionCard icon={FileText} color="cyan" title="Session Flags">
           <div className="space-y-2.5">
             {report.flags.map((f, i) => {
               const FlagIcon = flagIcons[f.severity] || Info
@@ -240,17 +229,11 @@ export default function Reports() {
               )
             })}
           </div>
-        </motion.div>
+        </SectionCard>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <motion.div variants={itemAnim} className={`p-5 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
-          <div className="flex items-center gap-2 mb-4">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isLight ? 'bg-violet-100 text-violet-600' : 'bg-violet-500/20 text-violet-400'}`}>
-              <Lightbulb className="w-4 h-4" />
-            </div>
-            <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Coaching Tips</p>
-          </div>
+        <SectionCard icon={Lightbulb} color="violet" title="Coaching Tips">
           <ul className="space-y-2.5">
             {report.coachingTips.map((tip, i) => (
               <li key={i} className={`flex items-start gap-2.5 text-sm leading-relaxed ${isLight ? 'text-navy-600' : 'text-white/70'}`}>
@@ -259,15 +242,9 @@ export default function Reports() {
               </li>
             ))}
           </ul>
-        </motion.div>
+        </SectionCard>
 
-        <motion.div variants={itemAnim} className={`p-5 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
-          <div className="flex items-center gap-2 mb-4">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isLight ? 'bg-orange-100 text-orange-600' : 'bg-orange-500/20 text-orange-400'}`}>
-              <BookOpen className="w-4 h-4" />
-            </div>
-            <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Knowledge Base Used</p>
-          </div>
+        <SectionCard icon={BookOpen} color="orange" title="Knowledge Base Used">
           <div className="space-y-2.5">
             {report.kbUsed.map(kb => (
               <div key={kb} className={`flex items-center justify-between px-3.5 py-3 rounded-2xl border ${
@@ -283,7 +260,7 @@ export default function Reports() {
               ISO-style QA audit: <span className={`font-semibold ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>PASS (21/24 checks)</span> · 3 minor warnings on tone consistency
             </p>
           </div>
-        </motion.div>
+        </SectionCard>
       </div>
     </motion.div>
   )

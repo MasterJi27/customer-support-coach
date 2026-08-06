@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom'
 import { ChevronRight, TrendingUp, ShieldAlert, Target, BookOpen, Trophy, Crown, Medal, Download } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
 import { useToast } from '../components/ToastContext'
+import StatCard from '../components/ui/StatCard'
+import SectionCard from '../components/ui/SectionCard'
 import { scoreTrend, escalationTriggers, improvementAreas, knowledgeGaps, leaderboard, summaryStats as sampleStats } from '../data'
-import { icons } from '../lib/icons'
 import { useAnalyticsQuery } from '../lib/queries'
 import { downloadCsv, downloadPdf } from '../lib/export'
 
@@ -17,36 +18,6 @@ const container = {
 const itemAnim = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
-}
-
-function StatCard({ label, value, sub, icon, color }) {
-  const { theme } = useTheme()
-  const isLight = theme === 'light'
-  const Icon = icons[icon] || TrendingUp
-  const iconColors = {
-    emerald: isLight ? 'text-emerald-600 bg-emerald-100' : 'text-emerald-400 bg-emerald-500/20',
-    cyan: isLight ? 'text-cyan-600 bg-cyan-100' : 'text-cyan-400 bg-cyan-500/20',
-    violet: isLight ? 'text-violet-600 bg-violet-100' : 'text-violet-400 bg-violet-500/20',
-    orange: isLight ? 'text-orange-600 bg-orange-100' : 'text-orange-400 bg-orange-500/20',
-    pink: isLight ? 'text-pink-600 bg-pink-100' : 'text-pink-400 bg-pink-500/20',
-  }
-  return (
-    <motion.div
-      variants={itemAnim}
-      className={`p-5 transition-all duration-300 ${
-        isLight ? 'bg-white rounded-3xl shadow-sm border border-navy-100 hover:shadow-md' : 'glass-card-hover'
-      }`}
-    >
-      <div className="flex items-start justify-between mb-3">
-        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${iconColors[color]}`}>
-          <Icon className="w-5 h-5" />
-        </div>
-        <span className={`text-[10px] font-medium uppercase tracking-wider ${isLight ? 'text-navy-400' : 'text-white/30'}`}>{label}</span>
-      </div>
-      <p className={`text-2xl font-bold ${isLight ? 'text-navy-800' : 'text-white'}`}>{value}</p>
-      <p className={`text-xs mt-0.5 ${isLight ? 'text-navy-400' : 'text-white/40'}`}>{sub}</p>
-    </motion.div>
-  )
 }
 
 function ScoreTrendChart({ values, labels }) {
@@ -73,24 +44,6 @@ function ScoreTrendChart({ values, labels }) {
           </div>
         )
       })}
-    </div>
-  )
-}
-
-function SectionCard({ icon: Icon, iconCls, title, children }) {
-  const { theme } = useTheme()
-  const isLight = theme === 'light'
-  return (
-    <div className={`p-5 rounded-3xl ${
-      isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'
-    }`}>
-      <div className="flex items-center gap-2 mb-4">
-        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${iconCls}`}>
-          <Icon className="w-4 h-4" />
-        </div>
-        <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>{title}</p>
-      </div>
-      {children}
     </div>
   )
 }
@@ -196,13 +149,13 @@ export default function Analytics() {
 
       <div className="grid lg:grid-cols-3 gap-6">
         <motion.div variants={itemAnim} className="lg:col-span-2">
-          <SectionCard icon={TrendingUp} iconCls={isLight ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-400'} title="Score Trend — Last 7 Days">
+          <SectionCard icon={TrendingUp} color="emerald" title="Score Trend — Last 7 Days">
             <ScoreTrendChart values={scoreTrend.values} labels={scoreTrend.labels} />
           </SectionCard>
         </motion.div>
 
         <motion.div variants={itemAnim} className="space-y-6">
-          <SectionCard icon={ShieldAlert} iconCls={isLight ? 'bg-red-100 text-red-600' : 'bg-red-500/20 text-red-400'} title="Escalation Triggers">
+          <SectionCard icon={ShieldAlert} color="red" title="Escalation Triggers">
             <div className="space-y-3">
               {escalationTriggers.map(t => (
                 <div key={t.label}>
@@ -226,7 +179,7 @@ export default function Analytics() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        <SectionCard icon={Target} iconCls={isLight ? 'bg-violet-100 text-violet-600' : 'bg-violet-500/20 text-violet-400'} title="Improvement Areas">
+        <SectionCard icon={Target} color="violet" title="Improvement Areas">
           <ul className="space-y-2.5">
             {improvementAreas.map((a, i) => (
               <li key={i} className={`flex items-start gap-2.5 text-sm leading-relaxed ${isLight ? 'text-navy-600' : 'text-white/70'}`}>
@@ -237,7 +190,7 @@ export default function Analytics() {
           </ul>
         </SectionCard>
 
-        <SectionCard icon={BookOpen} iconCls={isLight ? 'bg-cyan-100 text-cyan-600' : 'bg-cyan-500/20 text-cyan-400'} title="Knowledge Gaps">
+        <SectionCard icon={BookOpen} color="cyan" title="Knowledge Gaps">
           <ul className="space-y-2.5">
             {knowledgeGaps.map((g, i) => (
               <li key={i} className={`flex items-start gap-2.5 text-sm leading-relaxed ${isLight ? 'text-navy-600' : 'text-white/70'}`}>
@@ -251,7 +204,7 @@ export default function Analytics() {
           </Link>
         </SectionCard>
 
-        <SectionCard icon={Trophy} iconCls={isLight ? 'bg-orange-100 text-orange-600' : 'bg-orange-500/20 text-orange-400'} title="This Week's Snapshot">
+        <SectionCard icon={Trophy} color="orange" title="This Week's Snapshot">
           <div className="space-y-3">
             {[
               { label: 'Sessions coached', value: '54' },

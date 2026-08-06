@@ -9,6 +9,8 @@ import { useTheme } from '../components/ThemeContext'
 import FeatureLab from '../components/FeatureLab'
 import { scenarios, kbDocuments } from '../data'
 import api from '../lib/api'
+import IconChip from '../components/ui/IconChip'
+import SectionCard from '../components/ui/SectionCard'
 
 const container = {
   hidden: { opacity: 0 },
@@ -542,21 +544,17 @@ export default function Dashboard() {
       )}
 
       <div className="grid lg:grid-cols-3 gap-5 items-start">
-        <motion.div variants={itemAnim} className={`lg:col-span-2 p-5 rounded-3xl ${
-          isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'
-        }`}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2.5">
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isLight ? 'bg-cyan-100 text-cyan-600' : 'bg-cyan-500/20 text-cyan-400'}`}>
-                <MessageSquare className="w-4 h-4" />
-              </div>
-              <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Live Conversation</p>
-            </div>
+        <motion.div variants={itemAnim} className="lg:col-span-2">
+        <SectionCard
+          icon={MessageSquare}
+          color="cyan"
+          title="Live Conversation"
+          action={
             <span className={`text-[10px] px-2 py-1 rounded-full ${isLight ? 'bg-navy-50 text-navy-400 border border-navy-100' : 'bg-white/[0.04] text-white/30 border border-white/[0.06]'}`}>
               {session?.product_context || 'Live session'}
             </span>
-          </div>
-
+          }
+        >
           <div className="space-y-4 max-h-[480px] overflow-y-auto scrollbar-hide pr-1 pb-2">
             <AnimatePresence initial={false}>
               {turns.map((turn, i) => {
@@ -642,18 +640,11 @@ export default function Dashboard() {
               <Send className="w-4 h-4" />
             </button>
           </form>
+        </SectionCard>
         </motion.div>
 
-        <motion.div variants={itemAnim} className={`p-5 rounded-3xl ${
-          isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'
-        }`}>
-          <div className="flex items-center gap-2 mb-4">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isLight ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-400'}`}>
-              <Gauge className="w-4 h-4" />
-            </div>
-            <p className={`text-sm font-semibold ${isLight ? 'text-navy-800' : 'text-white'}`}>Coach Copilot</p>
-          </div>
-
+        <motion.div variants={itemAnim}>
+        <SectionCard icon={Gauge} color="emerald" title="Coach Copilot">
           <div className="flex items-center gap-1.5 p-1 rounded-2xl mb-4 bg-white/[0.04] border border-white/[0.06]">
             {railTabs.map(tab => {
               const Icon = tab.icon
@@ -695,6 +686,7 @@ export default function Dashboard() {
               onUseReply={useSuggestedReply}
             />
           </motion.div>
+        </SectionCard>
         </motion.div>
       </div>
 
@@ -717,9 +709,7 @@ export default function Dashboard() {
               className={`w-full max-w-md p-6 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-xl' : 'glass-card'}`}
             >
               <div className="flex items-center justify-between mb-1">
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${isLight ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-400'}`}>
-                  <Mail className="w-5 h-5" />
-                </div>
+                <IconChip icon={Mail} color="emerald" />
                 <button onClick={() => setShowEndModal(false)} className={isLight ? 'text-navy-400 hover:text-navy-600' : 'text-white/40 hover:text-white'}>
                   <X className="w-4 h-4" />
                 </button>

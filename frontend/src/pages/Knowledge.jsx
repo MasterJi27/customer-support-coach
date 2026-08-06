@@ -2,6 +2,8 @@
 import { motion } from 'framer-motion'
 import { Search, BookOpen, FilePlus2, Upload, Layers, FileText, Sparkles, ChevronDown } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
+import { EmptyState } from '../components/Skeleton'
+import StatCard from '../components/ui/StatCard'
 import { kbDocuments as sampleKbDocuments } from '../data'
 import api from '../lib/api'
 
@@ -125,29 +127,10 @@ export default function Knowledge() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Indexed documents', value: `${docs.length + 12}`, icon: Layers, color: 'emerald' },
-          { label: 'Active articles', value: docs.filter(d => d.status === 'Active').length.toString(), icon: BookOpen, color: 'cyan' },
-          { label: 'Pending approvals', value: docs.filter(d => d.status === 'Pending Review').length.toString(), icon: Sparkles, color: 'orange' },
-          { label: 'Chunks stored', value: '1,208', icon: FileText, color: 'violet' },
-        ].map((stat, i) => {
-          const colorCls = isLight
-            ? ['bg-emerald-100 text-emerald-600', 'bg-cyan-100 text-cyan-600', 'bg-orange-100 text-orange-600', 'bg-violet-100 text-violet-600'][i]
-            : ['bg-emerald-500/20 text-emerald-400', 'bg-cyan-500/20 text-cyan-400', 'bg-orange-500/20 text-orange-400', 'bg-violet-500/20 text-violet-400'][i]
-          return (
-            <motion.div key={stat.label} variants={itemAnim} className={`p-5 rounded-3xl ${
-              isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'
-            }`}>
-              <div className="flex items-start justify-between mb-3">
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${colorCls}`}>
-                  <stat.icon className="w-5 h-5" />
-                </div>
-                <span className={`text-[10px] font-medium uppercase tracking-wider ${isLight ? 'text-navy-400' : 'text-white/30'}`}>{stat.label}</span>
-              </div>
-              <p className={`text-2xl font-bold ${isLight ? 'text-navy-800' : 'text-white'}`}>{stat.value}</p>
-            </motion.div>
-          )
-        })}
+        <StatCard label="Indexed documents" value={`${docs.length + 12}`} icon={Layers} color="emerald" />
+        <StatCard label="Active articles" value={docs.filter(d => d.status === 'Active').length.toString()} icon={BookOpen} color="cyan" />
+        <StatCard label="Pending approvals" value={docs.filter(d => d.status === 'Pending Review').length.toString()} icon={Sparkles} color="orange" />
+        <StatCard label="Chunks stored" value="1,208" icon={FileText} color="violet" />
       </div>
 
       <motion.div variants={itemAnim} className={`p-5 rounded-3xl ${isLight ? 'bg-white border border-navy-100 shadow-sm' : 'glass-card'}`}>
@@ -185,10 +168,12 @@ export default function Knowledge() {
       </motion.div>
 
       {filtered.length === 0 ? (
-        <motion.div variants={itemAnim} className="p-10 text-center rounded-3xl glass-card">
-          <p className={`text-sm ${isLight ? 'text-navy-400' : 'text-white/40'}`}>
-            No articles match "{query}" — try a different keyword, or draft a new FAQ.
-          </p>
+        <motion.div variants={itemAnim} className="rounded-3xl glass-card">
+          <EmptyState
+            icon={Search}
+            title="No articles match your search"
+            description={`Try a different keyword than "${query}", or draft a new FAQ.`}
+          />
         </motion.div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
