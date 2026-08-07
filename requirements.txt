@@ -1,4 +1,4 @@
-# AI Customer Support Coaching Assistant — runtime dependencies
+# Development of AI-Powered Customer Support Assistant with Live Response Guidance — runtime dependencies
 # Core UI
 streamlit>=1.28.0
 

@@ -4,7 +4,7 @@ import sys
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("  AI Customer Support Coaching Assistant")
+    print("  Development of AI-Powered Customer Support Assistant with Live Response Guidance")
     print("=" * 60)
     print("\nStarting the Streamlit UI...\n")
 

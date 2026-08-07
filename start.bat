@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 echo ============================================================
-echo   CoachAI - AI Customer Support Coaching Assistant
+echo   CoachAI - Development of AI-Powered Customer Support Assistant with Live Response Guidance
 echo ============================================================
 echo.
 

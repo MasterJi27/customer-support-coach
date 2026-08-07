@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    app_name: str = "AI Customer Support Coaching Assistant"
+    app_name: str = "Development of AI-Powered Customer Support Assistant with Live Response Guidance"
     version: str = "1.0.0"
     debug: bool = True
 
