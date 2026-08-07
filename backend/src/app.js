@@ -618,7 +618,6 @@ app.post('/api/chat/message', async (req, res) => {
   const custReply = await customerReply(session, agentMsg)
   session.messages.push({ role: 'customer', message: custReply, content: custReply })
   const turn = await coachTurn(session, custReply)
-  session.messages.push({ role: 'agent', message: turn.suggested_response, content: turn.suggested_response, ...turn })
   await persistSession(session)
   logActivity(session.user_id, session.id, 'chat_message', { role: role || 'agent' })
   res.json({
@@ -637,7 +636,7 @@ app.post('/api/chat/autopilot', async (req, res) => {
   const custReply = await customerReply(session, turn.suggested_response)
   session.messages.push({ role: 'customer', message: custReply, content: custReply })
   const turn2 = await coachTurn(session, custReply)
-  session.messages.push({ role: 'agent', message: turn2.suggestion, content: turn2.suggestion, ...turn2 })
+  session.messages.push({ role: 'agent', message: turn2.suggested_response, content: turn2.suggested_response, ...turn2 })
   await persistSession(session)
   logActivity(session.user_id, session.id, 'autopilot', {})
   res.json({
