@@ -314,6 +314,14 @@ class EmailRequest(BaseModel):
     body: str
 
 
+@router.get("/integrations/status")
+def integrations_status():
+    return {
+        "configured": composio_backend.is_configured,
+        "connected_accounts": composio_backend.list_connected_accounts(),
+    }
+
+
 @router.post("/gmail/send")
 def gmail_send(req: EmailRequest):
     def run():

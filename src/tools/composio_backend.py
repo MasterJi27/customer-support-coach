@@ -48,8 +48,17 @@ class ComposioBackendService:
             version=version,
         )
 
+    def _field(self, resp, name, default=None):
+        """tools.execute() returns a plain dict on this SDK version, not an
+        object — getattr(resp, name) silently returns default for every dict
+        response, which is how a Gmail 400 (wrong recipient param) used to
+        get reported back as success=True."""
+        if isinstance(resp, dict):
+            return resp.get(name, default)
+        return getattr(resp, name, default)
+
     def _payload(self, resp) -> dict:
-        data = getattr(resp, "data", None) or {}
+        data = self._field(resp, "data") or {}
         if isinstance(data, str):
             try:
                 data = json.loads(data)
@@ -58,6 +67,17 @@ class ComposioBackendService:
         if isinstance(data, dict):
             return data
         return {"raw": str(data)}
+
+    def _is_ok(self, resp) -> bool:
+        successful = self._field(resp, "successful")
+        return successful is not False
+
+    def _tool_error(self, resp) -> str:
+        err = self._field(resp, "error")
+        if err:
+            return str(err)
+        data = self._payload(resp)
+        return data.get("message") or str(data)
 
     def _fail(self, tool_name: str, arguments: dict, error: Exception) -> ToolCallResult:
         message = str(error)
@@ -98,6 +118,8 @@ class ComposioBackendService:
             arguments["labels"] = labels
         try:
             resp = self._execute("JIRA_CREATE_ISSUE", arguments)
+            if not self._is_ok(resp):
+                return self._fail("jira_create_issue", arguments, RuntimeError(self._tool_error(resp)))
             data = self._payload(resp)
             issue_key = data.get("issue_key") or data.get("key") or str(data or resp)
             return ToolCallResult(
@@ -111,14 +133,15 @@ class ComposioBackendService:
 
     def send_email(self, recipient_email: str, subject: str, body: str, is_html: bool = False) -> ToolCallResult:
         arguments = {
-            "to": [recipient_email],
+            "recipient_email": recipient_email,
             "subject": subject,
             "body": body,
             "is_html": is_html,
         }
         try:
             resp = self._execute("GMAIL_SEND_EMAIL", arguments)
-            data = self._payload(resp)
+            if not self._is_ok(resp):
+                return self._fail("gmail_send_email", arguments, RuntimeError(self._tool_error(resp)))
             return ToolCallResult(
                 tool_name="gmail_send_email",
                 arguments=arguments,
@@ -135,6 +158,8 @@ class ComposioBackendService:
         }
         try:
             resp = self._execute("SLACK_CHAT_POST_MESSAGE", arguments)
+            if not self._is_ok(resp):
+                return self._fail("slack_post_message", arguments, RuntimeError(self._tool_error(resp)))
             data = self._payload(resp)
             ts = data.get("ts") or str(data or resp)
             return ToolCallResult(
