@@ -104,6 +104,9 @@ export const api = {
   jiraTicket: (productContext = 'Zomato - Food Delivery App', sessionId) =>
     request('/api/jira/ticket', { method: 'POST', body: { product_context: productContext, session_id: sessionId } }),
 
+  sendEmail: (recipientEmail, subject, body) =>
+    request('/api/gmail/send', { method: 'POST', body: { recipient_email: recipientEmail, subject, body } }),
+
   survivalStart: () => request('/api/survival/start', { method: 'POST', body: {} }),
 
   survivalTurn: (ticketIndex, replyText, turnTimeSeconds = 0) =>

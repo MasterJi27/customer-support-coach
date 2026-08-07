@@ -43,6 +43,11 @@
   .glass-card-hover {
     @apply glass-card transition-all duration-200 hover:border-white/[0.14] hover:shadow-glass-lg;
   }
+  /* Solid (non-translucent) surface for floating popovers — glass-card's
+     60%-opacity background reads as illegible when page content sits behind it. */
+  .glass-popover {
+    @apply bg-navy-800 border border-white/[0.10] shadow-glass-lg rounded-3xl;
+  }
   .glass-input {
     @apply w-full px-4 py-3.5 rounded-2xl bg-navy-900/60 border border-white/[0.10] text-sm text-white/90
            focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/50

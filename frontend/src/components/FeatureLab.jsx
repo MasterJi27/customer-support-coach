@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   GitBranch, ShieldCheck, Bot, Sparkles, Zap, Ticket, ChevronDown, ChevronUp,
-  RefreshCw, Send, Play,
+  RefreshCw, Send, Play, Mail,
 } from 'lucide-react'
 import { api } from '../lib/api'
 
@@ -69,6 +69,8 @@ export default function FeatureLab({ isLight, lastTurn, onSendReply, onRefresh, 
   const [compliance, setCompliance] = useState(null)
   const [bot, setBot] = useState(null)
   const [jira, setJira] = useState(null)
+  const [email, setEmail] = useState({ recipient: '', subject: '', body: '' })
+  const [emailResult, setEmailResult] = useState(null)
   const [game, setGame] = useState(null)
   const [gameReply, setGameReply] = useState({})
   const [gameBusy, setGameBusy] = useState('')
@@ -112,6 +114,15 @@ export default function FeatureLab({ isLight, lastTurn, onSendReply, onRefresh, 
   const createJira = async () => {
     const r = await run('jira', () => api.jiraTicket(undefined, sessionId))
     if (r) setJira(r)
+  }
+
+  const sendEmail = async () => {
+    if (!email.recipient.trim() || !email.subject.trim() || !email.body.trim()) return
+    const r = await run('email', () => api.sendEmail(email.recipient.trim(), email.subject.trim(), email.body.trim()))
+    if (r) {
+      setEmailResult(r)
+      if (r.sent) setEmail({ recipient: '', subject: '', body: '' })
+    }
   }
 
   const startGame = async () => {
@@ -287,6 +298,49 @@ export default function FeatureLab({ isLight, lastTurn, onSendReply, onRefresh, 
             </div>
             {jira.summary && resultBox(<><span className="font-semibold">{jira.summary}</span><br />{jira.description || ''}</>)}
             {jira.jira_url && <p className={`text-[10px] ${isLight ? 'text-navy-400' : 'text-white/30'}`}>Attached: {jira.jira_url}</p>}
+          </div>
+        )}
+      </SectionCard>
+
+      <SectionCard
+        isLight={isLight} icon={Mail} color={isLight ? 'bg-rose-100 text-rose-600' : 'bg-rose-500/20 text-rose-400'}
+        title="Email Customer" subtitle="Send a real email mid-session — a follow-up, a summary, anything"
+      >
+        <div className="space-y-2">
+          <input
+            type="email"
+            value={email.recipient}
+            onChange={(e) => setEmail((s) => ({ ...s, recipient: e.target.value }))}
+            placeholder="customer@example.com"
+            className={`glass-input !py-2.5 text-xs w-full ${isLight ? '!bg-white' : ''}`}
+          />
+          <input
+            value={email.subject}
+            onChange={(e) => setEmail((s) => ({ ...s, subject: e.target.value }))}
+            placeholder="Subject"
+            className={`glass-input !py-2.5 text-xs w-full ${isLight ? '!bg-white' : ''}`}
+          />
+          <textarea
+            value={email.body}
+            onChange={(e) => setEmail((s) => ({ ...s, body: e.target.value }))}
+            placeholder="Message…"
+            rows={3}
+            className={`glass-input text-xs w-full resize-none ${isLight ? '!bg-white' : ''}`}
+          />
+        </div>
+        <button
+          onClick={sendEmail}
+          disabled={busy === 'email' || !email.recipient.trim() || !email.subject.trim() || !email.body.trim()}
+          className={`btn-primary !px-4 !py-2 text-xs w-full mt-2 ${(busy === 'email' || !email.recipient.trim() || !email.subject.trim() || !email.body.trim()) ? 'opacity-40 pointer-events-none' : ''}`}
+        >
+          <Mail className="w-3.5 h-3.5" /> {busy === 'email' ? 'Sending…' : 'Send Email'}
+        </button>
+        {emailResult && (
+          <div className="mt-3">
+            <Chip isLight={isLight} tone={emailResult.sent ? 'good' : 'bad'}>
+              {emailResult.sent ? 'SENT' : 'FAILED'}
+            </Chip>
+            {emailResult.detail && resultBox(emailResult.detail)}
           </div>
         )}
       </SectionCard>

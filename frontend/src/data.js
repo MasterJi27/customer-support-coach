@@ -336,6 +336,7 @@ export const navConfig = {
     { to: '/hall-of-fame', label: 'Hall of Fame', icon: 'Trophy', color: 'pink' },
     { to: '/leaderboard', label: 'Leaderboard', icon: 'Medal', color: 'amber' },
     { to: '/jira', label: 'Jira Board', icon: 'Ticket', color: 'blue' },
+    { to: '/email', label: 'Email', icon: 'Mail', color: 'rose' },
     { to: '/settings', label: 'Settings', icon: 'Settings', color: 'slate' },
   ],
 }

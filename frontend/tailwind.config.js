@@ -167,6 +167,7 @@ export default {
         'glow-violet': '0 8px 20px rgba(124, 58, 237, 0.16)',
         'glow-orange': '0 8px 20px rgba(217, 119, 6, 0.16)',
         'glow-pink': '0 8px 20px rgba(225, 29, 72, 0.16)',
+        'glow-rose': '0 8px 20px rgba(225, 29, 72, 0.16)',
         'inner-glow': 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
       },
       borderRadius: {

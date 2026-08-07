@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ChevronRight, Play, Bot, Keyboard, History, Check, Sparkles, SlidersHorizontal } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
@@ -266,11 +266,8 @@ export default function Setup() {
 
       <motion.div variants={itemAnim} className="flex flex-wrap items-center gap-3">
         <button onClick={launchSession} className="btn-primary !px-8 !py-4">
-          <Play className="w-4 h-4" /> Launch Session
+          <Play className="w-4 h-4" /> Launch Session <ChevronRight className="w-4 h-4" />
         </button>
-        <Link to="/dashboard" className={`btn-secondary ${isLight ? '!bg-white !border-navy-200 !text-navy-600 hover:!bg-navy-50' : ''}`}>
-          Open Live Console <ChevronRight className="w-4 h-4" />
-        </Link>
       </motion.div>
     </motion.div>
   )

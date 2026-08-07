@@ -308,6 +308,24 @@ def manager_whisper(req: WhisperRequest):
     return _wrap(run)
 
 
+class EmailRequest(BaseModel):
+    recipient_email: str
+    subject: str
+    body: str
+
+
+@router.post("/gmail/send")
+def gmail_send(req: EmailRequest):
+    def run():
+        result = composio_backend.send_email(req.recipient_email, req.subject, req.body)
+        return {
+            "status": "success" if result.success else "error",
+            "sent": result.success,
+            "detail": result.result_text,
+        }
+    return _wrap(run)
+
+
 @router.post("/chat/end")
 def end_session(req: EndSessionRequest = EndSessionRequest()):
     def run():

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Send, ShieldAlert, BookOpen, Lightbulb, Bot, User, Zap, Play,
-  Sparkles, Headphones, Gauge, ChevronRight, Clock, Timer, MessageSquare, Mail, X,
+  Headphones, Gauge, ChevronRight, Clock, Timer, MessageSquare, Mail, X,
 } from 'lucide-react'
 import { useTheme } from '../components/ThemeContext'
 import FeatureLab from '../components/FeatureLab'
@@ -451,9 +451,6 @@ export default function Dashboard() {
             <Link to="/setup" className="btn-primary w-full sm:w-auto !px-6">
               <Play className="w-4 h-4" /> Launch a Session
             </Link>
-            <button onClick={() => { setApiError(''); startDemo() }} disabled={thinking} className={`btn-secondary w-full sm:w-auto ${isLight ? '!bg-white !border-navy-200 !text-navy-600 hover:!bg-navy-50' : ''}`}>
-              <Sparkles className="w-4 h-4" /> {thinking ? 'Starting…' : 'Load Live Session'}
-            </button>
             {apiError && (
               <button onClick={() => { setApiError(''); setStartAttempt(n => n + 1) }} className="text-xs font-medium text-amber-500 hover:text-amber-400">
                 ↻ Retry with saved setup

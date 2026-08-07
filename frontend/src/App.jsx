@@ -20,6 +20,7 @@ const Knowledge = lazy(() => import('./pages/Knowledge'))
 const HallOfFame = lazy(() => import('./pages/HallOfFame'))
 const Leaderboard = lazy(() => import('./pages/Leaderboard'))
 const JiraBoard = lazy(() => import('./pages/JiraBoard'))
+const EmailPage = lazy(() => import('./pages/Email'))
 const SettingsPage = lazy(() => import('./pages/Settings'))
 
 function BackgroundBlobs() {
@@ -78,6 +79,7 @@ function AppLayout() {
                 <Route path="/hall-of-fame" element={<HallOfFame />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="/jira" element={<JiraBoard />} />
+                <Route path="/email" element={<EmailPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>

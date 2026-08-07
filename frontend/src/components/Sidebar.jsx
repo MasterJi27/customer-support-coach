@@ -25,6 +25,7 @@ const sectionGradients = {
   pink: 'from-pink-500/15 to-pink-500/5 border-pink-500/20',
   slate: 'from-slate-500/15 to-slate-500/5 border-slate-500/20',
   amber: 'from-amber-500/15 to-amber-500/5 border-amber-500/20',
+  rose: 'from-rose-500/15 to-rose-500/5 border-rose-500/20',
 }
 
 const dotColors = {
@@ -36,6 +37,7 @@ const dotColors = {
   pink: 'bg-pink-400 shadow-glow-pink',
   slate: 'bg-slate-400 shadow-glow-pink',
   amber: 'bg-amber-400 shadow-glow-orange',
+  rose: 'bg-rose-400 shadow-glow-rose',
 }
 
 export default function Sidebar({ mobileOpen = false, onClose }) {

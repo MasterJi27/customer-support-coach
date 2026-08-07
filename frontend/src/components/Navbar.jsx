@@ -1,10 +1,23 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { Bell, Search, User, ChevronDown, LogOut, Settings as SettingsIcon, Sun, Moon, Menu, TrendingUp, ShieldAlert, Trophy, Palette } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './AuthContext'
 import { useTheme } from './ThemeContext'
 import { useNavigate } from 'react-router-dom'
 import { scenarios, kbDocuments, leaderboard } from '../data'
+import { useReportsQuery, useHallOfFameQuery } from '../lib/queries'
+import api from '../lib/api'
+
+function timeAgo(iso) {
+  const then = iso ? new Date(iso).getTime() : NaN
+  if (Number.isNaN(then)) return ''
+  const mins = Math.floor((Date.now() - then) / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} min ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs} hr ago`
+  return `${Math.floor(hrs / 24)}d ago`
+}
 
 const ACCENTS = [
   { name: 'emerald', label: 'Indigo', color: '#6366f1' },
@@ -26,13 +39,48 @@ export default function Navbar({ onMenuClick }) {
   const navigate = useNavigate()
   const searchInputRef = useRef(null)
   const searchResultsRef = useRef(null)
+  const [kbPending, setKbPending] = useState(0)
+  const { data: reportsRes } = useReportsQuery()
+  const { data: hofRes } = useHallOfFameQuery()
 
-  const notifications = [
-    { text: 'Escalation risk 91% on live session', time: '2 min ago', type: 'escalation' },
-    { text: 'New KB article awaiting approval', time: '25 min ago', type: 'kb' },
-    { text: 'You reached #2 on the floor leaderboard', time: '1 hr ago', type: 'leaderboard' },
-  ]
-  const notifBadge = 3
+  useEffect(() => {
+    let mounted = true
+    api.knowledge().then((res) => {
+      if (!mounted) return
+      setKbPending((res.documents || []).filter(d => d.status === 'Pending Review').length)
+    }).catch(() => { /* keep 0 */ })
+    return () => { mounted = false }
+  }, [])
+
+  const notifications = useMemo(() => {
+    const items = []
+    const reports = reportsRes?.reports || []
+    const escalated = reports.find(r => (r.escalation_triggers || []).length > 0)
+    if (escalated) {
+      items.push({
+        text: `Escalation flagged on session ${escalated.session_id || ''}`.trim(),
+        time: timeAgo(escalated.generated_at),
+        type: 'escalation',
+      })
+    }
+    if (kbPending > 0) {
+      items.push({
+        text: `${kbPending} KB article${kbPending > 1 ? 's' : ''} awaiting approval`,
+        time: timeAgo(new Date().toISOString()),
+        type: 'kb',
+      })
+    }
+    const topEntry = (hofRes?.entries || [])[0]
+    if (topEntry) {
+      items.push({
+        text: `New Hall of Fame entry — ${topEntry.title || 'top session'}`,
+        time: timeAgo(topEntry.archived_at || topEntry.created_at),
+        type: 'leaderboard',
+      })
+    }
+    return items.slice(0, 6)
+  }, [reportsRes, hofRes, kbPending])
+  const notifBadge = notifications.length
 
   const searchResults = (() => {
     if (!query.trim()) return []
@@ -167,7 +215,7 @@ export default function Navbar({ onMenuClick }) {
                 exit={{ opacity: 0, y: 8, scale: 0.96 }}
                 transition={{ duration: 0.15 }}
                 className={`absolute top-full mt-2 left-0 right-0 rounded-2xl overflow-hidden z-50 ${
-                  theme === 'light' ? 'bg-white border border-navy-100 shadow-lg' : 'glass-card'
+                  theme === 'light' ? 'bg-white border border-navy-100 shadow-lg' : 'glass-popover'
                 }`}
                 ref={searchResultsRef}
               >
@@ -239,7 +287,7 @@ export default function Navbar({ onMenuClick }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.96 }}
                 transition={{ duration: 0.15 }}
-                className={`absolute right-0 mt-2 rounded-3xl p-4 w-56 ${theme === 'light' ? 'bg-white border border-navy-100 shadow-lg' : 'glass-card'}`}
+                className={`absolute right-0 mt-2 rounded-3xl p-4 w-56 ${theme === 'light' ? 'bg-white border border-navy-100 shadow-lg' : 'glass-popover'}`}
               >
                 <p className={`text-sm font-semibold mb-3 ${theme === 'light' ? 'text-navy-700' : 'text-white/90'}`}>Accent color</p>
                 <div className="grid grid-cols-5 gap-3">
@@ -296,7 +344,7 @@ export default function Navbar({ onMenuClick }) {
                 exit={{ opacity: 0, y: 8, scale: 0.96 }}
                 transition={{ duration: 0.15 }}
                 className={`absolute right-0 mt-2 w-80 rounded-3xl overflow-hidden ${
-                  theme === 'light' ? 'bg-white border border-navy-200 shadow-lg' : 'glass-card'
+                  theme === 'light' ? 'bg-white border border-navy-200 shadow-lg' : 'glass-popover'
                 }`}
               >
                 <div className={`flex items-center justify-between px-4 py-3.5 border-b ${theme === 'light' ? 'border-navy-100' : 'border-white/[0.06]'}`}>
@@ -361,7 +409,7 @@ export default function Navbar({ onMenuClick }) {
                 exit={{ opacity: 0, y: 8, scale: 0.96 }}
                 transition={{ duration: 0.15 }}
                 className={`absolute right-0 mt-2 w-56 rounded-3xl overflow-hidden ${
-                  theme === 'light' ? 'bg-white border border-navy-100 shadow-lg' : 'glass-card'
+                  theme === 'light' ? 'bg-white border border-navy-100 shadow-lg' : 'glass-popover'
                 }`}
               >
                 <div className={`p-4 border-b ${theme === 'light' ? 'border-navy-100' : 'border-white/[0.06]'}`}>

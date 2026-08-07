@@ -111,6 +111,7 @@ def root():
             "POST /api/analysis/auto-kb",
             "POST /api/bot/reply",
             "POST /api/jira/ticket",
+            "POST /api/gmail/send",
             "POST /api/survival/start",
             "POST /api/survival/turn",
             "POST /api/manager/whisper",
