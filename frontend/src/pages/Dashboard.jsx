@@ -264,20 +264,22 @@ export default function Dashboard() {
     try {
       let cfg = {}
       try { cfg = JSON.parse(localStorage.getItem('coachai_session_config') || '{}') } catch { /* ignore */ }
-      const resolvedMeta = {
-        title: cfg.scenario_title || scenario.title,
-        persona: cfg.scenario_persona || scenario.persona,
-      }
       const res = await api.startSession({
         mode: cfg.mode || 'simulator',
         agent_name: cfg.agent_name || 'Support Agent',
         product_context: cfg.product_context || 'Zomato Food Delivery',
-        scenario_choice: cfg.scenario_choice || 'delivery_delay',
+        scenario_choice: cfg.scenario_choice || 'order_not_received',
+        scenario_title: cfg.scenario_title,
+        scenario_persona: cfg.scenario_persona,
       })
       localStorage.removeItem('coachai_session_config')
       startTimeRef.current = Date.now()
       setElapsed(0)
       setSession({ id: res.session_id, product_context: res.product_context })
+      const resolvedMeta = {
+        title: res.scenario?.title || cfg.scenario_title || scenario.title,
+        persona: res.scenario?.persona || cfg.scenario_persona || scenario.persona,
+      }
       setScenarioMeta(resolvedMeta)
       setTurns(
         (res.messages || []).map((m, i) => ({

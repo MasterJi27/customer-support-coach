@@ -160,35 +160,63 @@ const SURVIVAL_TICKETS = [
 let survivalState = { active: false, index: 0, score: 0, replies: [], startedAt: 0 }
 
 const SCENARIOS = {
-  delivery_delay: { problem: 'Your order is 45 minutes late. The rider is stuck in traffic and has not updated the app.', persona: 'Hungry and annoyed customer' },
-  wrong_order: { problem: 'The customer received a completely different order from what was ordered.', persona: 'Confused customer' },
-  refund_request: { problem: 'The customer wants an immediate refund for a cancelled order that was still charged.', persona: 'Frustrated customer' },
-  billing_issue: { problem: 'The customer noticed a double charge on their credit card for a subscription.', persona: 'Worried customer' },
-  quality_complaint: { problem: 'The food arrived cold and the customer is threatening to post a bad review.', persona: 'Disappointed customer' },
-  rude_agent: { problem: 'The customer had a previous rude experience and is now demanding a manager.', persona: 'Angry customer' },
+  order_not_received: {
+    problem: 'Customer ordered a family meal worth Rs 1200 from Zomato. The delivery arrived after 45 minutes, but the main course items (worth Rs 700) are missing from the sealed bag. Customer wants an immediate redelivery or full refund, not just a partial refund coupon.',
+    persona: 'Hangry customer who waited 45 minutes for their dinner, only to find the main course missing.',
+    title: 'Zomato: Missing Items in Food Delivery',
+    product: 'Zomato — Food Delivery App',
+  },
+  wrong_order: {
+    problem: 'Customer upgraded their AWS account EC2 instances. Their corporate credit card was charged twice (totaling $3,000 instead of $1,500). Their billing dashboard still shows pending. They have screenshots of the bank SMS. Needs excess charge refunded immediately to avoid accounting issues.',
+    persona: 'Professional DevOps engineer. Upgraded their EC2 instances but was charged twice on their corporate credit card.',
+    title: 'AWS: Billing Double Charge on EC2 Upgrades',
+    product: 'Amazon Web Services (AWS) — Cloud Infrastructure',
+  },
+  payment_failed_deducted: {
+    problem: 'Store owner reports that their Stripe API integration showed a "Payment Failed" (HTTP 402) error for a $500 transaction. However, the end-user bank account was debited. The end-user is threatening the store owner with legal action.',
+    persona: 'Anxious e-commerce store owner using Stripe. A customer tried to pay, the API returned an error, but the customer bank account was deducted.',
+    title: 'Stripe: API Payment Failed But Money Deducted',
+    product: 'Stripe — Payment Gateway',
+  },
+  late_delivery_angry: {
+    problem: 'Customer deployed a Next.js app to Vercel. The build logs show success, but the production URL returns a 404. The site is down for 10,000 active users. They are on the Pro plan and demand immediate rollback or edge caching fix.',
+    persona: 'Stressed frontend developer who pushed a critical hotfix to Vercel, but the production build is returning 404 for all users.',
+    title: 'Vercel: Production Deployment Failing (404)',
+    product: 'Vercel — Frontend Cloud Platform',
+  },
+  cancel_retention: {
+    problem: 'Customer has been on Premium for 4 years on a family plan. A duplicate charge on the credit card triggered a dispute and now they want to cancel everything. They respond well to empathy and a retention offer.',
+    persona: 'Long-time subscriber who hit a billing dispute and now wants to cancel the family plan.',
+    title: 'Spotify: Premium Cancel + Retention Offer',
+    product: 'Spotify — Music Streaming',
+  },
 }
 
 function rand(arr) { return arr[Math.floor(Math.random() * arr.length)] }
 
-function defaultScenario(choice) {
-  const s = SCENARIOS[choice] || SCENARIOS.delivery_delay
+function defaultScenario(choice, overrides = {}) {
+  const s = SCENARIOS[choice] || SCENARIOS.order_not_received
   return {
-    title: choice === 'custom' ? 'Custom Scenario' : `Scenario: ${choice.replace(/_/g, ' ')}`,
-    persona: s.persona,
+    title: overrides.title || s.title || `Scenario: ${choice.replace(/_/g, ' ')}`,
+    persona: overrides.persona || s.persona,
     problem: s.problem,
+    product: s.product,
     opening: `Hi. ${s.problem} ${rand(['I need this fixed right now.', 'This is unacceptable.', 'Please tell me how you will solve this.'])}`,
   }
 }
 
 function seedSession(opts) {
   const id = `sess_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
-  const scenario = defaultScenario(opts.scenario_choice || 'delivery_delay')
+  const scenario = defaultScenario(opts.scenario_choice || 'order_not_received', {
+    title: opts.scenario_title,
+    persona: opts.scenario_persona,
+  })
   return {
     id,
     mode: opts.mode || 'simulator',
     agent_name: opts.agent_name || 'Support Agent',
-    product_context: opts.product_context || 'Zomato Food Delivery',
-    scenario_choice: opts.scenario_choice || 'delivery_delay',
+    product_context: opts.product_context || scenario.product || 'Zomato Food Delivery',
+    scenario_choice: opts.scenario_choice || 'order_not_received',
     scenario,
     messages: [],
     created_at: new Date().toISOString(),
@@ -603,6 +631,7 @@ app.post('/api/session/start', async (req, res) => {
   res.json({
     session_id: session.id,
     product_context: session.product_context,
+    scenario: { title: session.scenario.title, persona: session.scenario.persona },
     messages: session.messages.map(m => ({ role: m.role, content: m.message })),
     last_turn: turn,
   })

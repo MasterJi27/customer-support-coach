@@ -55,7 +55,9 @@ export const api = {
         mode: opts.mode || 'simulator',
         agent_name: opts.agent_name || 'Support Agent',
         product_context: opts.product_context || 'Zomato Food Delivery',
-        scenario_choice: opts.scenario_choice || 'delivery_delay',
+        scenario_choice: opts.scenario_choice || 'order_not_received',
+        scenario_title: opts.scenario_title,
+        scenario_persona: opts.scenario_persona,
       },
     }),
 
