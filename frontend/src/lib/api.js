@@ -10,10 +10,14 @@ async function request(path, options = {}) {
     body: options.body ? JSON.stringify(options.body) : undefined,
   })
   if (!res.ok) {
-    let message = `API ${res.status}: ${res.statusText}`
+    let message = `API ${res.status}${res.statusText ? `: ${res.statusText}` : ''}`
     try {
       const data = await res.json()
-      if (data?.error) message = data.error
+      // FastAPI's HTTPException serializes as {"detail": "..."}, not {"error": "..."}
+      const detail = data?.detail
+      if (typeof detail === 'string') message = detail
+      else if (Array.isArray(detail) && detail[0]?.msg) message = detail[0].msg
+      else if (data?.error) message = data.error
     } catch { /* keep fallback */ }
     const err = new Error(message)
     err.status = res.status
