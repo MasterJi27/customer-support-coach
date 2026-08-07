@@ -1,0 +1,14 @@
+{
+  "title": "Handling Spoiled or Rotten Perishable Item Complaints",
+  "category": "quality",
+  "content": "When a customer reports a spoiled, rotten, or expired perishable item (milk, eggs, dairy, produce, meat) delivered via quick-commerce, treat it as a quality and food-safety issue, not a routine wrong-item return. Ask what was received, when it was opened, and whether a photo exists showing the item alongside its packaging or expiry label — photo evidence taken close to delivery time is the strongest basis for fast-tracking approval. However, a clear, consistent description of visible spoilage (curdling, foul odor, mold, discoloration, sliminess) can still support a refund without a photo, particularly if the item was discarded for safety reasons before the customer realized the issue. Because a spoiled perishable cannot be safely re-delivered same day, default to a full refund to the original payment method rather than an immediate replacement, unless the customer explicitly prefers a replacement on a future order. Do not ask the customer to physically return spoiled food. If this is a repeat complaint tied to the same customer, SKU, or fulfillment hub within a short window, flag it to the quality/ops escalation team — recurring reports from one dark store usually indicate a cold-chain or storage lapse rather than isolated bad luck. Apologize for the experience, avoid deflecting responsibility, and log the specific item, batch/expiry detail, and hub location for traceability.",
+  "keywords": [
+    "spoiled milk",
+    "rotten vegetables",
+    "expired product",
+    "perishable refund",
+    "quality complaint",
+    "dark store cold chain",
+    "replacement vs refund"
+  ]
+}

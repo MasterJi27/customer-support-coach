@@ -1,0 +1,14 @@
+{
+  "title": "Production Deployment Shows 404 Despite a Successful (Ready) Build",
+  "category": "deployment",
+  "content": "When a customer reports a Ready deployment returning 404 in production, the first thing to clarify is that a Ready status only confirms the build completed — it does not confirm the routing layer resolved correctly. Requests are matched against routing metadata generated at build time (Framework Preset, Output Directory, rewrites/redirects), not a live filesystem scan, so a 404 can appear even though every file compiled cleanly.\n\nTriage in this order:\n1. Compare the auto-generated deployment URL against the custom domain. If only the custom domain 404s, this is a DNS/alias problem, not a build problem.\n2. Open the deployment's Output tab and confirm the expected pages or serverless functions are actually present. An empty or unexpected output usually traces back to a wrong Output Directory or Root Directory setting — common after monorepo restructuring or a Framework Preset that reset to Other.\n3. Check Runtime Logs filtered to 404 responses. No function invocation at all points to a routing/rewrite gap rather than a code failure.\n\nFor fastest recovery, don't wait to finish root-causing: use Instant Rollback to restore the last known-good deployment immediately. This preserves current environment variables and disables auto-promotion until explicitly undone, so fix the underlying setting on a preview deployment before re-promoting.",
+  "keywords": [
+    "404 after successful build",
+    "instant rollback",
+    "output directory misconfiguration",
+    "framework preset",
+    "routing metadata",
+    "runtime logs 404",
+    "monorepo root directory"
+  ]
+}

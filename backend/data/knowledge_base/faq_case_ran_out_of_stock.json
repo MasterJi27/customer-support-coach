@@ -1,0 +1,14 @@
+{
+  "title": "Resolving Custom Hostname Certificates Stuck in Pending Validation",
+  "category": "ssl",
+  "content": "When an edge certificate sits in Pending Validation past the normal issuance window (typically minutes to a few hours, though free-tier issuance can take up to ~24 hours), the root cause is almost always one of a small set of things.\n\nFirst, confirm the setup type. On a full (nameservers-delegated) zone, domain control validation is handled automatically. On a partial/CNAME setup, the customer must manually publish the exact TXT (or HTTP) validation token generated — a mismatched, missing, or mistyped record is the single most common cause of a stuck status.\n\nSecond, check CAA records with a DNS lookup. If a CAA record exists and does not explicitly authorize the certificate authority being used, the CA will silently refuse to issue and the cert will hang indefinitely. CAA records on a parent/apex domain are inherited by subdomains, so check the whole tree.\n\nThird, look for a CNAME conflict: DNS does not allow other records to coexist on a label that already has a CNAME, so an _acme-challenge CNAME can block a needed TXT record on the same name.\n\nFourth, rule out recent DNSSEC or nameserver changes, which can break resolution for validating resolvers.\n\nIf all DNS looks correct and enough propagation time has passed, disable and re-enable the SSL setting (or reissue the certificate) to force a fresh validation attempt before escalating.",
+  "keywords": [
+    "pending validation",
+    "SSL certificate",
+    "domain control validation",
+    "CAA record",
+    "custom hostname",
+    "TXT record",
+    "certificate stuck"
+  ]
+}

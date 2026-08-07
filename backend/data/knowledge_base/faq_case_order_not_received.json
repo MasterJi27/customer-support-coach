@@ -1,0 +1,14 @@
+{
+  "title": "Handling Missing Item Complaints on Delivered Orders",
+  "category": "refunds",
+  "content": "When a customer reports that one or more items from their order did not arrive, treat it as a distinct \"missing item\" case rather than a fully undelivered order. First, confirm exactly which item(s) are missing and cross-check against the restaurant's invoice or packing slip. Request a photo of the received items/packaging if the customer hasn't already provided one — this evidence meaningfully speeds up verification and is typically required before the case is escalated to the restaurant partner for confirmation. Customers should raise the issue within the app's short post-delivery reporting window (commonly a 24-48 hour industry norm); claims raised well outside this window are harder to substantiate and may be rejected.\n\nBecause re-cooking and re-dispatching a single missing item is rarely feasible once the delivery partner has left the restaurant, the standard resolution is a partial, item-level refund rather than redelivery. Full-order refunds are reserved for cases where the entire order failed to arrive or was substantively wrong. The refund should be proportional to the price of the missing item(s) only, not the total order value.\n\nRefunds can go to the original payment method or as wallet credit: wallet/UPI refunds are usually fastest (near-instant to ~24-48 hours), while card or net-banking refunds can take several business days depending on the issuing bank. Log every missing-item case against the restaurant's order-accuracy record so repeat offenders trigger a quality review, not just recurring one-off refunds.",
+  "keywords": [
+    "missing item",
+    "partial refund",
+    "problem order",
+    "incomplete order",
+    "item-level refund",
+    "wallet credit",
+    "report an issue"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Customer Sees a Bank Charge for a Payment That Shows as Failed/Declined",
+  "category": "payments",
+  "content": "Customers sometimes report seeing a charge or pending line on their bank statement right after getting a decline message at checkout, even though the dashboard shows the payment as failed and no successful charge object exists. This happens because authorization and capture are separate steps: the issuing bank places a temporary hold the moment the card network approves the initial authorization request, before the gateway's own decision is applied. If the payment is declined afterward — due to a fraud risk block, a CVC/AVS mismatch, or a failed 3D Secure step — the gateway never captures or moves the held funds. The result is a real hold on the cardholder's available balance with no matching successful charge on the merchant's side.\n\nBecause the gateway never took custody of these funds once the issuer placed the hold, only the issuing bank can release it early. These holds typically clear on their own within 3-5 business days as part of standard interchange processing (some banks can take close to a week); the merchant and gateway cannot speed this up.\n\nWhen handling this ticket: verify in the dashboard that the charge is failed, canceled, or uncaptured; reassure the customer that no funds were actually taken by the merchant; give the standard hold-release window; and tell them to contact their card issuer directly if the hold is still showing after that window, since the issuer can see and release it faster than support can from the merchant side.",
+  "keywords": [
+    "authorization hold",
+    "pre-authorization",
+    "pending charge",
+    "payment declined",
+    "payment intent failed",
+    "uncaptured funds"
+  ]
+}
