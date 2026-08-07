@@ -242,8 +242,47 @@ async function coachTurn(session, customerMsg) {
   if (senti.viral_threat === 'High') tips.push('Public exposure threat — keep replies measured and calm.')
   if (kb.title && !kb.title.includes('No direct')) tips.push(`Reference KB: ${kb.title}`)
   else tips.push('No KB match — flag a knowledge gap after the session.')
+
+  const churn = senti.churn_risk_pct
+  const viral = senti.viral_threat === 'High' ? Math.max(35, senti.escalation_risk_pct - 10) : senti.escalation_risk_pct >= 60 ? 25 : 0
+  const fraud = agents.fraudAnalysis(customerMsg).fraud_risk === 'High' ? Math.max(50, senti.escalation_risk_pct) : senti.escalation_risk_pct >= 65 ? 15 : 0
+  const csat = Math.max(1, Math.min(5, Math.round((4.2 - senti.frustration_pct / 30) * 10) / 10))
+
   return {
-    kb,
+    customer_message: customerMsg,
+    sentiment: senti.sentiment,
+    intent: senti.intent,
+    frustration_pct: senti.frustration_pct,
+    satisfaction_trend: 'stable',
+    escalation_risk_pct: senti.escalation_risk_pct,
+    escalation_reasoning: senti.escalation_risk_pct >= 60 ? 'High frustration combined with urgency — resolve now.' : '',
+    escalation_strategies: senti.escalation_risk_pct >= 60 ? ['Authorize resolution', 'No more probing questions', 'Offer concrete timeline'] : [],
+    predicted_csat: csat,
+    churn_risk_pct: churn,
+    csat_drivers: [],
+    viral_risk_pct: viral,
+    platform_risk: viral >= 40 ? 'Public blast risk' : '',
+    pr_statement: viral >= 40 ? 'We sincerely apologize for this experience. We are resolving it with top priority right now.' : '',
+    fraud_risk_pct: fraud,
+    fraud_category: fraud >= 60 ? 'refund_fraud' : '',
+    fraud_protocol: fraud >= 60 ? 'Verify identity and transaction history before any refund.' : '',
+    defection_risk_pct: churn,
+    competitor_mentioned: null,
+    retention_counter_offer: churn >= 50 ? 'Offer a retention incentive once the core issue is resolved.' : '',
+    internal_monologue: '',
+    true_intent: senti.intent,
+    escalation_trigger: senti.escalation_risk_pct >= 75 ? `Escalation risk ${senti.escalation_risk_pct}%` : '',
+    coaching_tips: tips,
+    suggested_response: suggestion.reply,
+    suggested_actions: [],
+    quality_score: Math.round((0.7 + (1 - senti.frustration_pct / 100) * 0.3) * 100) / 100,
+    clarity_pct: Math.max(50, 100 - Math.round(senti.frustration_pct * 0.4)),
+    tone_quality: 'Professional',
+    kb: {
+      title: kb.title || '',
+      content: kb.content || '',
+      source: kb.source || '',
+    },
     entries: [
       { key: 'KB Match', text: kb.title || 'No match', value: kb.score || '' },
       { key: 'Sentiment', text: senti.sentiment, value: `${senti.frustration_pct}% frustrated` },
@@ -251,9 +290,6 @@ async function coachTurn(session, customerMsg) {
       { key: 'Escalation risk', value: `${senti.escalation_risk_pct}%` },
       { key: 'Suggested reply', text: suggestion.reply },
     ],
-    coaching_tips: tips,
-    suggestion: suggestion.reply,
-    sentiment: senti,
   }
 }
 
@@ -261,8 +297,10 @@ function buildReport(session) {
   const agentTurns = session.messages.filter(m => m.role === 'agent')
   const customerTurns = session.messages.filter(m => m.role === 'customer')
   const journey = agentTurns.map((t, i) => {
-    const s = t.sentiment || agents.sentimentAnalysis(customerTurns[i]?.message || '')
-    const prev = i > 0 ? agentTurns[i - 1].sentiment : null
+    const s = t.frustration_pct != null
+      ? { sentiment: t.sentiment, frustration_pct: t.frustration_pct }
+      : agents.sentimentAnalysis(customerTurns[i]?.message || '')
+    const prev = i > 0 ? (agentTurns[i - 1].frustration_pct != null ? { frustration_pct: agentTurns[i - 1].frustration_pct } : agents.sentimentAnalysis(customerTurns[i - 1]?.message || '')) : null
     const trend = !prev ? 'stable' : s.frustration_pct < prev.frustration_pct ? 'improving' : s.frustration_pct > prev.frustration_pct ? 'deteriorating' : 'stable'
     return {
       turn: i + 1,
@@ -286,7 +324,7 @@ function buildReport(session) {
     .flatMap(msg => ['refund', 'delivery', 'billing', 'order', 'account', 'subscription'].filter(k => msg.includes(k) && !kbUsed.some(u => u.toLowerCase().includes(k))))
   const triggers = []
   for (const t of agentTurns) {
-    if (t.sentiment?.escalation_risk_pct >= 75) triggers.push(`Escalation risk ${t.sentiment.escalation_risk_pct}% at turn ${journey.findIndex(j => j.turn) + 1}`)
+    if ((t.escalation_risk_pct ?? t.sentiment?.escalation_risk_pct) >= 75) triggers.push(`Escalation risk ${t.escalation_risk_pct ?? t.sentiment?.escalation_risk_pct}% at turn ${journey.findIndex(j => j.turn) + 1}`)
   }
   return {
     session_id: session.id,
@@ -554,7 +592,7 @@ app.post('/api/session/start', async (req, res) => {
   const opening = session.scenario.opening
   session.messages.push({ role: 'customer', message: opening, content: opening })
   const turn = await coachTurn(session, opening)
-  session.messages.push({ role: 'agent', message: turn.suggestion, content: turn.suggestion, ...turn })
+  session.messages.push({ role: 'agent', message: turn.suggested_response, content: turn.suggested_response, ...turn })
   sessions.set(session.id, session)
   await persistSession(session)
   logActivity(user?.id || null, session.id, 'session_start', {
@@ -580,7 +618,7 @@ app.post('/api/chat/message', async (req, res) => {
   const custReply = await customerReply(session, agentMsg)
   session.messages.push({ role: 'customer', message: custReply, content: custReply })
   const turn = await coachTurn(session, custReply)
-  session.messages.push({ role: 'agent', message: turn.suggestion, content: turn.suggestion, ...turn })
+  session.messages.push({ role: 'agent', message: turn.suggested_response, content: turn.suggested_response, ...turn })
   await persistSession(session)
   logActivity(session.user_id, session.id, 'chat_message', { role: role || 'agent' })
   res.json({
@@ -595,8 +633,8 @@ app.post('/api/chat/autopilot', async (req, res) => {
   if (!session) return res.status(404).json({ error: 'Session not found' })
   const lastCustomer = [...session.messages].reverse().find(m => m.role === 'customer')
   const turn = await coachTurn(session, lastCustomer?.message || '')
-  session.messages.push({ role: 'agent', message: turn.suggestion, content: turn.suggestion, ...turn })
-  const custReply = await customerReply(session, turn.suggestion)
+  session.messages.push({ role: 'agent', message: turn.suggested_response, content: turn.suggested_response, ...turn })
+  const custReply = await customerReply(session, turn.suggested_response)
   session.messages.push({ role: 'customer', message: custReply, content: custReply })
   const turn2 = await coachTurn(session, custReply)
   session.messages.push({ role: 'agent', message: turn2.suggestion, content: turn2.suggestion, ...turn2 })
@@ -617,7 +655,7 @@ app.post('/api/chat/manager-takeover', async (req, res) => {
   const custReply = await customerReply(session, managerMsg)
   session.messages.push({ role: 'customer', message: custReply, content: custReply })
   const turn = await coachTurn(session, custReply)
-  session.messages.push({ role: 'agent', message: turn.suggestion, content: turn.suggestion, ...turn })
+  session.messages.push({ role: 'agent', message: turn.suggested_response, content: turn.suggested_response, ...turn })
   await persistSession(session)
   logActivity(session.user_id, session.id, 'manager_takeover', {})
   res.json({
