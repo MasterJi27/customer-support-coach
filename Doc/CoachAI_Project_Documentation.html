@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoachAI — Project Documentation</title>
+<style>
+  :root {
+    --bg: #0b1220; --bg2: #111b30; --card: #16213a; --border: #22304e;
+    --emerald: #10b981; --cyan: #22d3ee; --violet: #a78bfa; --amber: #f5a623;
+    --white: #f8fafc; --muted: #9cadc8; --dim: #4b556b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--white); font-family: "Segoe UI", Calibri, Arial, sans-serif; line-height: 1.6; }
+  .wrap { display: flex; min-height: 100vh; }
+  /* Sidebar */
+  nav { width: 280px; background: var(--bg2); border-right: 1px solid var(--border); padding: 24px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  nav .logo { padding: 0 24px 18px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  nav .logo h1 { font-size: 22px; font-weight: 700; }
+  nav .logo h1 span { color: var(--emerald); }
+  nav .logo p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  nav a { display: block; padding: 8px 24px; color: var(--muted); text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; transition: all .15s; }
+  nav a:hover { color: var(--white); background: rgba(255,255,255,.04); }
+  nav a.active { color: var(--emerald); border-left-color: var(--emerald); background: rgba(16,185,129,.08); font-weight: 600; }
+  nav .group { font-size: 10.5px; letter-spacing: 1.5px; color: var(--dim); text-transform: uppercase; padding: 14px 24px 4px; }
+  /* Main */
+  main { flex: 1; padding: 48px 56px 80px; max-width: 1000px; }
+  @media (max-width: 900px) { .wrap { flex-direction: column; } nav { width: 100%; height: auto; position: static; } main { padding: 28px 20px 60px; } }
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  .hero { background: linear-gradient(135deg, #101c33 0%, #0b1220 70%); border: 1px solid var(--border); border-radius: 18px; padding: 40px; margin-bottom: 48px; }
+  .hero .tag { display: inline-block; color: var(--emerald); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; margin-bottom: 12px; }
+  .hero h1 { font-size: 42px; font-weight: 800; letter-spacing: -1px; }
+  .hero h2 { font-size: 20px; color: var(--cyan); font-weight: 400; margin-top: 6px; }
+  .hero p { color: var(--muted); margin-top: 18px; max-width: 640px; font-size: 15px; }
+  .hero .meta { margin-top: 24px; display: flex; gap: 28px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+  .hero .meta b { color: var(--white); display: block; font-size: 20px; }
+  h2.sec { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  h2.sec span { color: var(--emerald); }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+  h3 { color: var(--cyan); font-size: 17px; margin: 26px 0 10px; }
+  p { color: var(--muted); font-size: 14.5px; margin-bottom: 12px; }
+  ul, ol { margin: 0 0 16px 22px; color: var(--muted); font-size: 14.5px; }
+  li { margin-bottom: 7px; }
+  li b { color: var(--white); }
+  code { background: #0d1526; border: 1px solid var(--border); color: var(--cyan); padding: 1px 7px; border-radius: 6px; font-size: 13px; font-family: Consolas, monospace; }
+  pre { background: #0d1526; border: 1px solid var(--border); border-radius: 12px; padding: 18px; overflow-x: auto; margin: 14px 0 20px; }
+  pre code { background: none; border: none; padding: 0; color: #b8e6d8; font-size: 13px; line-height: 1.55; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin: 14px 0; }
+  .card h4 { color: var(--emerald); font-size: 15px; margin-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; font-size: 13.5px; }
+  th { text-align: left; color: var(--emerald); border-bottom: 2px solid var(--emerald); padding: 10px 12px; font-size: 12.5px; letter-spacing: .5px; text-transform: uppercase; }
+  td { color: var(--muted); border-bottom: 1px solid var(--border); padding: 10px 12px; vertical-align: top; }
+  td b { color: var(--white); }
+  .tagchip { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11.5px; border: 1px solid var(--border); color: var(--muted); margin-right: 6px; margin-bottom: 6px; }
+  .tagchip.g { color: var(--emerald); border-color: rgba(16,185,129,.4); }
+  .tagchip.c { color: var(--cyan); border-color: rgba(34,211,238,.4); }
+  .tagchip.v { color: var(--violet); border-color: rgba(167,139,250,.4); }
+  .tagchip.a { color: var(--amber); border-color: rgba(245,166,35,.4); }
+  blockquote { border-left: 3px solid var(--emerald); background: rgba(16,185,129,.07); padding: 14px 18px; border-radius: 0 12px 12px 0; color: var(--muted); font-size: 14.5px; margin: 16px 0; font-style: italic; }
+  .qa { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; margin: 12px 0; }
+  .qa b { color: var(--cyan); display: block; margin-bottom: 6px; font-size: 14.5px; }
+  .qa p { margin: 0; font-size: 14px; }
+  .flow { font-family: Consolas, monospace; font-size: 13px; color: var(--muted); }
+  .flow span { color: var(--emerald); }
+  footer { border-top: 1px solid var(--border); margin-top: 40px; padding-top: 22px; color: var(--dim); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav id="nav">
+    <div class="logo">
+      <h1>Coach<span>AI</span></h1>
+      <p>Project Documentation &amp; Knowledge Transfer</p>
+    </div>
+    <div class="group">Overview</div>
+    <a href="#pitch">Elevator Pitch</a>
+    <a href="#problem">The Problem</a>
+    <a href="#solution">The Solution</a>
+    <div class="group">Architecture</div>
+    <a href="#architecture">System Architecture</a>
+    <a href="#flow">Per-Turn Flow</a>
+    <a href="#agents">Multi-Agent System</a>
+    <a href="#stack">Technology Stack</a>
+    <a href="#prompts">System Prompts</a>
+    <a href="#rag">RAG Pipeline</a>
+    <div class="group">Operations</div>
+    <a href="#deploy">Deployment</a>
+    <a href="#run">Run &amp; Demo</a>
+    <a href="#demo-script">Demo Script</a>
+    <div class="group">KT Prep</div>
+    <a href="#qa">Q&amp;A Prep</a>
+    <a href="#playbook">Presentation Playbook</a>
+    <a href="#glossary">Glossary</a>
+  </nav>
+
+  <main>
+    <div class="hero">
+      <span class="tag">Infosys · Final Project</span>
+      <h1>CoachAI</h1>
+      <h2>Development of AI-Powered Customer Support Assistant with Live Response Guidance</h2>
+      <p>A multi-agent AI coaching cockpit that analyzes every customer message in real time — sentiment, intent, knowledge-base article, best reply, and escalation risk — so support agents are coached <b style="color:var(--emerald)">in the moment, not after the call</b>.</p>
+      <div class="meta">
+        <div><b>25+</b>AI agents</div>
+        <div><b>&lt; 0.5s</b>per-turn analysis</div>
+        <div><b>3</b>practice modes</div>
+        <div><b>19+</b>KB documents</div>
+        <div><b>3</b>real integrations</div>
+      </div>
+    </div>
+
+    <section id="pitch">
+      <h2 class="sec"><span>01.</span> Elevator Pitch (30 seconds)</h2>
+      <blockquote>"CoachAI is an AI-powered coaching cockpit for customer-support agents. It sits next to the agent during a live chat and, after every customer message, tells the agent what the customer is feeling, which knowledge-base article applies, how to phrase the reply, and whether the conversation is at risk of escalating. It is built as a multi-agent system — over 25 specialized AI agents, each with a single responsibility, coordinated by an orchestrator. After the session it produces a performance report with a resolution score and coaching tips, and it can even execute real actions like creating Jira tickets, sending refund emails, and posting to Slack."</blockquote>
+    </section>
+
+    <section id="problem">
+      <h2 class="sec"><span>02.</span> The Problem</h2>
+      <table>
+        <tr><th>Pain Point</th><th>Detail</th></tr>
+        <tr><td><b>Coaching happens too late</b></td><td>QA samples calls <i>after</i> they finish; feedback arrives days later</td></tr>
+        <tr><td><b>Escalations detected late</b></td><td>Managers join only after the customer is already angry</td></tr>
+        <tr><td><b>Knowledge is scattered</b></td><td>Agents manually search docs and FAQs mid-chat</td></tr>
+        <tr><td><b>Inconsistent quality</b></td><td>Reply quality depends on the individual agent's experience</td></tr>
+        <tr><td><b>No structured training</b></td><td>New agents learn by shadowing; no safe, repeatable practice</td></tr>
+        <tr><td><b>No risk foresight</b></td><td>CSAT, churn, fraud and viral/PR threats discovered after the fact</td></tr>
+      </table>
+    </section>
+
+    <section id="solution">
+      <h2 class="sec"><span>03.</span> The Solution</h2>
+      <div class="grid">
+        <div class="card"><h4>⚡ Real-time coaching</h4><p>Every customer message analyzed in under a second: intent, sentiment, frustration %, escalation risk, predicted CSAT, churn risk.</p></div>
+        <div class="card"><h4>✍️ Reply guidance</h4><p>A suggested reply with tone, clarity and compliance feedback before the agent hits send.</p></div>
+        <div class="card"><h4>📚 Knowledge on tap</h4><p>RAG retrieves the right KB article and synthesizes one distilled tip per message; missing knowledge auto-drafts new FAQs.</p></div>
+        <div class="card"><h4>🛡️ Predictive risk signals</h4><p>Fraud, defection to competitors, viral/PR threats, and a "mind-reader" that guesses the customer's true intent.</p></div>
+        <div class="card"><h4>👔 Manager override</h4><p>A supervisor agent whispers advice or takes over the chat when risk crosses a threshold.</p></div>
+        <div class="card"><h4>🤖 Agentic tools</h4><p>Real actions via Composio: Jira tickets, Gmail refund emails, Slack alerts. Auto-Pilot replies and acts in one click.</p></div>
+        <div class="card"><h4>🎮 Training modes</h4><p>AI Simulator (Hinglish-speaking AI customer), Manual, Transcript Replay, and a gamified Survival Mode.</p></div>
+        <div class="card"><h4>📊 Reports &amp; analytics</h4><p>Post-session performance reports emailed automatically; cross-session analytics for managers.</p></div>
+      </div>
+    </section>
+    <section id="architecture">
+      <h2 class="sec"><span>04.</span> System Architecture</h2>
+      <pre><code>                    ┌─────────────────────────────────────────────┐
+                    │            React frontend (Vite)             │
+                    │  Landing, Login, Dashboard, Setup, Reports,  │
+                    │  Analytics, Knowledge, HallOfFame, Jira...   │
+                    └───────────────┬─────────────────────────────┘
+                                    │  fetch → /api/* (REST + JSON)
+                ┌───────────────────▼────────────────────┐
+                │   Node Express backend  (backend/)      │  ← current API
+                │   app.js + agents.js + llm.js + rag.js │    (auth + chat +
+                │   + auth.js + coaching.js + reports.js │    25 agents mirror)
+                └───┬──────────────┬───────────────┬──────┘
+                    │              │               │
+          ┌─────────▼───┐   ┌──────▼─────┐   ┌─────▼─────────┐
+          │ Postgres    │   │ LLM chain  │   │ RAG           │
+          │ (pg, JSONB) │   │ Azure → OR │   │ BM25 +        │
+          │ + SQLite    │   │ → Groq     │   │ embeddings    │
+          └─────────────┘   └──────┬──────┘   └──────────────┘
+                                   ▼
+              Python FastAPI backend (vercel-backend/src) — legacy
+              Streamlit app (src/ui/app.py) — standalone demo UI,
+              runs the same Python agents (src/agents/*.py)</code></pre>
+      <p>Two parallel implementations exist for the same product concept:</p>
+      <ul>
+        <li><b>Python</b> (<code>src/</code>) — the "research" implementation, richest feature set (25 agents), used by Streamlit and the legacy FastAPI backend.</li>
+        <li><b>Node</b> (<code>backend/src/</code>) — the "production-facing" implementation, mirrors the same endpoints/agents in JavaScript, adds <b>auth</b>, talks directly to the React frontend. This is what the demo runs on.</li>
+      </ul>
+    </section>
+
+    <section id="flow">
+      <h2 class="sec"><span>05.</span> Per-Turn Flow</h2>
+      <div class="card">
+        <p class="flow"><span>1.</span> Customer message arrives (typed, simulated, or replayed)<br>
+        <span>2.</span> Orchestrator hands it to ConversationManager<br>
+        <span>3.</span> IntentSentimentAgent → LLM → intent, sentiment, frustration, trend<br>
+        <span>4.</span> KnowledgeRecommendationAgent → hybrid KB search (retrieval) → LLM tip (generation) = <b>RAG</b><br>
+        <span>5.</span> CoachingSuggestionAgent → suggested reply + tone/clarity feedback<br>
+        <span>6.</span> EscalationMonitorAgent → rule-based risk score + strategy<br>
+        <span>7.</span> DeepAnalysisAgent (parallel) → predicted CSAT, churn %, viral/PR, fraud protocol, mind-read<br>
+        <span>8.</span> All results merge into one TurnAnalysis, rendered in the coaching console<br>
+        <span>9.</span> At session end, PostInteractionSummaryAgent builds the report</p>
+      </div>
+    </section>
+
+    <section id="agents">
+      <h2 class="sec"><span>06.</span> The Multi-Agent System (25+ Agents)</h2>
+      <p>Every agent has <b>one responsibility</b>. LLM-based agents parse JSON with hard-coded fallbacks — the app never crashes on LLM errors, it degrades gracefully.</p>
+      <table>
+        <tr><th>Agent</th><th>LLM</th><th>What it does</th></tr>
+        <tr><td><b>customer_simulator</b></td><td>Yes</td><td>Generates realistic AI customer messages (Hinglish mode, ≤140 chars)</td></tr>
+        <tr><td><b>intent_sentiment</b></td><td>Yes</td><td>Classifies intent, sentiment, frustration 0–1, satisfaction trend</td></tr>
+        <tr><td><b>deep_analysis</b></td><td>Yes</td><td>One-call consolidation: CSAT, churn, viral/PR, fraud, defection, mind-read</td></tr>
+        <tr><td><b>knowledge_recommendation</b></td><td>Yes</td><td>Agentic RAG: retrieves KB article + synthesizes one tip; detects KB gaps</td></tr>
+        <tr><td><b>coaching_suggestion</b></td><td>Yes</td><td>Suggests agent reply; scores tone/clarity; injects macros library</td></tr>
+        <tr><td><b>escalation_monitor</b></td><td>No</td><td>Weighted rule-based escalation-risk scoring</td></tr>
+        <tr><td><b>post_interaction_summary</b></td><td>No</td><td>End-of-session report: sentiment journey, resolution score, gaps</td></tr>
+        <tr><td><b>coach_calibrator</b></td><td>No</td><td>Learns per agent when to actually show coaching tips (adaptive)</td></tr>
+        <tr><td><b>predictive_csat</b></td><td>Yes</td><td>Forecasts live CSAT (1–5) and churn risk %</td></tr>
+        <tr><td><b>manager_supervisor</b></td><td>Yes</td><td>Simulates supervisor whisper/takeover on extreme risk</td></tr>
+        <tr><td><b>compliance_monitor</b></td><td>Yes</td><td>Flags agent replies that contradict KB policy</td></tr>
+        <tr><td><b>tone_rewriter</b></td><td>Yes</td><td>Rewrites a rough draft into a polished, empathetic reply</td></tr>
+        <tr><td><b>auto_kb_agent</b></td><td>Yes</td><td>Auto-drafts a new FAQ when a knowledge gap is detected</td></tr>
+        <tr><td><b>auto_pilot_agent</b></td><td>Yes</td><td>One-click autonomous reply + backend action (refund/voucher)</td></tr>
+        <tr><td><b>competitor_defection_agent</b></td><td>Yes</td><td>Detects "I'll switch to X" churn threats</td></tr>
+        <tr><td><b>customer_mind_reader</b></td><td>Yes</td><td>Guesses the customer's unstated internal thought</td></tr>
+        <tr><td><b>multiverse_simulator</b></td><td>Yes</td><td>"What if the agent replied differently?" branching demo</td></tr>
+        <tr><td><b>viral_threat_predictor</b></td><td>Yes</td><td>Flags risk of the customer posting publicly (social/PR)</td></tr>
+        <tr><td><b>fraud_detector</b></td><td>Yes</td><td>Flags refund-abuse / scam patterns</td></tr>
+        <tr><td><b>jira_bug_generator</b></td><td>Yes</td><td>Turns a transcript into a structured bug ticket</td></tr>
+        <tr><td><b>scenario_generator</b></td><td>Yes</td><td>LLM-generates new training scenarios on demand</td></tr>
+        <tr><td><b>qa_audit_agent</b></td><td>No</td><td>Rule-based ISO-style pass/fail audit of a report</td></tr>
+        <tr><td><b>cognitive_load_agent</b></td><td>No</td><td>Estimates agent mental workload</td></tr>
+        <tr><td><b>patience_clock_agent</b></td><td>No</td><td>Estimates "turns until customer drops off"</td></tr>
+        <tr><td><b>bot_agent</b></td><td>No</td><td>Scripted first-line chatbot before a human agent joins</td></tr>
+      </table>
+    </section>
+
+    <section id="stack">
+      <h2 class="sec"><span>07.</span> Technology Stack</h2>
+      <table>
+        <tr><th>Layer</th><th>Technology</th></tr>
+        <tr><td><b>Frontend</b></td><td>React 18 + Vite + Tailwind CSS + react-router + framer-motion + lucide icons + @tanstack/react-query + jsPDF — deployed on Vercel</td></tr>
+        <tr><td><b>Backend (current)</b></td><td>Node.js ≥18 + Express + ESM + <code>pg</code> — port 8000</td></tr>
+        <tr><td><b>Backend (research)</b></td><td>Python FastAPI (<code>src/api/server.py</code>) + Streamlit (<code>src/ui/app.py</code>)</td></tr>
+        <tr><td><b>LLM chain</b></td><td>Azure OpenAI (primary) → OpenRouter free → Groq (llama-3.3-70b-versatile → llama-3.1-8b-instant → gemma2-9b-it → llama3-8b-8192)</td></tr>
+        <tr><td><b>Embeddings</b></td><td>OpenRouter <code>nvidia/nemotron-3-embed-1b:free</code> (2048-dim)</td></tr>
+        <tr><td><b>TTS</b></td><td>OpenRouter <code>fish-audio/s2.1-pro-free:free</code> with gTTS fallback</td></tr>
+        <tr><td><b>RAG</b></td><td>Hybrid: semantic embeddings (cosine) + BM25/keyword fallback; in-memory + JSONB cache</td></tr>
+        <tr><td><b>Database</b></td><td>PostgreSQL (JSONB session state, cross-instance rehydration) with SQLite fallback</td></tr>
+        <tr><td><b>Integrations</b></td><td>Composio v3 SDK — Jira, Gmail, Slack</td></tr>
+        <tr><td><b>Testing</b></td><td>pytest (14 tests) · vitest (7 tests) · node --test</td></tr>
+        <tr><td><b>Deployment</b></td><td>Vercel (frontend + backends) · Streamlit Cloud · Neon/Supabase/Azure Postgres</td></tr>
+      </table>
+      <span class="tagchip g">React 18</span><span class="tagchip g">Node.js Express</span><span class="tagchip g">Python FastAPI</span><span class="tagchip c">Azure OpenAI</span><span class="tagchip c">OpenRouter</span><span class="tagchip c">Groq</span><span class="tagchip v">PostgreSQL</span><span class="tagchip v">SQLite</span><span class="tagchip a">Composio</span><span class="tagchip">RAG / BM25</span><span class="tagchip">Pydantic</span><span class="tagchip">Vercel</span>
+    </section>
+
+    <section id="prompts">
+      <h2 class="sec"><span>08.</span> System Prompts — How Agents Are Instructed</h2>
+      <ul>
+        <li><b>Single source of truth:</b> every LLM agent imports its system prompt from <code>src/core/prompts.py</code> (15+ prompt constants + 4 builder functions). The Node backend mirrors the same instructions in <code>backend/src/agents.js</code>.</li>
+        <li><b>Builder functions</b> interpolate per-turn context — persona, valid intents/sentiments enum, retrieved KB article, macros library — into the instruction at call time.</li>
+        <li><b>Structured output contracts:</b> agents respond with JSON (e.g. <code>{"reply": "...", "tone": "empathetic", "clarity": 1-5}</code>) parsed with <code>tryJson</code>, with hard-coded fallbacks so the app degrades instead of crashing.</li>
+        <li><b>Customer Simulator example:</b> forces short realistic messages (≤140 chars), a sentiment state machine, and aggressive Hinglish mixing for Tier-2/Tier-3 Indian customers ("mera account chal nahi raha hai").</li>
+        <li><b>Coaching Suggestion example:</b> injected with the KB article + sentiment analysis; must return reply, tone, clarity, key point.</li>
+      </ul>
+    </section>
+
+    <section id="rag">
+      <h2 class="sec"><span>09.</span> RAG — Retrieval-Augmented Generation</h2>
+      <ol>
+        <li><b>Ingestion:</b> <code>ingest_directory()</code> supports .txt, .pdf (PyPDF2), .docx, .json, .md, .csv, .html. Chunking: paragraph split → ≤512-char chunks, oversized chunks re-split by sentence. 19+ FAQ JSON files ship in <code>data/knowledge_base/</code>.</li>
+        <li><b>Search (hybrid):</b>
+          <ul>
+            <li>Primary: semantic — <code>embed_text(query)</code> via OpenRouter, cosine similarity.</li>
+            <li>Fallback: pure-Python keyword/word-overlap (works offline). Node backend: BM25 keyword fallback, embeddings cached as JSONB in Postgres.</li>
+          </ul>
+        </li>
+        <li><b>KB-gap detection:</b> relevance &lt; 0.45 → "⚠️ Knowledge Base Gap Detected" → feeds <code>knowledge_gaps</code> in reports → triggers Auto-KB agent to draft a new FAQ.</li>
+      </ol>
+    </section>
+
+    <section id="deploy">
+      <h2 class="sec"><span>10.</span> Deployment Topology</h2>
+      <table>
+        <tr><th>Piece</th><th>Tech</th><th>Deployed to</th></tr>
+        <tr><td><b>React frontend</b></td><td>Vite + React 18 + Tailwind</td><td>Vercel — <code>coachai-frontend.vercel.app</code></td></tr>
+        <tr><td><b>Node backend (current)</b></td><td>Express + ESM</td><td>Vercel — <code>coachai-backend</code> project</td></tr>
+        <tr><td><b>Python backend (legacy)</b></td><td>FastAPI</td><td>Same Vercel project <code>coachai-backend</code> (verify at KT which directory is live)</td></tr>
+        <tr><td><b>Streamlit app</b></td><td>Streamlit</td><td>Streamlit Cloud or localhost:8501</td></tr>
+        <tr><td><b>Database</b></td><td>Postgres (<code>DATABASE_URL</code>) with SQLite fallback</td><td>Neon / Supabase / Azure Postgres</td></tr>
+      </table>
+      <div class="card"><h4>⚠️ Known gotchas</h4>
+        <ul>
+          <li><b>Two backends, one Vercel project</b> — <code>backend/</code> (Node) and <code>vercel-backend/</code> (Python) both deploy to <code>coachai-backend</code>. The frontend needs the Node one (it has auth).</li>
+          <li><b>Ephemeral filesystem on Vercel</b> — always read reports/hall-of-fame from the DB, never from disk.</li>
+          <li><b>Every LLM agent silently degrades</b> to heuristic fallbacks — check logs, not just the UI.</li>
+          <li><b>Never commit <code>.env</code> files</b> — keys must come from environment/secrets.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="run">
+      <h2 class="sec"><span>11.</span> How to Run Locally</h2>
+      <pre><code># A) Streamlit demo UI (Python)
+python -m venv .venv && .venv\Scripts\activate
+pip install -r requirements.txt
+python run.py                          # http://localhost:8501
+
+# B) Node backend (current API for the React frontend)
+cd backend && npm install && npm run dev   # http://localhost:8000
+
+# C) React frontend
+cd frontend && npm install && npm run dev  # http://localhost:5173
+
+# Tests
+python -m pytest tests/
+cd frontend && npm test
+cd backend && npm test</code></pre>
+      <p><b>Env keys</b> (all optional except an LLM key — everything degrades gracefully): <code>GROQ_API_KEY</code>, <code>OPENROUTER_API_KEY</code> (+ <code>OPENROUTER_EMBED_MODEL</code>, <code>OPENROUTER_TTS_MODEL</code>), <code>AZURE_OPENAI_ENDPOINT/KEY/DEPLOYMENT</code>, <code>DATABASE_URL</code>, <code>COMPOSIO_API_KEY</code> + <code>COMPOSIO_USER_ID/JIRA_PROJECT_KEY/REFUND_EMAIL/SLACK_CHANNEL</code>.</p>
+    </section>
+
+    <section id="demo-script">
+      <h2 class="sec"><span>12.</span> Demo Script (5 minutes)</h2>
+      <ol>
+        <li>Open the React app → <b>Guest Demo</b> login.</li>
+        <li><b>Setup</b> → pick a scenario (e.g. "Order Not Received") → Launch.</li>
+        <li>Dashboard shows the live chat + Coach Copilot rail: <b>Signals → KB → Reply → Risk</b>.</li>
+        <li>Click <b>Autopilot</b> to let the AI reply and advance the customer.</li>
+        <li>Open <b>Feature Lab</b>: run Multiverse Simulator, Tone Rewriter, Compliance Check, Jira Ticket Generator, Survival Game.</li>
+        <li>End the session → <b>Reports</b> page shows the performance report; optionally email it.</li>
+      </ol>
+    </section>
+
+    <section id="qa">
+      <h2 class="sec"><span>13.</span> Q&amp;A Prep — Likely Questions &amp; Answers</h2>
+      <div class="qa"><b>Q1. What problem does this solve?</b><p>Coaching and QA in support teams happen after the call. CoachAI moves coaching into the moment — every message is analyzed in &lt;1s so the agent knows sentiment, the right KB article, the best reply, and risk level before sending.</p></div>
+      <div class="qa"><b>Q2. Why a multi-agent system? Why not one big prompt?</b><p>One agent = one responsibility (classify, coach, monitor, audit). This makes prompts small and testable, lets agents run in parallel, allows adaptive behaviour (a calibrator learns per agent), and gives fault isolation — if fraud detection fails, coaching still works.</p></div>
+      <div class="qa"><b>Q3. How is the RAG implemented?</b><p>Hybrid retrieval: semantic embeddings (OpenRouter, cosine similarity) as primary, keyword/BM25 overlap as offline fallback. KB-gap detection below 0.45 relevance triggers Auto-KB drafting. No heavy vector DB required at FAQ scale; pgvector/JSONB is the planned scale-up.</p></div>
+      <div class="qa"><b>Q4. What happens if the LLM fails or no API key is set?</b><p>Every agent has a hard-coded heuristic fallback, and the LLM chain itself falls back Azure → OpenRouter → Groq. The app never crashes — it degrades.</p></div>
+      <div class="qa"><b>Q5. How is state persisted across serverless instances?</b><p>Full session state is stored as JSON in Postgres; a cold instance rehydrates the session from the DB on the next request.</p></div>
+      <div class="qa"><b>Q6. What are the real integrations?</b><p>Composio: Jira (create bug tickets), Gmail (refund confirmation emails), Slack (channel alerts). If not configured, tool calls fail gracefully.</p></div>
+      <div class="qa"><b>Q7. What was the hardest part?</b><p>Keeping two backends (Python + Node) in sync, and session rehydration across cold serverless instances without losing conversations.</p></div>
+      <div class="qa"><b>Q8. How is this different from a chatbot?</b><p>A chatbot replaces the agent. CoachAI empowers the agent — it is a copilot that coaches, flags risks and audits quality while the human stays in charge.</p></div>
+      <div class="qa"><b>Q9. How is quality measured?</b><p>Per-session overall score = resolution × 0.5 + coaching × 0.3 + clarity/CSAT × 0.2; QA audit agent runs 21 ISO-style checks; Hall of Fame archives ≥0.85 sessions, Hall of Shame ≤0.45.</p></div>
+      <div class="qa"><b>Q10. What's next?</b><p>Vector DB at scale (pgvector), a single canonical backend, multilingual + voice coaching, team leaderboards and HR analytics.</p></div>
+    </section>
+
+    <section id="playbook">
+      <h2 class="sec"><span>14.</span> Presentation Playbook (Team Roles)</h2>
+      <div class="grid">
+        <div class="card"><h4>📑 PPT team (2)</h4><p>Finalize the 10 slides in <code>Doc/CoachAI_Presentation.pptx</code>; add screenshots of the Dashboard rail, Feature Lab and Reports page. Keep bullets short, fonts consistent (Calibri), exactly 10 slides.</p></div>
+        <div class="card"><h4>🎤 Presenters (2)</h4><p>Presenter 1 covers slides 1–4 (idea, problem, stack) + live demo. Presenter 2 covers slides 5–9 (features, conclusion, concepts) and closes. Rehearse the handover line.</p></div>
+        <div class="card"><h4>💬 Q&amp;A handlers (2)</h4><p>Memorize Section 13. If unsure: "let me verify in the repo — the code is at github.com/MasterJi27/coachai-infosys-final". Never invent numbers.</p></div>
+      </div>
+      <p><b>Timing:</b> 10 min presentation + 5 min Q&amp;A (adjust to the actual slot).</p>
+    </section>
+
+    <section id="glossary">
+      <h2 class="sec"><span>15.</span> Glossary</h2>
+      <table>
+        <tr><th>Term</th><th>Meaning</th></tr>
+        <tr><td><b>Agent</b></td><td>A single-responsibility AI module with its own system prompt</td></tr>
+        <tr><td><b>Orchestrator</b></td><td>The central controller that runs the per-turn pipeline</td></tr>
+        <tr><td><b>Turn / TurnAnalysis</b></td><td>One customer message + the merged output of all agents for it</td></tr>
+        <tr><td><b>RAG</b></td><td>Retrieval-Augmented Generation — retrieve docs, then generate answers</td></tr>
+        <tr><td><b>KB</b></td><td>Knowledge base — FAQ/policy documents the RAG layer searches</td></tr>
+        <tr><td><b>CSAT</b></td><td>Customer satisfaction score (1–5)</td></tr>
+        <tr><td><b>Churn</b></td><td>Customer leaving or switching to a competitor</td></tr>
+        <tr><td><b>Escalation</b></td><td>Conversation reaching a risk level needing manager intervention</td></tr>
+        <tr><td><b>Composio</b></td><td>Integration platform (Jira, Gmail, Slack) for real tool actions</td></tr>
+        <tr><td><b>Rehydration</b></td><td>Restoring a full session from Postgres on a cold serverless instance</td></tr>
+      </table>
+    </section>
+
+    <footer>
+      CoachAI — Development of AI-Powered Customer Support Assistant with Live Response Guidance.
+      GitHub: github.com/MasterJi27/coachai-infosys-final · Mock presentation (Milestone 4): before Aug 21, 2026 · Final presentation: after Aug 29, 2026.
+    </footer>
+  </main>
+</div>
+
+<script>
+  const links = document.querySelectorAll('nav a');
+  const sections = [...document.querySelectorAll('main section')];
+  function onScroll() {
+    let current = sections[0].id;
+    for (const s of sections) { if (window.scrollY >= s.offsetTop - 120) current = s.id; }
+    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+</script>
+</body>
+</html>

@@ -1,204 +1,131 @@
-# CoachAI — Development of AI-Powered Customer Support Assistant with Live Response Guidance
+# CoachAI — AI-Powered Customer Support Assistant with Live Response Guidance
 
-A Streamlit app that sits next to a support agent during a live chat and, after
-every customer message, tells the agent what the customer is feeling, which
-knowledge-base article applies, how to phrase the reply, and whether the
-conversation is at risk of escalating. After the session ends it produces a
-performance report (sentiment journey, resolution quality, coaching tips).
+An AI **coaching cockpit** for customer-support agents. It sits next to the agent
+during a live chat and, after every customer message, tells the agent:
 
-This README is deliberately a single, accurate source of truth for the
-project — it replaces several older docs that had drifted out of sync with
-the actual code.
+- **what the customer is feeling** — intent, sentiment, frustration, satisfaction trend
+- **which knowledge-base article applies** — RAG over the support KB
+- **how to phrase the reply** — suggested reply + tone/clarity/compliance feedback
+- **whether the conversation is at risk** — escalation %, predicted CSAT, churn, fraud, viral/PR
+- **when a manager should intervene** — whisper / takeover on extreme risk
+
+After the session it produces a **performance report** (resolution score, sentiment
+journey, coaching tips, knowledge gaps) and feeds cross-session analytics.
+
+Built as a **multi-agent system**: 25+ specialized AI agents, one responsibility
+each, coordinated by an orchestrator. Demo data is Zomato-flavored (orders,
+refunds in ₹, Hinglish customers) but the engine is product-agnostic.
 
 ---
 
 ## 1. Quick Start
 
+### A) Streamlit demo UI (Python)
+
 ```bash
 python -m venv .venv
 .venv\Scripts\activate          # Windows
 pip install -r requirements.txt
-python run.py                   # or: streamlit run src/ui/app.py
+python run.py                   # or: streamlit run src/ui/app.py  → http://localhost:8501
 ```
 
-Add a Groq key to `.env` (copy `.env.example`) to enable live LLM calls:
-
-```env
-GROQ_API_KEY=gsk_your_key_here
-```
-
-Without a key, agents fall back to their built-in rule-based/heuristic logic
-instead of crashing.
-
-### Composio integration (real tools: Jira / Gmail / Slack)
-
-Agent tool execution can be promoted from the mock backend to **real
-integrations** via [Composio](https://composio.dev) (v3 API, `composio` SDK):
-
-| Agent | Mock tool (default) | Real action when connected |
-|---|---|---|
-| Jira Bug Generator (`src/agents/jira_bug_generator.py`) | none — ticket text only | `JIRA_CREATE_ISSUE` — actual Jira ticket in project `COMPOSIO_JIRA_PROJECT_KEY` |
-| Auto-Pilot (`src/agents/auto_pilot_agent.py`) | `process_refund` | Gmail refund-confirmation email draft (`GMAIL_CREATE_EMAIL_DRAFT`) |
-| Auto-Pilot | `grant_voucher` | Gmail voucher email + Slack post to `COMPOSIO_SLACK_CHANNEL` |
-
-Setup:
-
-1. Add your key to `.env` (`.env` is gitignored — never commit keys):
-
-   ```env
-   COMPOSIO_API_KEY=ak_...
-   COMPOSIO_USER_ID=default
-   COMPOSIO_JIRA_PROJECT_KEY=COACH
-   COMPOSIO_REFUND_EMAIL=customer@example.com
-   COMPOSIO_SLACK_CHANNEL=#support-ops
-   ```
-
-2. Install: `pip install -r requirements.txt` (adds `composio>=0.18.1`).
-3. Connect your Jira / Gmail / Slack accounts. Each app has a connect URL —
-   generate it and open it in a browser:
-
-   ```bash
-   python -c "from src.tools.composio_backend import composio_backend; print(composio_backend.get_connect_url('jira'))"
-   python -c "from src.tools.composio_backend import composio_backend; print(composio_backend.get_connect_url('gmail'))"
-   python -c "from src.tools.composio_backend import composio_backend; print(composio_backend.get_connect_url('slack'))"
-   ```
-
-   (Or do it in the dashboard: [app.composio.dev](https://app.composio.dev) →
-   Connected Accounts.)
-   Verify: `python -c "from src.tools.composio_backend import composio_backend; print(composio_backend.list_connected_accounts())"`
-
-Behavior: if the key is missing or the account is not connected yet, calls
-return a failed `ToolCallResult` with a helpful message and the app keeps
-working exactly as before (no crash, no UI change).
-
-### OpenRouter AI (free: embeddings + neural TTS)
-
-| Feature | Model (free) | Where it plugs in |
-|---|---|---|
-| Semantic embeddings | `nvidia/nemotron-3-embed-1b:free` (2048-dim) | `src/rag/knowledge_base.py` — `search()` now does real semantic similarity with cosine; falls back to the original keyword overlap when the key is missing or the API fails |
-| Neural TTS | `fish-audio/s2.1-pro-free:free` | `src/core/llm.py:text_to_speech()` — used by the TTS toggle in the UI; falls back to gTTS automatically |
-
-```env
-OPENROUTER_API_KEY=sk-or-v1-your_key_here
-OPENROUTER_EMBED_MODEL=nvidia/nemotron-3-embed-1b:free
-OPENROUTER_TTS_MODEL=fish-audio/s2.1-pro-free:free
-```
-
-Both are optional and degrade gracefully to the previous behavior.
-
-Run tests:
+### B) Node backend (current API — powers the React frontend)
 
 ```bash
-python -m pytest tests/
+cd backend
+npm install
+npm run dev                     # http://localhost:8000
 ```
 
-### React Frontend (new — Python untouched)
-
-A new React (Vite + Tailwind) frontend lives in `frontend/`, sharing the
-PillSync-style "dark glass enterprise" design language. It is a fresh UI
-shell for CoachAI with sample data — no PillSync features are included.
+### C) React frontend
 
 ```bash
 cd frontend
 npm install
-npm run dev        # http://localhost:5174
+npm run dev                     # http://localhost:5173
 ```
 
-The Streamlit app and all Python code are unchanged; both can run side by side.
+### Environment keys
+
+Copy `.env.example` → `.env`. All keys are **optional except an LLM key** —
+everything degrades gracefully to heuristic fallbacks instead of crashing:
+
+```env
+GROQ_API_KEY=...                          # LLM fallback chain (llama-3.3-70b-versatile → ...)
+OPENROUTER_API_KEY=...                    # free semantic embeddings + neural TTS
+OPENROUTER_EMBED_MODEL=nvidia/nemotron-3-embed-1b:free
+OPENROUTER_TTS_MODEL=fish-audio/s2.1-pro-free:free
+AZURE_OPENAI_ENDPOINT=...                 # primary LLM when set
+AZURE_OPENAI_KEY=...
+AZURE_OPENAI_DEPLOYMENT=...
+DATABASE_URL=...                          # Postgres; SQLite used when absent
+COMPOSIO_API_KEY=...                      # real integrations: Jira / Gmail / Slack
+COMPOSIO_USER_ID=default
+COMPOSIO_JIRA_PROJECT_KEY=COACH
+COMPOSIO_REFUND_EMAIL=customer@example.com
+COMPOSIO_SLACK_CHANNEL=#support-ops
+```
 
 ---
 
-## 2. The Real Tech Stack
+## 2. Tech Stack
 
-| Layer | What's actually used |
+| Layer | What's used |
 |---|---|
-| UI | Streamlit (`src/ui/`) |
-| LLM | Groq API — `llama-3.3-70b-versatile`, with fallback to `llama-3.1-8b-instant`, `gemma2-9b-it`, `llama3-8b-8192` (`src/core/llm.py`) |
-| Retrieval (RAG) | Pure-Python **keyword/word-overlap** matching over in-memory text chunks (`src/rag/knowledge_base.py`) — **no embedding model, no vector database** are actually wired in, despite leftover config fields suggesting otherwise |
-| Data models | Pydantic (`src/core/models.py`) |
-| Storage | SQLite (`data/coach.db`) + JSON files under `data/` |
+| Frontend | React 18 + Vite + Tailwind CSS, react-router, framer-motion, lucide icons, @tanstack/react-query, jsPDF → **Vercel** |
+| Backend (current) | Node.js ≥18 + Express + ESM + `pg` → **Vercel** |
+| Backend (research) | Python FastAPI (`src/api/server.py`) + Streamlit (`src/ui/app.py`) |
+| LLM chain | **Azure OpenAI** (primary) → **OpenRouter** free models → **Groq** (`llama-3.3-70b-versatile` → `llama-3.1-8b-instant` → `gemma2-9b-it` → `llama3-8b-8192`) |
+| Embeddings / TTS | OpenRouter `nemotron-3-embed-1b:free` (2048-dim) / `fish-audio/s2.1-pro-free:free` (gTTS fallback) |
+| RAG | **Hybrid**: semantic embeddings (cosine) primary + BM25/keyword overlap offline fallback; embeddings cached as JSONB |
+| Database | PostgreSQL (`pg`, JSONB session state, cross-instance rehydration) with SQLite fallback |
+| Data models | Pydantic (Python) |
+| Integrations | Composio v3 SDK — real Jira tickets, Gmail refund emails, Slack alerts |
+| Testing | pytest (`tests/`), vitest (`frontend/src/test/`), node --test (`backend/tests/`) |
 
 ---
 
-## 3. Directory Structure & What Every File Does
+## 3. Repository Layout
 
 ```
 customer-support-coach/
-├── run.py                    # Local launcher — `python run.py` starts Streamlit
-├── streamlit_app.py          # Entry point Streamlit Cloud calls directly
-├── requirements.txt          # Python dependencies
-├── .env.example              # Template for GROQ_API_KEY
+├── run.py / streamlit_app.py     # Streamlit launchers
+├── requirements.txt              # Python dependencies
+├── .env.example                  # env key template
 │
-├── src/
-│   ├── core/                 # Orchestration, config, LLM client, shared models
-│   │   ├── orchestrator.py       # Top-level session controller: start → per-turn → end → report
-│   │   ├── config.py             # Settings (paths, thresholds, model name) loaded from .env
-│   │   ├── llm.py                # Groq client wrapper with model fallback chain
-│   │   ├── models.py             # Pydantic schemas (Message, TurnAnalysis, SessionState, reports, ...)
-│   │   ├── model_config.py       # Misc model-tier config
-│   │   ├── prompts.py            # ★ EVERY agent's LLM system prompt lives here — single source of truth
-│   │   └── database.py           # SQLite persistence for sessions/reports
-│   │
-│   ├── modules/               # Per-turn business logic that sits above the agents
-│   │   ├── conversation_manager.py   # Runs the fixed per-turn agent sequence, builds TurnAnalysis
-│   │   ├── session_config.py         # Mode selection (Simulator/Manual/Replay), scenario setup
-│   │   ├── performance_analytics.py  # Cross-session trend aggregation
-│   │   ├── hall_of_fame.py           # Archives best/worst-scoring sessions
-│   │   └── survival_game.py          # Multi-ticket "arcade" practice mode
-│   │
-│   ├── rag/                   # Knowledge base ingestion + retrieval
-│   │   ├── knowledge_base.py     # Chunking (paragraph→512 char) + keyword-overlap search
-│   │   └── ingest.py             # File-type dispatch/validation for uploads
-│   │
-│   ├── agents/                 # One class per specialized responsibility
-│   │   ├── customer_simulator.py       # Generates realistic AI customer messages per turn
-│   │   ├── intent_sentiment.py         # Classifies intent, sentiment, frustration, trend
-│   │   ├── knowledge_recommendation.py # RAG: retrieves KB chunks + LLM-synthesizes one tip
-│   │   ├── coaching_suggestion.py      # Suggests agent reply, scores tone/clarity
-│   │   ├── escalation_monitor.py       # Rule-based escalation-risk scoring (no LLM)
-│   │   ├── post_interaction_summary.py # End-of-session report: sentiment journey, resolution score
-│   │   ├── coach_calibrator.py         # Learns per-agent when to actually show a coaching tip
-│   │   ├── predictive_csat.py          # Forecasts live CSAT (1-5) and churn risk %
-│   │   ├── manager_supervisor.py       # Simulates a supervisor whisper/takeover on extreme risk
-│   │   ├── compliance_monitor.py       # Flags agent replies that contradict the knowledge base
-│   │   ├── tone_rewriter.py            # Rewrites a rough agent draft into a polished reply
-│   │   ├── auto_kb_agent.py            # Auto-drafts a new FAQ when a knowledge gap is detected
-│   │   ├── auto_pilot_agent.py         # One-click autonomous reply + backend action
-│   │   ├── competitor_defection_agent.py # Detects "I'll switch to X" churn threats
-│   │   ├── customer_mind_reader.py     # LLM guess at the customer's unstated internal thought
-│   │   ├── multiverse_simulator.py     # "What if the agent replied differently?" branching demo
-│   │   ├── viral_threat_predictor.py   # Flags risk of the customer posting publicly (social/PR)
-│   │   ├── fraud_detector.py           # Flags refund-abuse / scam patterns
-│   │   ├── jira_bug_generator.py       # Turns a transcript into a structured bug ticket
-│   │   ├── scenario_generator.py       # LLM-generates new training scenarios on demand
-│   │   ├── qa_audit_agent.py           # Rule-based ISO-style pass/fail audit of a report
-│   │   ├── cognitive_load_agent.py     # Rule-based agent mental-workload estimate
-│   │   ├── patience_clock_agent.py     # Rule-based "turns until customer drops off" estimate
-│   │   └── bot_agent.py                # Scripted first-line chatbot before a human agent joins
-│   │
-│   ├── tools/
-│   │   └── mock_backend.py       # Fake order lookup / refund / voucher APIs for demo purposes
-│   │
-│   ├── ui/
-│   │   ├── app.py                # Main Streamlit app: page routing, all tabs
-│   │   ├── panels.py             # Conversation + coaching panel rendering
-│   │   ├── zomato_widgets.py     # Order/rider/bot-chat widget components
-│   │   └── avatars.py            # Avatar rendering helpers
-│   │
-│   └── api/
-│       └── server.py             # Optional REST entry point
+├── frontend/                     # React UI (the real product UI)
+│   ├── src/pages/                # Dashboard, Setup, Reports, Analytics, Knowledge, ...
+│   ├── src/components/           # FeatureLab, AuthContext, ToastContext, ...
+│   └── src/lib/api.js            # single fetch wrapper (bearer token)
+│
+├── backend/                      # Node Express API (auth + chat + agents mirror)
+│   └── src/                      # app.js, agents.js, llm.js, rag.js, auth.js, ...
+│
+├── src/                          # Python implementation (research / richest feature set)
+│   ├── core/                     # orchestrator.py, llm.py, prompts.py ★, models.py, database.py
+│   ├── modules/                  # conversation_manager.py, survival_game.py, ...
+│   ├── agents/                   # 25+ agents, one class per responsibility
+│   ├── rag/                      # knowledge_base.py (hybrid retrieval), ingest.py
+│   ├── tools/                    # mock_backend.py, composio_backend.py
+│   ├── ui/                       # Streamlit app, panels, zomato widgets
+│   └── api/                      # FastAPI server.py + features.py
+│
+├── vercel-backend/               # byte-for-byte copy of src/ for the Vercel Python API (legacy)
 │
 ├── data/
-│   ├── knowledge_base/            # FAQ/policy source documents the RAG layer ingests
-│   ├── scenarios.json             # Customer simulator scenario library
-│   ├── transcripts/                # Sample transcripts for Replay Mode
-│   ├── reports/                    # Generated post-session performance reports
-│   ├── coach.db                    # SQLite session store
-│   ├── coach_calibration.json      # Per-agent coaching calibration state
-│   ├── hall_of_fame.json           # Best/worst session archive
-│   └── macros_actions_library.json # Canned macros/actions the coaching agent can suggest
+│   ├── knowledge_base/           # 19+ FAQ JSON docs ingested by RAG
+│   ├── scenarios.json            # simulator scenario library
+│   ├── transcripts/              # replay-mode transcripts
+│   └── coach.db                  # local SQLite (dev)
 │
-└── tests/                     # Pytest suite covering agents, RAG, and load
+├── Doc/                          # ★ knowledge-transfer deliverables
+│   ├── CoachAI_Presentation.pptx         # 10-slide final presentation
+│   ├── CoachAI_Knowledge_Transfer.md      # complete KT guide + Q&A prep
+│   ├── CoachAI_Project_Documentation.html# browser-viewable documentation
+│   ├── CoachAI_Deep_Dive.md              # deep architecture dive
+│   └── CoachAI_Meeting_CheatSheet.pdf    # quick cheat sheet
+│
+└── tests/                        # pytest suite
 ```
 
 ---
@@ -208,26 +135,63 @@ customer-support-coach/
 1. Customer message arrives (typed, simulated, or replayed).
 2. `Orchestrator` hands it to `ConversationManager`.
 3. `IntentSentimentAgent` → LLM call → intent, sentiment, frustration, trend.
-4. `KnowledgeRecommendationAgent` → keyword search over KB chunks (retrieval) → LLM call to synthesize one tip (generation). This retrieval-then-generation pair is the RAG step.
+4. `KnowledgeRecommendationAgent` → hybrid KB search (retrieval) → LLM tip
+   (generation) — this retrieval-then-generation pair **is the RAG step**.
 5. `CoachingSuggestionAgent` → suggested reply + tone/clarity feedback.
 6. `EscalationMonitorAgent` → rule-based risk score + strategy.
-7. All four results merge into one `TurnAnalysis`, rendered in the 3-panel console.
-8. At session end, `PostInteractionSummaryAgent` builds the report.
+7. `DeepAnalysisAgent` (parallel) → predicted CSAT, churn %, viral/PR, fraud
+   protocol, mind-reader monologue.
+8. All results merge into one `TurnAnalysis`, rendered in the coaching console.
+9. At session end, `PostInteractionSummaryAgent` builds the performance report.
 
-## 5. Known Design Trade-offs (intentional, not bugs)
+---
 
-- **RAG retrieval is keyword/word-overlap based, not embedding-based.** No
-  ChromaDB/FAISS/Pinecone is active; `KnowledgeBase.documents` is a plain
-  in-memory Python list, rebuilt from `data/knowledge_base/` on every run.
-  This keeps the app dependency-light and instant at FAQ-scale. Swapping in
-  a sentence-embedding model + vector index is the natural next iteration
-  once the knowledge base grows past FAQ-scale.
-- Several config fields (`embedding_model`, `vector_store_path`,
-  `openai_api_key`) are leftover placeholders from an earlier design and are
-  not read by any active code path.
-
-## 6. Every LLM Prompt, in One Place
+## 5. System Prompts
 
 Every agent that calls the LLM imports its system prompt from
-[`src/core/prompts.py`](src/core/prompts.py) instead of hard-coding it —
-that file is the single place to read or edit any agent's instructions.
+[`src/core/prompts.py`](src/core/prompts.py) — 15+ prompt constants + builder
+functions. That file is the **single place to read or edit any agent's
+instructions** (the Node mirror lives in `backend/src/agents.js`). Agents return
+JSON contracts and every failure falls back to hard-coded heuristics — the app
+**never crashes on LLM errors, it degrades**.
+
+---
+
+## 6. Deployment
+
+| Piece | Where |
+|---|---|
+| React frontend | Vercel — `coachai-frontend.vercel.app` |
+| Node backend | Vercel — project `coachai-backend` |
+| Python backend (legacy) | Same Vercel project `coachai-backend` (verify which directory is live) |
+| Streamlit app | Streamlit Cloud / localhost:8501 |
+| Database | Neon / Supabase / Azure Postgres (`DATABASE_URL`) |
+
+> ⚠️ Two backends share the Vercel project `coachai-backend`; the React frontend
+> needs the **Node** one (it implements `/api/auth/*`). On Vercel the filesystem
+> is ephemeral — always read reports/hall-of-fame from the DB, never from disk.
+
+---
+
+## 7. Tests
+
+```bash
+python -m pytest tests/           # Python suite
+cd frontend && npm test           # vitest
+cd backend && npm test            # node --test
+```
+
+---
+
+## 8. Documentation & KT Deliverables
+
+| Deliverable | File |
+|---|---|
+| Final presentation (exactly 10 slides) | [`Doc/CoachAI_Presentation.pptx`](Doc/CoachAI_Presentation.pptx) |
+| Knowledge-transfer guide + Q&A prep | [`Doc/CoachAI_Knowledge_Transfer.md`](Doc/CoachAI_Knowledge_Transfer.md) |
+| Browser-viewable documentation | [`Doc/CoachAI_Project_Documentation.html`](Doc/CoachAI_Project_Documentation.html) |
+| Deep architecture dive | [`Doc/CoachAI_Deep_Dive.md`](Doc/CoachAI_Deep_Dive.md) |
+| Meeting cheat sheet (PDF) | [`Doc/CoachAI_Meeting_CheatSheet.pdf`](Doc/CoachAI_Meeting_CheatSheet.pdf) |
+
+Project title: **Development of AI-Powered Customer Support Assistant with Live
+Response Guidance**. Team repo: `github.com/MasterJi27/coachai-infosys-final`.

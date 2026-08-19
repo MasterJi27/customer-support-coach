@@ -2,50 +2,9 @@ import { chatComplete, tryJson } from './llm.js'
 
 export { chatComplete } from './llm.js'
 import { searchKB } from './rag.js'
+import { sentimentAnalysis, customerSegmenter } from './segmentation.js'
 
-const FRUSTRATION_WORDS = ['angry', 'furious', 'ridiculous', 'unacceptable', 'fed up', 'tired of', 'terrible', 'awful', 'horrible', 'worst', 'annoyed', 'frustrated', 'rage', 'sick of', 'never again']
-const URGENT_WORDS = ['immediately', 'right now', 'asap', 'urgent', 'now', 'refund', 'lawsuit', 'legal', 'chargeback', 'complaint', 'escalate', 'manager', 'police', 'court']
-const CHURN_WORDS = ['switch', 'cancel', 'leaving', 'competitor', 'alternative', 'goodbye', 'never come back', 'another app', 'uninstall', 'delete account']
-const THREAT_WORDS = ['post', 'tweet', 'social media', 'twitter', 'instagram', 'share this', 'viral', 'review', 'publicly', 'newspaper', 'media']
-
-export function sentimentAnalysis(text) {
-  const lower = text.toLowerCase()
-  let frustration = 0
-  for (const w of FRUSTRATION_WORDS) if (lower.includes(w)) frustration += 0.22
-  for (const w of ['very', 'really', 'extremely', 'totally']) if (lower.includes(w)) frustration += 0.1
-  const exclamations = (lower.match(/!/g) || []).length
-  const caps = (text.match(/[A-Z]/g) || []).length
-  if (exclamations >= 2) frustration += 0.1
-  if (text.length > 10 && caps / text.length > 0.25) frustration += 0.15
-  frustration = Math.min(0.97, frustration + 0.25)
-
-  let sentiment = 'negative'
-  if (frustration < 0.35) sentiment = 'neutral'
-  if (frustration < 0.2) sentiment = 'positive'
-
-  let intent = 'query'
-  if (lower.includes('refund') || lower.includes('money back')) intent = 'refund_request'
-  if (lower.includes('cancel') || lower.includes('unsubscribe')) intent = 'cancellation'
-  if (lower.includes('missing') || lower.includes('wrong order')) intent = 'order_issue'
-  if (lower.includes('billing') || lower.includes('charged') || lower.includes('double')) intent = 'billing_dispute'
-  if (lower.includes('complaint') || lower.includes('lawsuit')) intent = 'escalation'
-
-  const urgent = URGENT_WORDS.some(w => lower.includes(w))
-  const churn = CHURN_WORDS.some(w => lower.includes(w))
-  const threat = THREAT_WORDS.some(w => lower.includes(w))
-  const escalationRisk = Math.min(0.98, 0.25 + frustration * 0.5 + (urgent ? 0.2 : 0) + (threat ? 0.25 : 0))
-  const churnRisk = Math.min(0.95, 0.1 + frustration * 0.4 + (churn ? 0.4 : 0))
-
-  return {
-    sentiment,
-    frustration_pct: Math.round(frustration * 100),
-    intent,
-    urgent: urgent ? 'Yes' : 'No',
-    escalation_risk_pct: Math.round(escalationRisk * 100),
-    churn_risk_pct: Math.round(churnRisk * 100),
-    viral_threat: threat ? 'High' : 'Low',
-  }
-}
+export { sentimentAnalysis, customerSegmenter, createSegmenter } from './segmentation.js'
 
 export async function kbRecommendation(text) {
   const results = await searchKB(text, 3)

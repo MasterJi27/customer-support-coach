@@ -176,6 +176,19 @@ function RailPanel({ tab, signals, kb, suggestedReply, escalation, riskRows, onU
   )
 }
 
+// Reusable: every place a backend response's `messages` array needs to become
+// chat bubbles maps it through this one function, instead of each action
+// re-deriving role/name/time/text on its own.
+function mapMessages(messages, persona) {
+  return (messages || []).map((m) => ({
+    role: m.role === 'customer' ? 'customer' : 'agent',
+    name: m.role === 'customer' ? persona : 'You',
+    text: m.content,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    fromApi: true,
+  }))
+}
+
 export default function Dashboard() {
   const { theme } = useTheme()
   const isLight = theme === 'light'
@@ -258,6 +271,27 @@ export default function Dashboard() {
     return () => clearInterval(interval)
   }, [session])
 
+  // Reusable: every action that sends something to the backend and then
+  // refreshes the conversation + coaching signals from the response (send
+  // message, autopilot, manager takeover, use-suggested-reply) shares this
+  // one sequence instead of each repeating its own try/catch/finally.
+  const runTurn = async (apiCall) => {
+    setThinking(true)
+    setApiError('')
+    try {
+      const res = await apiCall()
+      setTurns(mapMessages(res.messages, scenarioMeta.persona))
+      setLastTurn(res.last_turn || null)
+      setRailTab('signals')
+      return res
+    } catch (err) {
+      setApiError(err.message)
+      return null
+    } finally {
+      setThinking(false)
+    }
+  }
+
   const startDemo = async () => {
     setThinking(true)
     setApiError('')
@@ -281,15 +315,7 @@ export default function Dashboard() {
         persona: res.scenario?.persona || cfg.scenario_persona || scenario.persona,
       }
       setScenarioMeta(resolvedMeta)
-      setTurns(
-        (res.messages || []).map((m, i) => ({
-          role: m.role === 'customer' ? 'customer' : 'agent',
-          name: m.role === 'customer' ? resolvedMeta.persona : 'You',
-          text: m.content,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          fromApi: true,
-        }))
-      )
+      setTurns(mapMessages(res.messages, resolvedMeta.persona))
       setLastTurn(res.last_turn || null)
       setRailTab('signals')
     } catch (e) {
@@ -299,52 +325,16 @@ export default function Dashboard() {
     }
   }
 
-  const useSuggestedReply = async () => {
+  const useSuggestedReply = () => {
     if (!suggestedReply) return
-    setThinking(true)
-    try {
-      const res = await api.sendMessage(suggestedReply.replace(/^"|"$/g, ''), 'agent', session?.id)
-      setTurns(
-        (res.messages || []).map((m, i) => ({
-          role: m.role === 'customer' ? 'customer' : 'agent',
-          name: m.role === 'customer' ? scenarioMeta.persona : 'You',
-          text: m.content,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          fromApi: true,
-        }))
-      )
-      setLastTurn(res.last_turn || null)
-      setRailTab('signals')
-    } catch (e) {
-      setApiError(e.message)
-    } finally {
-      setThinking(false)
-    }
+    return runTurn(() => api.sendMessage(suggestedReply.replace(/^"|"$/g, ''), 'agent', session?.id))
   }
 
   const sendText = async (text) => {
     const trimmed = (text || '').trim()
     if (!trimmed) return
     setDraft('')
-    setThinking(true)
-    try {
-      const res = await api.sendMessage(trimmed, 'agent', session?.id)
-      setTurns(
-        (res.messages || []).map((m, i) => ({
-          role: m.role === 'customer' ? 'customer' : 'agent',
-          name: m.role === 'customer' ? scenarioMeta.persona : 'You',
-          text: m.content,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          fromApi: true,
-        }))
-      )
-      setLastTurn(res.last_turn || null)
-      setRailTab('signals')
-    } catch (err) {
-      setApiError(err.message)
-    } finally {
-      setThinking(false)
-    }
+    await runTurn(() => api.sendMessage(trimmed, 'agent', session?.id))
   }
 
   const sendReply = async (e) => {
@@ -357,52 +347,14 @@ export default function Dashboard() {
 
   const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
-  const runAutopilot = async () => {
+  const runAutopilot = () => {
     if (!session || thinking) return
-    setThinking(true)
-    setApiError('')
-    try {
-      const res = await api.autopilot(session?.id)
-      setTurns(
-        (res.messages || []).map((m, i) => ({
-          role: m.role === 'customer' ? 'customer' : 'agent',
-          name: m.role === 'customer' ? scenarioMeta.persona : 'You',
-          text: m.content,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          fromApi: true,
-        }))
-      )
-      setLastTurn(res.last_turn || null)
-      setRailTab('signals')
-    } catch (err) {
-      setApiError(err.message)
-    } finally {
-      setThinking(false)
-    }
+    return runTurn(() => api.autopilot(session?.id))
   }
 
-  const runManagerTakeover = async () => {
+  const runManagerTakeover = () => {
     if (!session || thinking) return
-    setThinking(true)
-    setApiError('')
-    try {
-      const res = await api.managerTakeover('', session?.id)
-      setTurns(
-        (res.messages || []).map((m, i) => ({
-          role: m.role === 'customer' ? 'customer' : 'agent',
-          name: m.role === 'customer' ? scenarioMeta.persona : 'You',
-          text: m.content,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          fromApi: true,
-        }))
-      )
-      setLastTurn(res.last_turn || null)
-      setRailTab('signals')
-    } catch (err) {
-      setApiError(err.message)
-    } finally {
-      setThinking(false)
-    }
+    return runTurn(() => api.managerTakeover('', session?.id))
   }
 
   const openEndModal = () => {

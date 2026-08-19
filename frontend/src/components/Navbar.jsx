@@ -72,8 +72,11 @@ export default function Navbar({ onMenuClick }) {
     }
     const topEntry = (hofRes?.entries || [])[0]
     if (topEntry) {
+      const label = topEntry.title && !/^(You|Support Agent|Guest Demo)$/i.test(topEntry.title)
+        ? topEntry.title
+        : `${topEntry.category === 'hall_of_fame' ? '🏆 Hall of Fame' : '⚠️ Hall of Shame'} — ${topEntry.title || 'Session'}`
       items.push({
-        text: `New Hall of Fame entry — ${topEntry.title || 'top session'}`,
+        text: `New entry — ${label}`,
         time: timeAgo(topEntry.archived_at || topEntry.created_at),
         type: 'leaderboard',
       })
