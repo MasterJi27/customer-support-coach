@@ -195,3 +195,9 @@ cd backend && npm test            # node --test
 
 Project title: **Development of AI-Powered Customer Support Assistant with Live
 Response Guidance**. Team repo: `github.com/MasterJi27/coachai-infosys-final`.
+
+---
+
+## License
+
+[MIT](LICENSE) © 2026 MasterJi27
