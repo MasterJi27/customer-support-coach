@@ -30,9 +30,13 @@ Thumbs.db
 .codex/
 .claude/
 
-# Documents & logs
+# Documents & logs (keep Doc deliverables tracked)
 *.pdf
+!Doc/**/*.pdf
+!Doc/*.pdf
 *.docx
+!Doc/**/*.docx
+!Doc/*.docx
 *.log
 
 # Vercel / build artifacts
@@ -48,6 +52,3 @@ az_login_err.txt
 
 # Generated runtime reports
 data/reports/
-
-
-.vercel
